@@ -4,6 +4,12 @@ Touchdown ist die Knowledge Base für Crew-Nightstops: Kolleg:innen legen Tipps 
 
 Destinationen: MUC, OSL, MXP, LJU, BUD, VCE, FLR, TLV, NCE, GOT (in `prisma/seed.ts` erweiterbar).
 
+## Vorschau
+
+Eine klickbare Vorschau mit Beispieldaten (ohne Login und Datenbank) liegt in `index.html` und wird über GitHub Pages angezeigt: https://djsunji.github.io/touchdown/
+
+Die echte App ist eine Server-Anwendung (Next.js + PostgreSQL + Azure-Login) und läuft nicht auf GitHub Pages, siehe Abschnitt „Produktion“.
+
 ## Funktionen
 
 - Startseite mit einer Karte pro Stadt (eigene Farbe und Wahrzeichen-Silhouette, `src/lib/cityArt.ts`)
