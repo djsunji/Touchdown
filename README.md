@@ -55,7 +55,17 @@ Das muss jemand mit Rechten im Azure-Portal eurer Firma machen (meist die IT).
 4. **API-Berechtigungen**: `Microsoft Graph → User.Read` (delegiert) ist standardmässig vorhanden; dazu `openid`, `profile`, `email`. Falls Benutzer:innen nicht selbst zustimmen dürfen: **Administratorzustimmung erteilen**.
 5. Optional, um den Zugriff auf eine Gruppe (z. B. nur Cabin/Cockpit Crew) einzuschränken: **Unternehmensanwendungen → Touchdown → Eigenschaften → Zuweisung erforderlich = Ja**, dann unter *Benutzer und Gruppen* die gewünschten Gruppen zuweisen.
 
-Zusätzlich lässt sich mit `ALLOWED_EMAIL_DOMAINS="firma.ch"` die erlaubte E-Mail-Domain festlegen.
+Zusätzlich lässt sich mit `ALLOWED_EMAIL_DOMAINS="firma.ch"` die erlaubte E-Mail-Domain festlegen (empfohlen).
+
+## Sicherheit
+
+- **Nur euer Tenant:** Die App akzeptiert nur Logins aus dem Mandanten in `AUTH_MICROSOFT_ENTRA_ID_ISSUER`. Fehlt dort die Mandanten-ID (oder steht `common`), werden alle Microsoft-Logins abgelehnt.
+- **Keine Gäste:** Gast-Accounts (B2B), die in euren Tenant eingeladen wurden, werden abgelehnt. Mit `ALLOW_GUEST_ACCOUNTS="true"` lassen sie sich zulassen.
+- **Sitzungen** laufen nach 24 Stunden ab. Wer die Firma verlässt und in Entra deaktiviert wird, verliert damit spätestens nach einem Tag den Zugriff.
+- **Schutz im Browser:** Content-Security-Policy, kein Einbetten in fremde Seiten (Clickjacking), HSTS, nosniff.
+- **Spam-Bremse:** max. 20 Chat-Nachrichten und 10 Kommentare pro Minute, 10 neue Tipps pro 10 Minuten pro Person.
+- **Rechte:** Bearbeiten und Löschen nur für eigene Inhalte, Admins (`ADMIN_EMAILS`) dürfen alles. Links in Tipps nur mit http(s).
+- **Betrieb:** Nur über HTTPS betreiben, `AUTH_SECRET` mit `npx auth secret` erzeugen und geheim halten, die Datenbank nicht öffentlich erreichbar machen (z. B. Azure „Private Access“ oder Firewall nur für die App).
 
 ## Produktion
 
@@ -64,7 +74,7 @@ Benötigt werden ein Node.js-Hosting und eine PostgreSQL-Datenbank, zum Beispiel
 - **Azure App Service (Linux, Node 22 oder Container)** + **Azure Database for PostgreSQL Flexible Server**, oder
 - jeder Docker-Host: `docker build -t nightstop .` und mit den Umgebungsvariablen aus `.env.example` starten. Der Container führt beim Start die Migrationen und das Seed (idempotent) aus.
 
-Pflicht-Variablen in Produktion: `DATABASE_URL`, `AUTH_SECRET`, `AUTH_URL` (öffentliche URL), die drei `AUTH_MICROSOFT_ENTRA_ID_*` und je nach Hosting `AUTH_TRUST_HOST=true`.
+Pflicht-Variablen in Produktion: `DATABASE_URL`, `AUTH_SECRET`, `AUTH_URL` (öffentliche URL), die drei `AUTH_MICROSOFT_ENTRA_ID_*` (Issuer mit Mandanten-ID!) und je nach Hosting `AUTH_TRUST_HOST=true`. Empfohlen: `ALLOWED_EMAIL_DOMAINS`.
 
 Ohne Docker:
 

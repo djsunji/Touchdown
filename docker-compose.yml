@@ -7,7 +7,7 @@ services:
       POSTGRES_PASSWORD: nightstop
       POSTGRES_DB: nightstop
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432" # only reachable from this machine
     volumes:
       - pgdata:/var/lib/postgresql/data
 volumes:

@@ -9,7 +9,9 @@ RUN npm run build
 FROM node:22-alpine
 WORKDIR /app
 ENV NODE_ENV=production PORT=3000
-COPY --from=build /app ./
+COPY --from=build --chown=node:node /app ./
+# Run without root rights
+USER node
 EXPOSE 3000
 # Apply pending DB migrations, seed destinations (idempotent), then start
 CMD ["sh", "-c", "npx prisma migrate deploy && npx prisma db seed && npm start"]

@@ -9,8 +9,8 @@ export default async function LoginPage({
   searchParams: Promise<{ error?: string; callbackUrl?: string }>;
 }) {
   const { error, callbackUrl } = await searchParams;
-  if (await getCurrentUser()) redirect(callbackUrl || "/");
-  const redirectTo = callbackUrl || "/";
+  const redirectTo = safeRedirect(callbackUrl);
+  if (await getCurrentUser()) redirect(redirectTo);
 
   return (
     <main className="flex min-h-dvh items-center justify-center bg-brand p-4">
@@ -64,6 +64,11 @@ export default async function LoginPage({
       </div>
     </main>
   );
+}
+
+// Only same-site paths like "/LJU", never "https://evil" or "//evil" (open redirect).
+function safeRedirect(url?: string) {
+  return url && /^\/(?![\/\\])[^\s\\]*$/.test(url) ? url : "/";
 }
 
 function MicrosoftLogo() {

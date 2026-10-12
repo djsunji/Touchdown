@@ -7,6 +7,7 @@ import { db } from "@/lib/db";
 import { requireUser } from "@/lib/session";
 import { getCategory } from "@/lib/categories";
 import { toChatMsg, type ChatMsg } from "@/lib/chat";
+import { rateLimit, TOO_FAST } from "@/lib/rateLimit";
 
 export type FormState = { error?: string; fieldErrors?: Record<string, string[] | undefined> };
 
@@ -57,6 +58,7 @@ export async function createEntry(
 
   const parsed = parseEntry(formData);
   if (!parsed.success) return { fieldErrors: parsed.error.flatten().fieldErrors };
+  if (!rateLimit(`entry:${user.id}`, 10, 10 * 60_000)) return { error: TOO_FAST };
 
   await db.entry.create({
     data: { ...parsed.data, destinationCode: dest, category, createdById: user.id },
@@ -133,6 +135,7 @@ export async function addComment(entryId: string, _prev: FormState, formData: Fo
   if (!entry) return { error: "Eintrag nicht gefunden" };
   const parsed = commentSchema.safeParse(formData.get("text") ?? "");
   if (!parsed.success) return { error: parsed.error.issues[0].message };
+  if (!rateLimit(`comment:${user.id}`, 10, 60_000)) return { error: TOO_FAST };
   await db.comment.create({ data: { entryId, userId: user.id, text: parsed.data } });
   revalidatePath(`/${entry.destinationCode}/${entry.category}`);
   return {};
@@ -155,6 +158,7 @@ export async function sendChatMessage(dest: string, text: string): Promise<{ mes
   if (!destination) return { error: "Unbekannte Destination" };
   const parsed = chatSchema.safeParse(text);
   if (!parsed.success) return { error: parsed.error.issues[0].message };
+  if (!rateLimit(`chat:${user.id}`, 20, 60_000)) return { error: TOO_FAST };
   const m = await db.chatMessage.create({
     data: { destinationCode: dest, userId: user.id, text: parsed.data },
     include: { user: { select: { name: true, email: true } } },

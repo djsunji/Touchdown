@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { auth } from "@/auth";
+import { auth, emailAllowed } from "@/auth";
 import { db } from "@/lib/db";
 
 export type CurrentUser = { id: string; email: string; name: string | null; isAdmin: boolean };
@@ -14,7 +14,8 @@ export async function getCurrentUser(): Promise<CurrentUser | null> {
   const id = session?.user?.id;
   if (!id) return null;
   const user = await db.user.findUnique({ where: { id } });
-  if (!user) return null;
+  // Re-checked on every request, so removing a domain from ALLOWED_EMAIL_DOMAINS takes effect at once.
+  if (!user || !emailAllowed(user.email)) return null;
   return { id: user.id, email: user.email, name: user.name, isAdmin: adminEmails.includes(user.email) };
 }
 
