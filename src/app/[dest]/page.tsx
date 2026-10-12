@@ -8,7 +8,7 @@ import { updateDestinationInfo } from "@/app/actions";
 
 const FEATURED = CATEGORIES.filter((c) => c.featured);
 const OTHERS = CATEGORIES.filter((c) => !c.featured);
-const FALLBACK_SKY = ["#0a2a66", "#4a7fc4"];
+const FALLBACK_SKY = ["#0a2148", "#2f7fd0"];
 
 export default async function DestinationPage({ params }: { params: Promise<{ dest: string }> }) {
   const { dest } = await params;

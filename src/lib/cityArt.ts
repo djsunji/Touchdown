@@ -127,7 +127,7 @@ const SKYLINE: Record<string, (s: CityStyle) => string> = {
   }
 };
 
-const FALLBACK: CityStyle = { sky: ["#0a2a66", "#4a7fc4"], ink: "#06162a", far: "#2a4a6e", tag: "" };
+const FALLBACK: CityStyle = { sky: ["#0a2148", "#2f7fd0"], ink: "#06162a", far: "#2a4a6e", tag: "" };
 
 // Generic skyline for destinations without their own artwork.
 function genericSkyline(s: CityStyle) {
