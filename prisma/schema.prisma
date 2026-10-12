@@ -1,0 +1,84 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String     @id @default(cuid())
+  email     String     @unique
+  name      String?
+  createdAt DateTime   @default(now())
+  entries   Entry[]
+  ratings   Rating[]
+  favorites Favorite[]
+  comments  Comment[]
+}
+
+model Destination {
+  code      String  @id // IATA code, e.g. "MUC"
+  city      String
+  country   String
+  // Free text shown on the destination start page (hotel, transfer, etc.)
+  info      String  @default("")
+  sortOrder Int     @default(0)
+  entries   Entry[]
+}
+
+model Entry {
+  id              String      @id @default(cuid())
+  destination     Destination @relation(fields: [destinationCode], references: [code], onDelete: Cascade)
+  destinationCode String
+  category        String // slug from src/lib/categories.ts
+  title           String
+  description     String
+  address         String?
+  phone           String?
+  mapsUrl         String?
+  website         String?
+  createdBy       User        @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  createdById     String
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  ratings         Rating[]
+  favorites       Favorite[]
+  comments        Comment[]
+
+  @@index([destinationCode, category])
+}
+
+model Rating {
+  entry     Entry    @relation(fields: [entryId], references: [id], onDelete: Cascade)
+  entryId   String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  stars     Int // 1..5
+  updatedAt DateTime @updatedAt
+
+  @@id([entryId, userId])
+}
+
+model Favorite {
+  entry     Entry    @relation(fields: [entryId], references: [id], onDelete: Cascade)
+  entryId   String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  createdAt DateTime @default(now())
+
+  @@id([entryId, userId])
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  entry     Entry    @relation(fields: [entryId], references: [id], onDelete: Cascade)
+  entryId   String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  text      String
+  createdAt DateTime @default(now())
+
+  @@index([entryId, createdAt])
+}
