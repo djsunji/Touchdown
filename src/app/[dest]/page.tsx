@@ -1,10 +1,12 @@
 import Link from "next/link";
 import type { CSSProperties } from "react";
 import { db } from "@/lib/db";
-import { getCurrentUser } from "@/lib/session";
+import { requireUser } from "@/lib/session";
 import { CATEGORIES } from "@/lib/categories";
 import { CITY_STYLE } from "@/lib/cityArt";
 import { updateDestinationInfo } from "@/app/actions";
+import { loadChat } from "@/lib/chat";
+import { ChatTeaser } from "@/components/ChatRoom";
 
 const FEATURED = CATEGORIES.filter((c) => c.featured);
 const OTHERS = CATEGORIES.filter((c) => !c.featured);
@@ -12,12 +14,14 @@ const FALLBACK_SKY = ["#0a2148", "#2f7fd0"];
 
 export default async function DestinationPage({ params }: { params: Promise<{ dest: string }> }) {
   const { dest } = await params;
-  const user = await getCurrentUser();
+  const user = await requireUser();
   const destination = await db.destination.findUniqueOrThrow({ where: { code: dest } });
   const entries = await db.entry.findMany({
     where: { destinationCode: dest },
     select: { id: true, title: true, category: true, ratings: { select: { stars: true } } },
   });
+
+  const lastMessages = await loadChat(dest, user, undefined, 1);
 
   const countBy = (slug: string) => entries.filter((e) => e.category === slug).length;
   // Best rated tips per category, for the preview on the big tiles
@@ -46,7 +50,7 @@ export default async function DestinationPage({ params }: { params: Promise<{ de
         {destination.info && (
           <p className="rounded-lg bg-white p-4 whitespace-pre-line text-gray-700 shadow-sm ring-1 ring-black/5">{destination.info}</p>
         )}
-        {user?.isAdmin && (
+        {user.isAdmin && (
           <details>
             <summary className="cursor-pointer text-sm text-brand underline">Destinations-Info bearbeiten (Admin)</summary>
             <form action={updateDestinationInfo.bind(null, dest)} className="mt-2 space-y-2">
@@ -62,6 +66,8 @@ export default async function DestinationPage({ params }: { params: Promise<{ de
           </details>
         )}
       </section>
+
+      <ChatTeaser dest={dest} city={destination.city} initial={lastMessages} />
 
       <section className="feat-grid">
         {FEATURED.map((c, i) => {

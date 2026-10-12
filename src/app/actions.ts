@@ -6,6 +6,7 @@ import { z } from "zod";
 import { db } from "@/lib/db";
 import { requireUser } from "@/lib/session";
 import { getCategory } from "@/lib/categories";
+import { toChatMsg, type ChatMsg } from "@/lib/chat";
 
 export type FormState = { error?: string; fieldErrors?: Record<string, string[] | undefined> };
 
@@ -144,4 +145,27 @@ export async function deleteComment(commentId: string) {
   if (comment.userId !== user.id && !user.isAdmin) throw new Error("Nicht erlaubt");
   await db.comment.delete({ where: { id: commentId } });
   revalidatePath(`/${comment.entry.destinationCode}/${comment.entry.category}`);
+}
+
+const chatSchema = z.string().trim().min(1, "Nachricht ist leer").max(1000, "Maximal 1000 Zeichen");
+
+export async function sendChatMessage(dest: string, text: string): Promise<{ message?: ChatMsg; error?: string }> {
+  const user = await requireUser();
+  const destination = await db.destination.findUnique({ where: { code: dest } });
+  if (!destination) return { error: "Unbekannte Destination" };
+  const parsed = chatSchema.safeParse(text);
+  if (!parsed.success) return { error: parsed.error.issues[0].message };
+  const m = await db.chatMessage.create({
+    data: { destinationCode: dest, userId: user.id, text: parsed.data },
+    include: { user: { select: { name: true, email: true } } },
+  });
+  return { message: toChatMsg(m, user) };
+}
+
+export async function deleteChatMessage(id: string) {
+  const user = await requireUser();
+  const m = await db.chatMessage.findUnique({ where: { id } });
+  if (!m) return;
+  if (m.userId !== user.id && !user.isAdmin) throw new Error("Nicht erlaubt");
+  await db.chatMessage.delete({ where: { id } });
 }

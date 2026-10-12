@@ -13,6 +13,10 @@ export default async function Home() {
     include: { _count: { select: { entries: true } } },
   });
   const total = destinations.reduce((sum, d) => sum + d._count.entries, 0);
+  // Chat activity in the last 24 hours, shown on the city cards
+  const since = new Date(Date.now() - 24 * 60 * 60 * 1000);
+  const chatActivity = await db.chatMessage.groupBy({ by: ["destinationCode"], where: { createdAt: { gte: since } }, _count: true });
+  const chatCount = Object.fromEntries(chatActivity.map((c) => [c.destinationCode, c._count]));
 
   return (
     <div className="min-h-dvh">
@@ -44,6 +48,11 @@ export default async function Home() {
               <Link key={d.code} href={`/${d.code}`} className="dest" aria-label={`${d.city}, ${n} Tipps`}>
                 {/* Static artwork generated in src/lib/cityArt.ts, no user input */}
                 <span className="art-wrap" dangerouslySetInnerHTML={{ __html: cityArt(d.code) }} />
+                {chatCount[d.code] ? (
+                  <span className="chat-live" title="Nachrichten im Crew-Chat in den letzten 24 Stunden">
+                    💬 {chatCount[d.code]}
+                  </span>
+                ) : null}
                 <span className="top-txt">
                   <span className="code">{d.code}</span>
                   <span className="city">{d.city}</span>

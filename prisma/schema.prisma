@@ -8,24 +8,26 @@ datasource db {
 }
 
 model User {
-  id        String     @id @default(cuid())
-  email     String     @unique
+  id        String        @id @default(cuid())
+  email     String        @unique
   name      String?
-  createdAt DateTime   @default(now())
+  createdAt DateTime      @default(now())
   entries   Entry[]
   ratings   Rating[]
   favorites Favorite[]
   comments  Comment[]
+  messages  ChatMessage[]
 }
 
 model Destination {
-  code      String  @id // IATA code, e.g. "MUC"
+  code      String        @id // IATA code, e.g. "MUC"
   city      String
   country   String
   // Free text shown on the destination start page (hotel, transfer, etc.)
-  info      String  @default("")
-  sortOrder Int     @default(0)
+  info      String        @default("")
+  sortOrder Int           @default(0)
   entries   Entry[]
+  messages  ChatMessage[]
 }
 
 model Entry {
@@ -81,4 +83,17 @@ model Comment {
   createdAt DateTime @default(now())
 
   @@index([entryId, createdAt])
+}
+
+// Crew chat per destination; messages are kept permanently
+model ChatMessage {
+  id              String      @id @default(cuid())
+  destination     Destination @relation(fields: [destinationCode], references: [code], onDelete: Cascade)
+  destinationCode String
+  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId          String
+  text            String
+  createdAt       DateTime    @default(now())
+
+  @@index([destinationCode, createdAt])
 }

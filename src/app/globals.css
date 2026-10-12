@@ -87,3 +87,6 @@ body {
 
 /* Wordmark in the logo's rounded style */
 .wordmark { font-family: var(--font-wordmark); font-weight: 400; letter-spacing: -.01em; line-height: 1; }
+
+/* Chat activity badge on the city cards */
+.dest .chat-live { position: absolute; top: 64px; right: 14px; display: inline-flex; align-items: center; gap: 4px; background: #22c55e; color: #fff; border-radius: 999px; padding: 2px 9px; font-size: 12px; font-weight: 700; box-shadow: 0 2px 8px rgba(0, 0, 0, .25); }
