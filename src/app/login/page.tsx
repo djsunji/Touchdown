@@ -16,8 +16,8 @@ export default async function LoginPage({
     <main className="flex min-h-dvh items-center justify-center bg-brand p-4">
       <div className="w-full max-w-sm rounded-xl bg-white p-8 shadow-xl">
         <div className="mb-6 text-center">
-          <Image src="/logo.png" alt="Touchdown" width={540} height={390} className="mx-auto h-auto w-60" priority />
-          <h1 className="sr-only">Touchdown</h1>
+          <Image src="/logo-icon.png" alt="" width={256} height={256} className="mx-auto h-28 w-28" priority />
+          <h1 className="wordmark mt-1 text-5xl text-brand">Touchdown</h1>
           <p className="mt-2 text-sm text-gray-500">Nightstop-Tipps von Crew für Crew</p>
         </div>
 
