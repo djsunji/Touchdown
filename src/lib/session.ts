@@ -9,6 +9,21 @@ const adminEmails = (process.env.ADMIN_EMAILS ?? "")
   .map((e) => e.trim().toLowerCase())
   .filter(Boolean);
 
+/** Admins: role "admin" in the database, or listed in ADMIN_EMAILS (bootstrap, cannot be removed in the app). */
+export function isAdminUser(user: { email: string; role: string }) {
+  return user.role === "admin" || adminEmails.includes(user.email);
+}
+
+export function isBootstrapAdmin(email: string) {
+  return adminEmails.includes(email);
+}
+
+export async function requireAdmin(): Promise<CurrentUser> {
+  const user = await requireUser();
+  if (!user.isAdmin) redirect("/");
+  return user;
+}
+
 export async function getCurrentUser(): Promise<CurrentUser | null> {
   const session = await auth();
   const id = session?.user?.id;
@@ -16,7 +31,7 @@ export async function getCurrentUser(): Promise<CurrentUser | null> {
   const user = await db.user.findUnique({ where: { id } });
   // Re-checked on every request, so removing a domain from ALLOWED_EMAIL_DOMAINS takes effect at once.
   if (!user || !emailAllowed(user.email)) return null;
-  return { id: user.id, email: user.email, name: user.name, isAdmin: adminEmails.includes(user.email) };
+  return { id: user.id, email: user.email, name: user.name, isAdmin: isAdminUser(user) };
 }
 
 export async function requireUser(): Promise<CurrentUser> {

@@ -1,5 +1,6 @@
 "use client";
 
+import { ReportButton } from "@/components/ReportButton";
 import { useActionState, useEffect, useRef, useState, useTransition } from "react";
 import { addComment, deleteComment, type FormState } from "@/app/actions";
 
@@ -66,6 +67,11 @@ function CommentItem({ c }: { c: CommentView }) {
         <span className="font-semibold text-gray-700">{c.authorName}</span>
         {c.stars > 0 && <span className="text-accent" aria-label={`${c.stars} Sterne`}>{"★".repeat(c.stars)}</span>}
         <span>{c.createdAt.toLocaleDateString("de-CH")}</span>
+        {!c.canDelete && (
+          <span className="ml-auto">
+            <ReportButton type="comment" id={c.id} />
+          </span>
+        )}
         {c.canDelete && (
           <span className="ml-auto">
             {confirming ? (

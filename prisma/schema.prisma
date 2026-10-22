@@ -8,26 +8,54 @@ datasource db {
 }
 
 model User {
-  id        String        @id @default(cuid())
-  email     String        @unique
-  name      String?
-  createdAt DateTime      @default(now())
-  entries   Entry[]
-  ratings   Rating[]
-  favorites Favorite[]
-  comments  Comment[]
-  messages  ChatMessage[]
+  id            String           @id @default(cuid())
+  email         String           @unique
+  name          String?
+  // "user" or "admin". Emails in ADMIN_EMAILS are always admins, whatever this says.
+  role          String           @default("user")
+  // Weekly email with new tips for the user's upcoming nightstops (opt-in)
+  digestEnabled Boolean          @default(false)
+  lastDigestAt  DateTime?
+  createdAt     DateTime         @default(now())
+  entries       Entry[]
+  ratings       Rating[]
+  favorites     Favorite[]
+  comments      Comment[]
+  messages      ChatMessage[]
+  photos        Photo[]
+  meetups       Meetup[]
+  attendances   MeetupAttendee[]
+  reports       Report[]         @relation("reporter")
+  nightstops    Nightstop[]
 }
 
 model Destination {
-  code      String        @id // IATA code, e.g. "MUC"
-  city      String
-  country   String
-  // Free text shown on the destination start page (hotel, transfer, etc.)
-  info      String        @default("")
-  sortOrder Int           @default(0)
-  entries   Entry[]
-  messages  ChatMessage[]
+  code         String        @id // IATA code, e.g. "MUC"
+  city         String
+  country      String
+  // IANA time zone, used for "open now" and meetup times
+  timezone     String        @default("Europe/Zurich")
+  // Inactive destinations are hidden from the start page (e.g. no longer flown)
+  active       Boolean       @default(true)
+  // Free text shown on the destination start page (special notes)
+  info         String        @default("")
+  sortOrder    Int           @default(0)
+  // Crew hotel, used for the map and walking distances
+  hotelName    String?
+  hotelAddress String?
+  hotelLat     Float?
+  hotelLng     Float?
+  // Practical information, maintained by admins
+  transferInfo String        @default("")
+  currency     String        @default("")
+  tipping      String        @default("")
+  pharmacy     String        @default("")
+  doctor       String        @default("")
+  emergency    String        @default("")
+  entries      Entry[]
+  messages     ChatMessage[]
+  meetups      Meetup[]
+  nightstops   Nightstop[]
 }
 
 model Entry {
@@ -41,6 +69,14 @@ model Entry {
   phone           String?
   mapsUrl         String?
   website         String?
+  lat             Float?
+  lng             Float?
+  priceLevel      Int? // 1 = €, 2 = €€, 3 = €€€
+  // Daily opening hours as "HH:MM" in the destination's time zone; openUntil may be after midnight
+  openFrom        String?
+  openUntil       String?
+  closedDays      Int[]       @default([]) // 0 = Sunday … 6 = Saturday
+  veggie          Boolean     @default(false)
   createdBy       User        @relation(fields: [createdById], references: [id], onDelete: Cascade)
   createdById     String
   createdAt       DateTime    @default(now())
@@ -48,6 +84,7 @@ model Entry {
   ratings         Rating[]
   favorites       Favorite[]
   comments        Comment[]
+  photos          Photo[]
 
   @@index([destinationCode, category])
 }
@@ -96,4 +133,80 @@ model ChatMessage {
   createdAt       DateTime    @default(now())
 
   @@index([destinationCode, createdAt])
+}
+
+// Photos are resized and stripped of metadata on upload and stored in the database,
+// so no separate file storage is needed.
+model Photo {
+  id        String   @id @default(cuid())
+  entry     Entry    @relation(fields: [entryId], references: [id], onDelete: Cascade)
+  entryId   String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  mime      String
+  data      Bytes
+  thumb     Bytes
+  width     Int
+  height    Int
+  createdAt DateTime @default(now())
+
+  @@index([entryId, createdAt])
+}
+
+// "Today 19:00 pizza at X, who's in?" Meetups disappear a few hours after they start.
+model Meetup {
+  id              String           @id @default(cuid())
+  destination     Destination      @relation(fields: [destinationCode], references: [code], onDelete: Cascade)
+  destinationCode String
+  title           String
+  place           String?
+  startsAt        DateTime
+  createdBy       User             @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  createdById     String
+  createdAt       DateTime         @default(now())
+  attendees       MeetupAttendee[]
+
+  @@index([destinationCode, startsAt])
+}
+
+model MeetupAttendee {
+  meetup   Meetup   @relation(fields: [meetupId], references: [id], onDelete: Cascade)
+  meetupId String
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId   String
+  joinedAt DateTime @default(now())
+
+  @@id([meetupId, userId])
+}
+
+// Reports of outdated or inappropriate content, handled by admins
+model Report {
+  id         String    @id @default(cuid())
+  targetType String // "entry" | "comment" | "chat" | "photo"
+  targetId   String
+  reason     String
+  note       String?
+  reporter   User      @relation("reporter", fields: [reporterId], references: [id], onDelete: Cascade)
+  reporterId String
+  status     String    @default("open") // "open" | "done"
+  resolvedBy String?
+  resolvedAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@unique([targetType, targetId, reporterId])
+  @@index([status, createdAt])
+}
+
+// Upcoming nightstops of a user, used for the "Für dich" section and the weekly digest
+model Nightstop {
+  id              String      @id @default(cuid())
+  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId          String
+  destination     Destination @relation(fields: [destinationCode], references: [code], onDelete: Cascade)
+  destinationCode String
+  date            DateTime    @db.Date
+  createdAt       DateTime    @default(now())
+
+  @@unique([userId, destinationCode, date])
+  @@index([date])
 }

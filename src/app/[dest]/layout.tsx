@@ -5,6 +5,7 @@ import { requireUser } from "@/lib/session";
 import { CategoryNav } from "@/components/CategoryNav";
 import { UserMenu } from "@/components/UserMenu";
 import { Brand } from "@/components/Brand";
+import { mapConfig } from "@/lib/mapConfig";
 
 export default async function DestinationLayout({
   children,
@@ -18,6 +19,7 @@ export default async function DestinationLayout({
   const destination = await db.destination.findUnique({ where: { code: dest.toUpperCase() } });
   if (!destination) notFound();
   if (destination.code !== dest) notFound(); // keep URLs canonical (upper case)
+  if (!destination.active && !user.isAdmin) notFound(); // hidden by an admin
 
   const grouped = await db.entry.groupBy({
     by: ["category"],
@@ -43,7 +45,7 @@ export default async function DestinationLayout({
         </div>
       </header>
       <div className="flex flex-1 flex-col md:flex-row">
-        <CategoryNav dest={destination.code} counts={counts} />
+        <CategoryNav dest={destination.code} counts={counts} showMap={!!mapConfig()} />
         <main className="min-w-0 flex-1 px-4 py-6 md:px-8">{children}</main>
       </div>
     </div>

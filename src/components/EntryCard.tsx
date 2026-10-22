@@ -2,6 +2,9 @@ import Link from "next/link";
 import { Stars } from "@/components/Stars";
 import { DeleteButton, ExpandableText, FavoriteButton, RateControl } from "@/components/EntryActions";
 import { Comments, type CommentView } from "@/components/Comments";
+import { AddPhotos, PhotoStrip, type PhotoView } from "@/components/Photos";
+import { ReportButton } from "@/components/ReportButton";
+import type { OpenState } from "@/lib/time";
 
 export type EntryView = {
   id: string;
@@ -19,7 +22,15 @@ export type EntryView = {
   isFavorite: boolean;
   canEdit: boolean;
   editHref: string;
+  mapHref: string | null;
   comments: CommentView[];
+  priceLevel: number | null;
+  open: OpenState;
+  hours: string | null;
+  veggie: boolean;
+  walk: string | null;
+  photos: PhotoView[];
+  photoSlots: number;
 };
 
 export function EntryCard({ e }: { e: EntryView }) {
@@ -44,13 +55,42 @@ export function EntryCard({ e }: { e: EntryView }) {
         </div>
       </div>
 
+      {(e.priceLevel || e.open || e.veggie || e.walk) && (
+        <div className="mt-2 flex flex-wrap gap-1.5 text-xs">
+          {e.priceLevel ? <span className="badge" title="Preisklasse">{"€".repeat(e.priceLevel)}</span> : null}
+          {e.open && (
+            <span className={`badge ${e.open.open ? "badge-open" : "badge-closed"}`} title={e.hours ?? undefined}>
+              {e.open.open ? "🟢" : "🔴"} {e.open.label}
+            </span>
+          )}
+          {e.veggie && <span className="badge badge-veg">🌱 Vegi-freundlich</span>}
+          {e.walk && (
+            <span className="badge" title="Geschätzt, Luftlinie mit Umwegfaktor">
+              🚶 {e.walk}
+            </span>
+          )}
+        </div>
+      )}
+
       <div className="mt-2">
         <ExpandableText text={e.description} />
       </div>
 
-      {(e.address || e.phone || mapsHref || e.website) && (
+      {e.photos.length > 0 && (
+        <div className="mt-3">
+          <PhotoStrip photos={e.photos} title={e.title} />
+        </div>
+      )}
+
+      {(e.address || e.phone || mapsHref || e.website || e.hours || e.mapHref) && (
         <dl className="mt-3 space-y-1 text-sm">
           {e.address && <dd>📍 {e.address}</dd>}
+          {e.hours && <dd>🕒 {e.hours}</dd>}
+          {e.mapHref && (
+            <dd>
+              🧭 <Link href={e.mapHref} className="text-brand hover:underline">Auf der Touchdown-Karte zeigen</Link>
+            </dd>
+          )}
           {e.phone && (
             <dd>
               📞 <a href={`tel:${e.phone.replace(/[^+\d]/g, "")}`} className="text-brand hover:underline">{e.phone}</a>
@@ -77,6 +117,8 @@ export function EntryCard({ e }: { e: EntryView }) {
         <span className="text-xs text-gray-400">
           von {e.authorName} · {e.createdAt.toLocaleDateString("de-CH")}
         </span>
+        <AddPhotos entryId={e.id} slots={e.photoSlots} />
+        {!e.canEdit && <ReportButton type="entry" id={e.id} />}
         {e.canEdit && (
           <span className="ml-auto flex gap-4">
             <Link href={e.editHref} className="text-sm text-brand hover:underline">Bearbeiten</Link>

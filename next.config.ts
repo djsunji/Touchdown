@@ -2,13 +2,16 @@ import type { NextConfig } from "next";
 
 const isDev = process.env.NODE_ENV !== "production";
 
-// Content Security Policy: only own scripts/styles/images, no embedding in foreign sites,
-// forms may only go to us and to the Microsoft login.
+// Content Security Policy: only own scripts/styles, images from us or any https host (map tiles
+// come from a server set via MAP_TILE_URL at runtime, headers are fixed at build time),
+// no embedding in foreign sites, forms may only go to us and to the Microsoft login.
 const csp = [
   "default-src 'self'",
   `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
   "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob:",
+  "img-src 'self' data: blob: https:",
+  "worker-src 'self'",
+  "manifest-src 'self'",
   "font-src 'self'",
   `connect-src 'self'${isDev ? " ws:" : ""}`,
   "form-action 'self' https://login.microsoftonline.com",
@@ -28,8 +31,14 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+  // Photo uploads go through server actions (up to 4 photos, shrunk in the browser first).
+  experimental: { serverActions: { bodySizeLimit: "12mb" } },
   async headers() {
-    return [{ source: "/:path*", headers: securityHeaders }];
+    return [
+      { source: "/:path*", headers: securityHeaders },
+      // The service worker must always be checked for updates
+      { source: "/sw.js", headers: [{ key: "Cache-Control", value: "no-cache" }] },
+    ];
   },
 };
 

@@ -90,3 +90,36 @@ body {
 
 /* Chat activity badge on the city cards */
 .dest .chat-live { position: absolute; top: 64px; right: 14px; display: inline-flex; align-items: center; gap: 4px; background: #22c55e; color: #fff; border-radius: 999px; padding: 2px 9px; font-size: 12px; font-weight: 700; box-shadow: 0 2px 8px rgba(0, 0, 0, .25); }
+
+/* ---------- Back button, map, badges ---------- */
+.back-btn { display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; background: #fff; border: 1px solid var(--color-gray-200); padding: 6px 14px; font-size: 14px; font-weight: 600; color: var(--brand); box-shadow: 0 1px 3px rgba(0, 0, 0, .06); }
+.back-btn:hover { background: #eef2f8; }
+.map-box { display: grid; place-items: center; color: #6b7280; font-size: 14px; width: 100%; height: 420px; border-radius: 14px; overflow: hidden; border: 1px solid var(--color-gray-200); background: #e5e7eb; z-index: 0; position: relative; }
+.map-box.small { height: 260px; }
+@media (max-width: 520px) { .map-box { height: 340px; } }
+.map-pin { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); background: #fff; border: 2px solid var(--brand); box-shadow: 0 2px 6px rgba(0, 0, 0, .3); }
+.map-pin > span { transform: rotate(45deg); font-size: 16px; line-height: 1; }
+.map-pin-hotel { background: var(--brand); border-color: var(--accent); }
+.map-pop-title { font-weight: 700; color: var(--brand); text-decoration: underline; }
+.map-pop-sub { font-size: 12px; color: #4b5563; margin-top: 2px; }
+.map-teaser { display: flex; align-items: center; gap: 14px; border-radius: 16px; padding: 16px 18px; color: #fff; background: linear-gradient(120deg, #0f766e, #155e75); box-shadow: 0 8px 22px rgba(4, 14, 28, .18); }
+.map-teaser:hover { filter: brightness(1.07); }
+.badge { display: inline-flex; align-items: center; gap: 3px; border-radius: 999px; padding: 1px 8px; font-size: 12px; font-weight: 600; background: #f3f4f6; color: #374151; white-space: nowrap; }
+.badge-open { background: #dcfce7; color: #166534; }
+.badge-closed { background: #fee2e2; color: #991b1b; }
+.badge-veg { background: #ecfccb; color: #3f6212; }
+
+/* ---------- Photos ---------- */
+.lightbox { position: fixed; inset: 0; z-index: 1000; background: rgba(0, 0, 0, .88); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 16px; }
+.lightbox img { max-width: 100%; max-height: calc(100dvh - 90px); object-fit: contain; border-radius: 8px; }
+.lightbox-bar { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 12px; color: #fff; font-size: 14px; }
+.lightbox-bar button { border: 1px solid rgba(255, 255, 255, .4); border-radius: 8px; padding: 4px 12px; color: #fff; }
+.lightbox-bar button:hover { background: rgba(255, 255, 255, .12); }
+
+/* ---------- Report popover ---------- */
+.report-pop { position: absolute; right: 0; top: 100%; z-index: 50; margin-top: 4px; width: 250px; max-width: calc(100vw - 32px); border-radius: 12px; background: #fff; color: var(--foreground); border: 1px solid var(--color-gray-200); box-shadow: 0 12px 30px rgba(0, 0, 0, .18); padding: 12px; text-align: left; }
+.report-pop-left { right: auto; left: 0; }
+
+/* ---------- Offline banner ---------- */
+.offline-banner { position: sticky; top: 0; z-index: 60; background: #92400e; color: #fff; text-align: center; font-size: 13px; padding: 6px 12px; }
+@media (max-width: 640px) { .report-pop, .report-pop-left { position: fixed; top: auto; left: 12px; right: 12px; bottom: 12px; width: auto; max-width: none; } }

@@ -1,5 +1,6 @@
 "use client";
 
+import { ReportButton } from "@/components/ReportButton";
 import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import { deleteChatMessage, sendChatMessage } from "@/app/actions";
 import { CHAT_HISTORY_LIMIT, type ChatMsg } from "@/lib/chatTypes";
@@ -144,6 +145,7 @@ export function ChatRoom({ dest, city, initial }: { dest: string; city: string; 
                           Löschen
                         </button>
                       ))}
+                    {!m.mine && !m.canDelete && <ReportButton type="chat" id={m.id} align="left" />}
                     <span suppressHydrationWarning>{timeLabel(m.createdAt)}</span>
                   </div>
                 </div>

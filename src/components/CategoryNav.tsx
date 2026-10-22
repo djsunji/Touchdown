@@ -4,22 +4,31 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { CATEGORIES } from "@/lib/categories";
 
-export function CategoryNav({ dest, counts }: { dest: string; counts: Record<string, number> }) {
+const EXTRA = [
+  { slug: "chat", label: "Crew-Chat", icon: "💬" },
+  { slug: "karte", label: "Karte", icon: "🗺️" },
+];
+
+export function CategoryNav({ dest, counts, showMap }: { dest: string; counts: Record<string, number>; showMap: boolean }) {
   const pathname = usePathname();
   const active = pathname.split("/")[2];
+  const extra = EXTRA.filter((x) => x.slug !== "karte" || showMap);
 
   return (
     <>
       {/* Mobile: horizontal chips */}
       <nav className="flex gap-2 overflow-x-auto px-4 py-3 md:hidden">
-        <Link
-          href={`/${dest}/chat`}
-          className={`shrink-0 rounded-full px-3 py-1.5 text-sm ring-1 ${
-            active === "chat" ? "bg-brand text-brand-contrast ring-brand" : "bg-white ring-black/10"
-          }`}
-        >
-          💬 Crew-Chat
-        </Link>
+        {extra.map((x) => (
+          <Link
+            key={x.slug}
+            href={`/${dest}/${x.slug}`}
+            className={`shrink-0 rounded-full px-3 py-1.5 text-sm ring-1 ${
+              active === x.slug ? "bg-brand text-brand-contrast ring-brand" : "bg-white ring-black/10"
+            }`}
+          >
+            {x.icon} {x.label}
+          </Link>
+        ))}
         {CATEGORIES.map((c) => (
           <Link
             key={c.slug}
@@ -36,15 +45,20 @@ export function CategoryNav({ dest, counts }: { dest: string; counts: Record<str
 
       {/* Desktop / tablet: sidebar */}
       <nav className="hidden w-72 shrink-0 border-r border-black/5 bg-white md:block">
-        <Link
-          href={`/${dest}/chat`}
-          className={`mx-3 mt-4 flex items-center gap-3 rounded-lg px-3 py-2.5 ring-1 ring-black/5 hover:bg-gray-50 ${
-            active === "chat" ? "bg-gray-100 font-semibold" : ""
-          }`}
-        >
-          <span className="w-6 text-center">💬</span>
-          <span className="flex-1">Crew-Chat</span>
-        </Link>
+        <div className="mx-3 mt-4 space-y-2">
+          {extra.map((x) => (
+            <Link
+              key={x.slug}
+              href={`/${dest}/${x.slug}`}
+              className={`flex items-center gap-3 rounded-lg px-3 py-2.5 ring-1 ring-black/5 hover:bg-gray-50 ${
+                active === x.slug ? "bg-gray-100 font-semibold" : ""
+              }`}
+            >
+              <span className="w-6 text-center">{x.icon}</span>
+              <span className="flex-1">{x.label}</span>
+            </Link>
+          ))}
+        </div>
         <p className="px-5 pt-5 pb-2 text-xs font-semibold uppercase tracking-wide text-gray-400">
           Empfehlungen von Kolleg:innen
         </p>
