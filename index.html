@@ -26,6 +26,10 @@
   --off: #c9cfd6;
   --warn-bg: #fff6dd;
   --warn-fg: #7a5a00;
+  --ok: #1b6e36; --ok-bg: #e2f3e7; --bad: #a8261d; --bad-bg: #fbe8e6;
+  --on-bg: #0a2148; --on-fg: #ffffff;
+  --map-bg: #e9eff6; --map-grid: #d5dee9; --map-pin: #2a6fbf;
+  --overlay: rgba(6, 14, 28, .74); --toast-bg: #1d2733; --toast-fg: #ffffff;
   --display: "Barlow Condensed", "Arial Narrow", ui-sans-serif, system-ui, sans-serif;
   --font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
@@ -35,6 +39,8 @@
     --bg: #0f151c; --surface: #18212b; --fg: #e4e9ef; --muted: #98a3af;
     --line: #2a3542; --hover: #1f2a36; --active: #253242; --danger: #ef6b60;
     --heart: #f0687b; --off: #46525f; --warn-bg: #3a2f0f; --warn-fg: #f2d27a;
+    --ok: #74d394; --ok-bg: #173523; --bad: #f39189; --bad-bg: #3d1d1b; --on-bg: #2d69b0; --on-fg: #ffffff;
+    --map-bg: #142130; --map-grid: #223245; --map-pin: #3b82d6; --overlay: rgba(0, 0, 0, .78); --toast-bg: #e4e9ef; --toast-fg: #0f151c;
     color-scheme: dark;
   }
 }
@@ -43,6 +49,8 @@
   --bg: #0f151c; --surface: #18212b; --fg: #e4e9ef; --muted: #98a3af;
   --line: #2a3542; --hover: #1f2a36; --active: #253242; --danger: #ef6b60;
   --heart: #f0687b; --off: #46525f; --warn-bg: #3a2f0f; --warn-fg: #f2d27a;
+    --ok: #74d394; --ok-bg: #173523; --bad: #f39189; --bad-bg: #3d1d1b; --on-bg: #2d69b0; --on-fg: #ffffff;
+    --map-bg: #142130; --map-grid: #223245; --map-pin: #3b82d6; --overlay: rgba(0, 0, 0, .78); --toast-bg: #e4e9ef; --toast-fg: #0f151c;
   color-scheme: dark;
 }
 * { box-sizing: border-box; }
@@ -284,6 +292,162 @@ form.entry { background: var(--surface); border: 1px solid var(--line); border-r
 .ghost:hover { background: var(--hover); }
 
 .info-box { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; white-space: pre-line; }
+
+/* ---- v5 additions ---- */
+.card { scroll-margin-top: 84px; }
+.card.flash { animation: flash 1.6s ease; }
+@keyframes flash { 0%, 40% { box-shadow: 0 0 0 3px var(--accent); } 100% { box-shadow: 0 0 0 0 transparent; } }
+.back-dest { justify-self: start; display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--line); background: var(--surface); color: var(--fg); border-radius: 999px; padding: 8px 16px; font-weight: 600; font-size: 14px; }
+.back-dest:hover { background: var(--hover); }
+.dest-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.pill-btn { border: 1px solid var(--line); background: var(--surface); color: var(--fg); border-radius: 999px; padding: 7px 14px; font-size: 14px; font-weight: 600; }
+.pill-btn:hover { background: var(--hover); }
+.pill-btn.on { background: var(--on-bg); color: var(--on-fg); border-color: var(--on-bg); }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px; display: grid; gap: 12px; min-width: 0; }
+.panel-head { display: flex; align-items: center; justify-content: space-between; gap: 8px 12px; flex-wrap: wrap; }
+.panel h2 { margin: 0; font-size: 18px; }
+.note { margin: 0; font-size: 12px; color: var(--muted); }
+.hint { font-size: 12px; color: var(--muted); font-weight: 400; }
+.muted { color: var(--muted); }
+.linkish { justify-self: start; border: 0; background: none; padding: 0; font-size: 13px; color: var(--muted); text-decoration: underline; text-underline-offset: 2px; }
+.linkish:hover { color: var(--fg); }
+.linkish.danger { color: var(--danger); }
+code { font-size: 12px; background: var(--hover); border-radius: 4px; padding: 1px 4px; }
+
+/* Map */
+.map-svg { width: 100%; height: auto; display: block; border-radius: 10px; }
+.map-svg .bg { fill: var(--map-bg); }
+.map-svg .grid line { stroke: var(--map-grid); stroke-width: 1; }
+.map-svg .pin { cursor: pointer; outline: none; }
+.map-svg .pin circle { fill: var(--map-pin); stroke: var(--surface); stroke-width: 2.5; }
+.map-svg .pin text { fill: #fff; font: 700 12px var(--font); pointer-events: none; }
+.map-svg .pin.sel circle, .map-svg .pin:focus-visible circle { stroke: var(--accent); stroke-width: 4; }
+.map-svg .hotel rect { fill: var(--accent); stroke: var(--surface); stroke-width: 2.5; }
+.map-svg .hotel.sel rect, .map-svg .hotel:focus-visible rect { stroke: var(--fg); stroke-width: 3; }
+.map-svg .hotel text { fill: #0a2148; font: 800 14px var(--font); pointer-events: none; }
+.map-svg .map-txt { fill: var(--muted); font: 600 11px var(--font); }
+.map-svg .map-line { stroke: var(--accent); stroke-width: 2.5; stroke-dasharray: 6 5; }
+.map-svg .scale line { stroke: var(--muted); stroke-width: 2; }
+.map-svg .north { fill: var(--muted); }
+.hkey { display: inline-grid; place-items: center; width: 18px; height: 18px; border-radius: 4px; background: var(--accent); color: #0a2148; font-size: 11px; font-weight: 800; }
+.pin-info { background: var(--hover); border-radius: 10px; padding: 10px 12px; font-size: 14px; display: grid; gap: 2px; min-width: 0; overflow-wrap: anywhere; }
+.pin-info .walk { font-weight: 600; }
+.muted-info { color: var(--muted); }
+.legend { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.legend button { width: 100%; display: flex; gap: 10px; align-items: center; text-align: left; border: 0; background: none; padding: 6px 8px; border-radius: 8px; font-size: 14px; min-width: 0; }
+.legend button:hover, .legend button.on { background: var(--hover); }
+.legend .num { flex-shrink: 0; width: 22px; height: 22px; border-radius: 50%; background: var(--map-pin); color: #fff; font-size: 12px; font-weight: 700; display: grid; place-items: center; }
+.legend .num.h { border-radius: 5px; background: var(--accent); color: #0a2148; }
+.legend .t { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.legend .w { flex-shrink: 0; color: var(--muted); font-size: 12px; white-space: nowrap; }
+
+/* Practical info */
+.hotel-line { margin: 0; font-size: 14px; overflow-wrap: anywhere; }
+.facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px 20px; margin: 0; }
+.facts div { min-width: 0; }
+.facts dt { font-size: 12px; color: var(--muted); font-weight: 600; }
+.facts dd { margin: 0; overflow-wrap: anywhere; }
+
+/* Meetups */
+.meet { border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; display: grid; gap: 4px; min-width: 0; }
+.meet h3 { margin: 0; font-size: 16px; overflow-wrap: anywhere; }
+.meet-meta { font-size: 14px; color: var(--muted); display: grid; gap: 2px; overflow-wrap: anywhere; }
+.meet-foot { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; margin-top: 4px; }
+.join { border: 1px solid var(--map-pin); color: var(--fg); background: none; border-radius: 999px; padding: 5px 14px; font-weight: 600; font-size: 14px; }
+.join:hover { background: var(--hover); }
+.join.on { border-color: var(--line); color: var(--muted); font-weight: 400; }
+.joined { color: var(--ok); font-weight: 600; font-size: 14px; }
+.mini-form { display: grid; gap: 12px; }
+.meet-form { border: 1px dashed var(--line); border-radius: 10px; padding: 12px; }
+
+/* Form additions */
+.field select { width: 100%; border: 1px solid var(--line); background: var(--bg); color: var(--fg); border-radius: 8px; padding: 9px 12px; font: inherit; }
+.field input[type="file"] { padding: 7px; }
+.fset { border: 1px solid var(--line); border-radius: 10px; margin: 0; padding: 12px 14px 14px; display: grid; gap: 10px; min-width: 0; }
+.fset legend { font-size: 13px; font-weight: 700; padding: 0 6px; }
+.check { display: flex; gap: 8px; align-items: center; font-size: 14px; align-self: end; padding-bottom: 8px; }
+.check input { width: 18px; height: 18px; }
+.days { display: flex; flex-wrap: wrap; gap: 6px; }
+.days label { display: inline-flex; gap: 5px; align-items: center; border: 1px solid var(--line); border-radius: 999px; padding: 3px 10px; font-size: 13px; }
+
+/* Badges & filters */
+.badges { display: flex; flex-wrap: wrap; gap: 6px; }
+.badge { font-size: 12px; font-weight: 600; border-radius: 999px; padding: 2px 9px; background: var(--active); color: var(--fg); }
+.badge.ok { background: var(--ok-bg); color: var(--ok); }
+.badge.bad { background: var(--bad-bg); color: var(--bad); }
+.fchips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.fchips button:not(.linkish) { border: 1px solid var(--line); background: var(--surface); color: var(--fg); border-radius: 999px; padding: 5px 12px; font-size: 13px; }
+.fchips button.on { background: var(--on-bg); color: var(--on-fg); border-color: var(--on-bg); }
+.flbl { font-size: 12px; color: var(--muted); font-weight: 600; margin-right: 2px; }
+.fsep { width: 1px; height: 20px; background: var(--line); margin: 0 4px; }
+.fclear { margin-left: 4px; }
+.report-link { font-size: 12px; }
+
+/* Photos */
+.photos { display: flex; gap: 8px; flex-wrap: wrap; }
+.thumb { display: block; width: 72px; height: 72px; padding: 0; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: var(--hover); }
+.thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.ph-wrap { position: relative; }
+.ph-del { position: absolute; top: -8px; right: -8px; width: 26px; height: 26px; border-radius: 50%; border: 2px solid var(--surface); background: #c0352b; color: #fff; font-size: 16px; line-height: 1; padding: 0; }
+
+/* Overlays */
+.overlay { position: fixed; inset: 0; z-index: 50; background: var(--overlay); display: grid; place-items: center; padding: 16px; overflow-y: auto; }
+.modal { width: 100%; max-width: 440px; background: var(--surface); color: var(--fg); border-radius: 14px; padding: 20px; display: grid; gap: 12px; box-shadow: 0 20px 50px rgba(0,0,0,.35); }
+.modal h2 { margin: 0; font-size: 18px; }
+.rep-target { background: var(--hover); border-radius: 8px; padding: 8px 10px; font-size: 14px; overflow-wrap: anywhere; white-space: pre-line; }
+.reasons { border: 0; margin: 0; padding: 0; display: grid; gap: 6px; }
+.reasons legend { font-size: 13px; font-weight: 600; padding: 0; margin-bottom: 4px; }
+.reasons label { display: flex; gap: 8px; align-items: center; font-size: 14px; }
+.lb { width: 100%; max-width: 960px; display: grid; gap: 12px; justify-items: center; }
+.lb img { max-width: 100%; max-height: 78vh; border-radius: 10px; display: block; background: #fff; }
+.lb-bar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; justify-content: center; color: #fff; font-size: 14px; }
+.lb-bar button { border: 1px solid rgba(255,255,255,.55); background: rgba(0,0,0,.35); color: #fff; border-radius: 8px; padding: 6px 14px; }
+.lb-bar .lb-del { background: #c0352b; border-color: #c0352b; }
+.toast { position: fixed; left: 50%; bottom: 24px; z-index: 60; transform: translate(-50%, 16px); opacity: 0; width: max-content; max-width: calc(100% - 32px); background: var(--toast-bg); color: var(--toast-fg); padding: 11px 16px; border-radius: 10px; font-size: 14px; box-shadow: 0 10px 30px rgba(0,0,0,.3); transition: opacity .2s ease, transform .2s ease; pointer-events: none; }
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+/* Admin */
+.admin-link { display: inline-flex; align-items: center; gap: 2px; white-space: nowrap; }
+.admin-link.on { background: rgba(255,255,255,.18); }
+.hbadge { background: var(--heart); color: #fff; border-radius: 999px; font-size: 11px; font-weight: 700; padding: 0 6px; margin-left: 4px; line-height: 18px; }
+.atabs { flex: none; }
+.atabs button.on { background: var(--on-bg); color: var(--on-fg); }
+.rep { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; display: grid; gap: 6px; min-width: 0; }
+.rep.done { opacity: .7; }
+.rep-head { display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: baseline; }
+.rep-note { margin: 0; font-size: 14px; overflow-wrap: anywhere; }
+.danger-btn { border: 0; background: #c0352b; color: #fff; border-radius: 8px; padding: 6px 12px; font-weight: 600; font-size: 14px; }
+.danger-btn:hover { filter: brightness(1.1); }
+.urow, .drow { display: flex; align-items: center; justify-content: space-between; gap: 8px 12px; flex-wrap: wrap; padding: 10px 0; }
+.urow + .urow, .dblock + .dblock { border-top: 1px solid var(--line); }
+.panel > .urow:first-of-type { border-top: 1px solid var(--line); }
+.u-who { display: grid; min-width: 0; overflow-wrap: anywhere; }
+.drow-act { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.dest-edit { padding-bottom: 12px; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.seg button { border: 0; background: var(--surface); color: var(--fg); padding: 5px 14px; font-size: 13px; }
+.seg button + button { border-left: 1px solid var(--line); }
+.seg button.on { background: var(--on-bg); color: var(--on-fg); }
+.seg button:disabled { cursor: not-allowed; opacity: .55; }
+.switch-wrap { display: inline-flex; align-items: center; gap: 8px; }
+.switch { position: relative; flex-shrink: 0; width: 44px; height: 26px; border-radius: 999px; border: 0; padding: 0; background: var(--off); transition: background .15s ease; }
+.switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.3); transition: left .15s ease; }
+.switch[aria-checked="true"] { background: var(--ok); }
+.switch[aria-checked="true"]::after { left: 21px; }
+
+/* Home: for you */
+.hero-btn { justify-self: start; margin-top: 10px; border: 1px solid var(--accent); color: #ffe08a; background: rgba(0,0,0,.25); border-radius: 999px; padding: 8px 16px; font-weight: 600; font-size: 14px; }
+.hero-btn:hover { background: rgba(0,0,0,.45); }
+.foryou { margin-top: 28px; }
+.fy { border-top: 1px solid var(--line); padding-top: 12px; display: grid; gap: 6px; min-width: 0; }
+.fy-head { display: flex; flex-wrap: wrap; gap: 2px 10px; align-items: baseline; }
+.fy-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.fy-tip { width: 100%; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 2px 10px; text-align: left; border: 0; background: var(--hover); border-radius: 8px; padding: 8px 10px; font-size: 14px; }
+.fy-tip:hover { background: var(--active); }
+.fy-tip > span:first-child { min-width: 0; overflow-wrap: anywhere; }
+.fy-none { margin: 0; font-size: 14px; color: var(--muted); }
+.digest { display: flex; gap: 12px; align-items: flex-start; border-top: 1px solid var(--line); padding-top: 12px; }
+.digest .switch { margin-top: 2px; }
 </style>
 <style>html,body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
 </head>
@@ -334,6 +498,7 @@ form.entry { background: var(--surface); border: 1px solid var(--line); border-r
     return e;
   }
   var SAMPLE = [
+    // Coordinates, hours, price level and photos are added further below (EXTRA)
     ex("e1", "LJU", "bars-restaurants", "Bosnisches Grilllokal beim Hotel",
       "Rustikal, grosse Portionen, faire Preise. Etwa 6 Minuten zu Fuss Richtung Altstadt.\n\nMan kann auch draussen sitzen. Cevapcici sind sehr zu empfehlen.",
       "Sandra K.", [4, 3, 5], { address: "Altstadt, Ljubljana" }),
@@ -521,8 +686,30 @@ form.entry { background: var(--surface); border: 1px solid var(--line); border-r
     }
   };
   
+  // Generic fallback art for destinations added later by admins
+  var GENERIC_SKIES = [["#1d2f5c", "#8fb3e0", "#0b1430", "#33507f"], ["#3b1f3f", "#e59a7a", "#1d0f20", "#5d3757"],
+    ["#173a35", "#96cdb4", "#0a1d1a", "#2d5d52"], ["#40260f", "#e8b46a", "#1f1307", "#62411e"]];
+  function styleOf(code) {
+    if (CITY_STYLE[code]) return CITY_STYLE[code];
+    var h = 0;
+    for (var i = 0; i < code.length; i++) h = (h * 31 + code.charCodeAt(i)) % 9973;
+    var p = GENERIC_SKIES[h % GENERIC_SKIES.length];
+    return { sky: [p[0], p[1]], ink: p[2], far: p[3], tag: "", seed: h + 11 };
+  }
+  function genericSkyline(s) {
+    var seed = s.seed || 7, x = 0, g = "";
+    while (x < 200) {
+      seed = (seed * 9301 + 49297) % 233280; var w = 10 + Math.floor(seed / 233280 * 16);
+      seed = (seed * 9301 + 49297) % 233280; var h = 16 + Math.floor(seed / 233280 * 48);
+      g += '<rect x="' + x + '" y="' + (92 - h) + '" width="' + (w - 1) + '" height="' + h + '"/>';
+      x += w;
+    }
+    return '<path fill="' + s.far + '" d="M0,74 Q50,58 100,68 Q150,78 200,62 L200,100 L0,100Z"/><g fill="' + s.ink + '">' + g + '</g>' +
+      '<rect x="0" y="92" width="200" height="8" fill="' + s.ink + '"/>';
+  }
+
   function cityArt(code) {
-    var s = CITY_STYLE[code];
+    var s = styleOf(code);
     var id = "g" + code;
     var stars = "";
     var seed = code.charCodeAt(0) * 7 + code.charCodeAt(1) * 3 + code.charCodeAt(2);
@@ -531,7 +718,7 @@ form.entry { background: var(--surface); border: 1px solid var(--line); border-r
       '<defs><linearGradient id="' + id + '" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="' + s.sky[0] + '"/><stop offset="1" stop-color="' + s.sky[1] + '"/></linearGradient></defs>' +
       '<rect width="200" height="250" fill="url(#' + id + ')"/>' +
       '<g>' + stars + '</g><mask id="m' + code + '"><rect width="200" height="250" fill="#fff"/><circle cx="166" cy="37" r="10" fill="#000"/></mask><circle cx="160" cy="42" r="11" fill="#fff6dc" opacity=".92" mask="url(#m' + code + ')"/>' +
-      '<g class="sil" transform="translate(0,150)">' + SKYLINE[code](s) + '</g></svg>';
+      '<g class="sil" transform="translate(0,150)">' + (SKYLINE[code] || genericSkyline)(s) + '</g></svg>';
   }
 
   // Example comments: [author, stars given, date, text]
@@ -551,12 +738,135 @@ form.entry { background: var(--surface); border: 1px solid var(--line); border-r
   var ICON = "data:image/png;base64,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";
   var BRAND = '<span class="brand"><img class="brand-ico" src="' + ICON + '" alt="" width="32" height="32"><span class="wordmark">Touchdown</span></span>';
 
-  var KEY = "nightstop-preview-v4";
-  function load() {
-    try { var raw = localStorage.getItem(KEY); if (raw) return JSON.parse(raw); } catch (e) {}
+  // ---------- Destinations: timezone, practical info, crew hotel ----------
+  var TZ = { MUC: "Europe/Berlin", OSL: "Europe/Oslo", MXP: "Europe/Rome", LJU: "Europe/Ljubljana", BUD: "Europe/Budapest",
+    VCE: "Europe/Rome", FLR: "Europe/Rome", TLV: "Asia/Jerusalem", NCE: "Europe/Paris", GOT: "Europe/Stockholm" };
+  var TZ_OPTIONS = ["Europe/Zurich", "Europe/Berlin", "Europe/Vienna", "Europe/Paris", "Europe/Rome", "Europe/Madrid", "Europe/Lisbon",
+    "Europe/London", "Europe/Dublin", "Europe/Amsterdam", "Europe/Brussels", "Europe/Copenhagen", "Europe/Oslo", "Europe/Stockholm",
+    "Europe/Helsinki", "Europe/Prague", "Europe/Warsaw", "Europe/Budapest", "Europe/Ljubljana", "Europe/Zagreb", "Europe/Belgrade",
+    "Europe/Athens", "Europe/Istanbul", "Atlantic/Reykjavik", "Atlantic/Canary", "Asia/Jerusalem", "Asia/Dubai", "Africa/Cairo"];
+  var INFO0 = {
+    MUC: ["EUR", "112 (Feuerwehr/Ambulanz) · 110 Polizei"],
+    OSL: ["NOK (Norwegische Krone)", "112 Polizei · 113 Ambulanz · 110 Feuerwehr"],
+    MXP: ["EUR", "112"], VCE: ["EUR", "112"], FLR: ["EUR", "112"],
+    LJU: ["EUR", "112 (Notruf) · 113 Polizei"],
+    BUD: ["HUF (Forint)", "112"],
+    TLV: ["ILS (Schekel)", "100 Polizei · 101 Ambulanz (Magen David Adom) · 102 Feuerwehr"],
+    NCE: ["EUR", "112 · 15 SAMU (Ambulanz)"],
+    GOT: ["SEK (Schwedische Krone)", "112"]
+  };
+  var HOTEL0 = {
+    LJU: { name: "Crew-Hotel (Beispiel)", address: "Zentrum, Ljubljana", lat: 46.0511, lng: 14.5051 },
+    VCE: { name: "Crew-Hotel (Beispiel)", address: "Mestre, Venedig", lat: 45.4836, lng: 12.2328 }
+  };
+  var INFO_FIELDS = [["transfer", "Transfer vom Flughafen"], ["currency", "Währung"], ["tip", "Trinkgeld"],
+    ["pharmacy", "Apotheke in Hotelnähe"], ["doctor", "Arzt / Spital"], ["emergency", "Notfallnummern"]];
+  function emptyInfo() { return { transfer: "", currency: "", tip: "", pharmacy: "", doctor: "", emergency: "" }; }
+  function defaultDests() {
+    return DESTS.map(function (d) {
+      var i = INFO0[d.code] || ["", ""], info = emptyInfo();
+      info.currency = i[0]; info.emergency = i[1];
+      return { code: d.code, city: d.city, country: d.country, tz: TZ[d.code] || "Europe/Zurich", active: true,
+        hotel: HOTEL0[d.code] ? Object.assign({}, HOTEL0[d.code]) : null, info: info };
+    });
+  }
+
+  // ---------- Dates & time zones ----------
+  function pad2(n) { return String(n).padStart(2, "0"); }
+  function localDay(d) { d = d || new Date(); return d.getFullYear() + "-" + pad2(d.getMonth() + 1) + "-" + pad2(d.getDate()); }
+  function addDays(day, n) {
+    var p = day.split("-"), t = new Date(Date.UTC(+p[0], +p[1] - 1, +p[2] + n));
+    return t.getUTCFullYear() + "-" + pad2(t.getUTCMonth() + 1) + "-" + pad2(t.getUTCDate());
+  }
+  var WD = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  var fmtCache = {};
+  // Wall-clock time of instant t in time zone tz
+  function wall(t, tz) {
+    var f = fmtCache[tz];
+    if (!f) {
+      try { f = new Intl.DateTimeFormat("en-US", { timeZone: tz, hourCycle: "h23", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", weekday: "short" }); }
+      catch (e) { return tz === "Europe/Zurich" ? null : wall(t, "Europe/Zurich"); }
+      fmtCache[tz] = f;
+    }
+    var o = {};
+    f.formatToParts(new Date(t)).forEach(function (p) { o[p.type] = p.value; });
+    return { y: +o.year, m: +o.month, d: +o.day, h: (+o.hour) % 24, min: +o.minute, wd: WD.indexOf(o.weekday) };
+  }
+  function tzOffset(t, tz) { var w = wall(t, tz); return Date.UTC(w.y, w.m - 1, w.d, w.h, w.min) - Math.floor(t / 60000) * 60000; }
+  // "YYYY-MM-DDTHH:MM" as local time in tz -> epoch ms
+  function zonedToEpoch(s, tz) {
+    var m = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/.exec(s || "");
+    if (!m) return NaN;
+    var g = Date.UTC(+m[1], +m[2] - 1, +m[3], +m[4], +m[5]);
+    var e = g - tzOffset(g, tz);
+    return g - tzOffset(e, tz);
+  }
+  function todayIn(tz) { var w = wall(Date.now(), tz); return w.y + "-" + pad2(w.m) + "-" + pad2(w.d); }
+  function dayDate(day) { var p = day.split("-"); return new Date(Date.UTC(+p[0], +p[1] - 1, +p[2])); }
+  function dayFmt(day, withYear) {
+    var o = { timeZone: "UTC", weekday: "short", day: "2-digit", month: "2-digit" };
+    if (withYear) o.year = "numeric";
+    return dayDate(day).toLocaleDateString("de-CH", o);
+  }
+  function relDay(day) {
+    var n = Math.round((dayDate(day) - dayDate(localDay())) / 864e5);
+    return n === 0 ? "heute" : n === 1 ? "morgen" : "in " + n + " Tagen";
+  }
+
+  // ---------- Extra sample data ----------
+  var EXTRA = {
+    e1: { lat: 46.0489, lng: 14.5068, priceLevel: 2, openFrom: "11:00", openUntil: "23:00", closedDays: [1], veggie: false },
+    e2: { lat: 46.0526, lng: 14.5032, priceLevel: 3, openFrom: "17:00", openUntil: "01:00", closedDays: [], veggie: true },
+    e3: { lat: 46.0560, lng: 14.5085, priceLevel: 1, openFrom: "00:00", openUntil: "00:00", closedDays: [], veggie: true },
+    e4: { lat: 46.0510, lng: 14.5062, priceLevel: 2 },
+    e5: { lat: 46.0585, lng: 14.5110, priceLevel: 3, openFrom: "08:00", openUntil: "18:00", closedDays: [0] },
+    e6: { lat: 46.0490, lng: 14.5087 },
+    e7: { lat: 45.4381, lng: 12.3186, priceLevel: 2 },
+    e8: { lat: 45.4445, lng: 12.3290, priceLevel: 2, openFrom: "11:30", openUntil: "22:00", closedDays: [0], veggie: true },
+    e11: { priceLevel: 2, openFrom: "06:00", openUntil: "22:00", closedDays: [] },
+    e12: { priceLevel: 1, openFrom: "04:30", openUntil: "22:00", closedDays: [], veggie: true },
+    e15: { priceLevel: 1, openFrom: "08:00", openUntil: "16:00", closedDays: [6], veggie: true },
+    e19: { priceLevel: 2, openFrom: "07:00", openUntil: "21:00", closedDays: [] },
+    e20: { priceLevel: 1, openFrom: "08:00", openUntil: "18:00", closedDays: [], veggie: true }
+  };
+  SAMPLE.forEach(function (e) { e.photos = []; Object.assign(e, EXTRA[e.id] || {}); });
+  var NEW_SAMPLES = [
+    Object.assign(ex("e21", "LJU", "bars-restaurants", "Neues Café an der Dreierbrücke",
+      "Hat vor ein paar Tagen eröffnet. Guter Flat White, hausgemachte Kuchen und ein paar Tische direkt am Wasser.",
+      "Lea M.", [5], {}), { created: addDays(localDay(), -2), photos: [], lat: 46.0508, lng: 14.5059, priceLevel: 1, openFrom: "07:30", openUntil: "19:00", closedDays: [], veggie: true }),
+    Object.assign(ex("e22", "VCE", "bars-restaurants", "Trattoria bei der Piazza Ferretto",
+      "Fünf Minuten vom Hotel in Mestre. Hausgemachte Pasta, fairer Hauswein. Abends lieber reservieren.",
+      "Marco B.", [4, 5], {}), { created: addDays(localDay(), -4), photos: [], lat: 45.4905, lng: 12.2425, priceLevel: 2, openFrom: "18:30", openUntil: "23:00", closedDays: [2], veggie: false })
+  ];
+  SAMPLE = SAMPLE.concat(NEW_SAMPLES);
+
+  var SAMPLE_USERS = [
+    { id: "me", name: "Dejan", email: "dejan@crew.example", role: "admin" },
+    { id: "x-Sandra K.", name: "Sandra K.", email: "sandra.k@crew.example", role: "admin" },
+    { id: "x-Marco B.", name: "Marco B.", email: "marco.b@crew.example", role: "user" },
+    { id: "x-Lea M.", name: "Lea M.", email: "lea.m@crew.example", role: "user" },
+    { id: "x-Tom R.", name: "Tom R.", email: "tom.r@crew.example", role: "user" },
+    { id: "x-Anna P.", name: "Anna P.", email: "anna.p@crew.example", role: "user" },
+    { id: "x-Jonas H.", name: "Jonas H.", email: "jonas.h@crew.example", role: "user" }
+  ];
+
+  function clone(o) { return JSON.parse(JSON.stringify(o)); }
+
+  // ---------- Storage ----------
+  var KEY = "nightstop-preview-v5", OLD_KEY = "nightstop-preview-v4";
+  var PHOTO_CAP = 3 * 1024 * 1024;
+  var REASONS = ["Veraltet", "Falsch", "Unpassend", "Spam", "Sonstiges"];
+  function readKey(k) {
+    try { var raw = localStorage.getItem(k); if (raw) return JSON.parse(raw); } catch (e) {}
     return null;
   }
-  var saved = load();
+  var saved = readKey(KEY), migrated = false;
+  if (!saved || typeof saved !== "object") {
+    saved = null;
+    var old = readKey(OLD_KEY);
+    if (old && typeof old === "object") { saved = { loggedIn: !!old.loggedIn, entries: old.entries, chats: old.chats }; migrated = true; }
+  }
+
   // Example chat messages, timestamps relative to now: [dest, author, minutes ago, text]
   function sampleChats() {
     var now = Date.now(), list = [
@@ -570,27 +880,125 @@ form.entry { background: var(--surface); border: 1px solid var(--line); border-r
       return { id: "m" + i, dest: m[0], author: m[1], authorId: "x-" + m[1], created: new Date(now - m[2] * 60000).toISOString(), text: m[3] };
     });
   }
-
-  var S = {
-    loggedIn: saved ? saved.loggedIn : false,
-    chats: saved && saved.chats ? saved.chats : sampleChats(),
-    confirmChat: null,
-    entries: saved && saved.entries ? saved.entries : SAMPLE.map(function (e) { return Object.assign({}, e); }),
-    view: "home", dest: null, cat: null, sort: "az", q: "",
-    editing: null, confirmDel: null, expanded: {}, errors: {}, openComments: {}, confirmCom: null, comErr: {}
-  };
-  function persist() {
-    try { localStorage.setItem(KEY, JSON.stringify({ loggedIn: S.loggedIn, entries: S.entries, chats: S.chats })); } catch (e) {}
+  // One meetup in LJU today 19:00 local time (tomorrow if today's would already be hidden)
+  function sampleMeetups() {
+    var tz = TZ.LJU, day = todayIn(tz), time = day + "T19:00";
+    if (zonedToEpoch(time, tz) + 3 * 3600e3 < Date.now()) time = addDays(day, 1) + "T19:00";
+    return [{ id: "mt1", dest: "LJU", title: "Abendessen am Fluss", place: "Treffpunkt Hotel-Lobby, dann zur Dreierbrücke", time: time,
+      creator: "Marco B.", creatorId: "x-Marco B.", attendees: [{ id: "x-Marco B.", name: "Marco B." }, { id: "x-Lea M.", name: "Lea M." }] }];
+  }
+  function sampleNightstops() { return [{ id: "n1", dest: "LJU", date: addDays(localDay(), 2) }]; }
+  // Fill new fields on example entries that came from an older version
+  function upgradeEntries(list, addNew) {
+    if (!Array.isArray(list)) return SAMPLE.map(clone);
+    var byId = {};
+    SAMPLE.forEach(function (s) { byId[s.id] = s; });
+    list.forEach(function (e) {
+      if (!Array.isArray(e.photos)) e.photos = [];
+      if (!Array.isArray(e.comments)) e.comments = [];
+      var s = byId[e.id];
+      if (s && e.example) ["lat", "lng", "priceLevel", "openFrom", "openUntil", "closedDays", "veggie"].forEach(function (k) {
+        if (e[k] === undefined && s[k] !== undefined) e[k] = clone(s[k]);
+      });
+    });
+    if (addNew) NEW_SAMPLES.forEach(function (n) { if (!list.some(function (e) { return e.id === n.id; })) list.push(clone(n)); });
+    return list;
   }
 
+  var S = {
+    loggedIn: saved ? !!saved.loggedIn : false,
+    chats: saved && Array.isArray(saved.chats) ? saved.chats : sampleChats(),
+    entries: saved && saved.entries ? upgradeEntries(saved.entries, migrated) : SAMPLE.map(clone),
+    dests: saved && Array.isArray(saved.dests) ? saved.dests : defaultDests(),
+    meetups: saved && Array.isArray(saved.meetups) ? saved.meetups : sampleMeetups(),
+    reports: saved && Array.isArray(saved.reports) ? saved.reports : [],
+    users: saved && Array.isArray(saved.users) ? saved.users : SAMPLE_USERS.map(clone),
+    nightstops: saved && Array.isArray(saved.nightstops) ? saved.nightstops : sampleNightstops(),
+    digest: saved ? !!saved.digest : false,
+    view: "home", dest: null, cat: null, sort: "az", q: "", fPrice: 0, fOpen: false, fVeg: false,
+    editing: null, draft: null, photoErr: null, photoBusy: false,
+    confirmDel: null, confirmChat: null, expanded: {}, errors: {}, openComments: {}, confirmCom: null, comErr: {},
+    showMap: false, mapSel: null, editInfo: null,
+    meetForm: false, meetErr: null, meetDraft: null, confirmMeet: null,
+    reporting: null, lightbox: null, confirmPhoto: false,
+    adminTab: "reports", editDest: null, destErr: {}, destDraft: {}, nsErr: null
+  };
+
+  var storageWarned = false;
+  function persist() {
+    try {
+      localStorage.setItem(KEY, JSON.stringify({ loggedIn: S.loggedIn, entries: S.entries, chats: S.chats, dests: S.dests, meetups: S.meetups,
+        reports: S.reports, users: S.users, nightstops: S.nightstops, digest: S.digest }));
+      return true;
+    } catch (e) {
+      if (!storageWarned) { storageWarned = true; toast("Speichern im Browser klappt gerade nicht (Speicher voll oder gesperrt). Deine Änderungen gelten bis zum Neuladen."); }
+      return false;
+    }
+  }
+  var toastTimer = null;
+  function toast(msg) {
+    var el = document.getElementById("toast");
+    if (!el) {
+      el = document.createElement("div"); el.id = "toast"; el.className = "toast";
+      el.setAttribute("role", "status"); el.setAttribute("aria-live", "polite");
+      document.body.appendChild(el);
+    }
+    el.textContent = msg; el.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { el.classList.remove("show"); }, 4200);
+  }
+  if (migrated) persist();
+
+  // ---------- Helpers ----------
   var root = document.getElementById("root");
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
   function cat(slug) { return CATS.filter(function (c) { return c.slug === slug; })[0]; }
-  function dest(code) { return DESTS.filter(function (d) { return d.code === code; })[0]; }
+  function dest(code) { return S.dests.filter(function (d) { return d.code === code; })[0]; }
+  function activeDests() { return S.dests.filter(function (d) { return d.active !== false; }); }
+  function tzOf(code) { var d = dest(code); return (d && d.tz) || "Europe/Zurich"; }
   function allRatings(e) { return e.myRating ? e.ratings.concat([e.myRating]) : e.ratings; }
   function avg(e) { var r = allRatings(e); return r.length ? r.reduce(function (a, b) { return a + b; }, 0) / r.length : 0; }
   function count(d, c) { return S.entries.filter(function (e) { return e.dest === d && (!c || e.cat === c); }).length; }
-  function fmtDate(iso) { var p = iso.split("-"); return p[2] + "." + p[1] + "." + p[0]; }
+  function fmtDate(iso) { var p = String(iso).slice(0, 10).split("-"); return p[2] + "." + p[1] + "." + p[0]; }
+  function byTitle(a, b) { return a.title.localeCompare(b.title, "de", { sensitivity: "base" }); }
+  function me() { return S.users.filter(function (u) { return u.id === ME.id; })[0]; }
+  function isAdmin() { var u = me(); return !!u && u.role === "admin"; }
+  function openReports() { return S.reports.filter(function (r) { return r.status === "open"; }).length; }
+  var DAY_SHORT = ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"];
+
+  function hasCoords(o) { return !!o && typeof o.lat === "number" && typeof o.lng === "number" && isFinite(o.lat) && isFinite(o.lng); }
+  function haversine(lat1, lng1, lat2, lng2) {
+    var R = 6371000, r = Math.PI / 180, dLat = (lat2 - lat1) * r, dLng = (lng2 - lng1) * r;
+    var x = Math.pow(Math.sin(dLat / 2), 2) + Math.cos(lat1 * r) * Math.cos(lat2 * r) * Math.pow(Math.sin(dLng / 2), 2);
+    return 2 * R * Math.asin(Math.min(1, Math.sqrt(x)));
+  }
+  // Walking distance from the crew hotel in metres (straight line x 1.3 detour)
+  function walkM(e) {
+    var d = dest(e.dest), h = d && d.hotel;
+    if (!hasCoords(h) || !hasCoords(e)) return null;
+    return haversine(h.lat, h.lng, e.lat, e.lng) * 1.3;
+  }
+  function walkText(m, short) {
+    var min = Math.max(1, Math.round(m / (5000 / 60)));
+    var t = min < 60 ? min + " Min." : Math.floor(min / 60) + " Std." + (min % 60 ? " " + (min % 60) + " Min." : "");
+    if (short) return t;
+    var dist = m < 1000 ? Math.max(10, Math.round(m / 10) * 10) + " m" : (m / 1000).toLocaleString("de-CH", { maximumFractionDigits: 1 }) + " km";
+    return "ca. " + t + " zu Fuss (" + dist + ")";
+  }
+  function toMin(s) { var m = /^(\d{1,2}):(\d{2})$/.exec(s || ""); return m ? (+m[1]) * 60 + (+m[2]) : null; }
+  // Open right now, evaluated in the destination's time zone. null = no opening hours known.
+  function openState(e) {
+    var f = toMin(e.openFrom), u = toMin(e.openUntil);
+    if (f === null || u === null) return null;
+    var w = wall(Date.now(), tzOf(e.dest));
+    if (!w) return null;
+    var now = w.h * 60 + w.min, closed = e.closedDays || [];
+    var todayOk = closed.indexOf(w.wd) === -1, ydayOk = closed.indexOf((w.wd + 6) % 7) === -1, open;
+    if (f === u) open = todayOk;
+    else if (u > f) open = todayOk && now >= f && now < u;
+    else open = (todayOk && now >= f) || (ydayOk && now < u); // crosses midnight
+    return { open: open, until: e.openUntil, allDay: f === u || (f === 0 && u >= 1440) };
+  }
 
   function starsHtml(v) {
     var h = '<span class="stars" aria-label="' + v.toFixed(1) + ' von 5 Sternen">';
@@ -602,10 +1010,13 @@ form.entry { background: var(--surface); border: 1px solid var(--line); border-r
   }
 
   function header(titleHtml, showBack) {
+    var n = openReports();
+    var admin = isAdmin() ? '<button class="outline-btn admin-link' + (S.view === "admin" ? " on" : "") + '" data-go="admin" aria-label="Admin' + (n ? ", " + n + " offene Meldungen" : "") + '">🛡️<span class="long"> Admin</span>' +
+      (n ? '<span class="hbadge">' + n + "</span>" : "") + "</button>" : "";
     return '<header class="top"><div class="top-inner"><div class="crumbs">' +
       (showBack ? '<button class="link back" data-go="home"><img class="brand-ico" src="' + ICON + '" alt="" width="28" height="28"><span class="back-txt">← Alle</span></button>' : "") +
       '<div class="brand-title">' + titleHtml + '</div></div>' +
-      '<div class="user"><span class="name">' + esc(ME.name) + '</span><button class="outline-btn" data-act="logout">Abmelden</button></div>' +
+      '<div class="user"><span class="name">' + esc(ME.name) + "</span>" + admin + '<button class="outline-btn" data-act="logout">Abmelden</button></div>' +
       "</div></header>";
   }
 
@@ -616,21 +1027,49 @@ form.entry { background: var(--surface); border: 1px solid var(--line); border-r
       "</div></div>";
   }
 
+  // ---------- Home ----------
+  function forYouHtml() {
+    var today = localDay(), lim = addDays(today, 14), since = addDays(today, -7);
+    var ns = S.nightstops.filter(function (n) { return n.date >= today && n.date <= lim && dest(n.dest); })
+      .sort(function (a, b) { return a.date < b.date ? -1 : a.date > b.date ? 1 : 0; });
+    var body;
+    if (!S.nightstops.length) body = '<p class="lead">Trag deine nächsten Nightstops ein, dann siehst du hier die neusten Tipps für diese Städte.</p>';
+    else if (!ns.length) body = '<p class="lead">In den nächsten 14 Tagen hast du keine Nightstops eingetragen.</p>';
+    else body = ns.map(function (n) {
+      var d = dest(n.dest);
+      var tips = S.entries.filter(function (e) { return e.dest === n.dest && String(e.created).slice(0, 10) >= since; })
+        .sort(function (a, b) { return a.created < b.created ? 1 : a.created > b.created ? -1 : 0; });
+      return '<div class="fy"><div class="fy-head"><b>' + esc(d.code) + " · " + esc(d.city) + '</b><span class="by">' + esc(dayFmt(n.date)) + " · " + relDay(n.date) + "</span></div>" +
+        (tips.length
+          ? '<ul class="fy-list">' + tips.map(function (e) {
+              var c = cat(e.cat);
+              return '<li><button class="fy-tip" data-open-entry="' + esc(e.id) + '"><span>' + (c ? c.icon + " " : "") + esc(e.title) + '</span><span class="by">neu seit ' + fmtDate(e.created) + "</span></button></li>";
+            }).join("") + "</ul>"
+          : '<p class="fy-none">Keine neuen Tipps in den letzten 7 Tagen. Teil doch nach deinem Nightstop den ersten!</p>') +
+        '<button class="linkish" data-dest="' + esc(d.code) + '">Alle Tipps für ' + esc(d.city) + " →</button></div>";
+    }).join("");
+    return '<section class="panel foryou" aria-labelledby="fy-h"><div class="panel-head"><h2 id="fy-h">✨ Für dich</h2><button class="pill-btn" data-act="ns-open">📅 Meine Nightstops</button></div>' +
+      '<p class="note">Neue Tipps (letzte 7 Tage) für deine Nightstops der nächsten 14 Tage.</p>' + body +
+      '<div class="digest"><button class="switch" role="switch" aria-checked="' + (S.digest ? "true" : "false") + '" data-digest="1" aria-labelledby="dg-l"></button>' +
+      '<div><b id="dg-l">Wöchentlicher Digest per E-Mail</b><p class="note">In der App per E-Mail, sobald eure IT den Mailversand eingerichtet hat.</p></div></div></section>';
+  }
+
   function renderHome() {
-    var total = S.entries.length;
-    var tiles = DESTS.map(function (d) {
-      var n = count(d.code);
-      return '<button class="dest" data-dest="' + d.code + '" aria-label="' + esc(d.city) + ', ' + n + ' Tipps">' + cityArt(d.code) +
-        (recentChatCount(d.code) ? '<span class="chat-live">💬 ' + recentChatCount(d.code) + "</span>" : "") +
-        '<span class="top-txt"><span class="code">' + d.code + '</span><span class="city">' + esc(d.city) + '</span><span class="country">' + esc(d.country) + '</span></span>' +
-        '<span class="bottom-txt"><span class="pill">' + n + (n === 1 ? " Tipp" : " Tipps") + '</span><span class="landmark">' + esc(CITY_STYLE[d.code].tag) + '</span><span class="go">→</span></span></button>';
+    var total = S.entries.length, list = activeDests();
+    var tiles = list.map(function (d) {
+      var n = count(d.code), st = styleOf(d.code), live = recentChatCount(d.code);
+      return '<button class="dest" data-dest="' + esc(d.code) + '" aria-label="' + esc(d.city) + ", " + n + ' Tipps">' + cityArt(d.code) +
+        (live ? '<span class="chat-live">💬 ' + live + "</span>" : "") +
+        '<span class="top-txt"><span class="code">' + esc(d.code) + '</span><span class="city">' + esc(d.city) + '</span><span class="country">' + esc(d.country) + "</span></span>" +
+        '<span class="bottom-txt"><span class="pill">' + n + (n === 1 ? " Tipp" : " Tipps") + '</span><span class="landmark">' + esc(st.tag || d.country) + '</span><span class="go">→</span></span></button>';
     }).join("");
     return '<div class="app">' + header(BRAND, false) +
       '<div class="preview-note">Vorschau mit Beispieldaten. Deine Änderungen bleiben nur in diesem Browser.</div>' +
       '<section class="hero"><div class="hero-inner"><span class="eyebrow">Crew Nightstops</span><h1>Wohin geht\'s heute Nacht?</h1>' +
-      '<p>Restaurants, Ausflüge und Insidertipps von Kolleg:innen, für jede Destination auf einen Blick.</p>' +
-      '<div class="stats"><span><b>' + DESTS.length + '</b>Destinationen</span><span><b>' + total + '</b>Tipps</span><span><b>' + CATS.length + '</b>Kategorien</span></div></div></section>' +
-      '<div class="home"><div class="dest-grid">' + tiles + "</div></div></div>";
+      "<p>Restaurants, Ausflüge und Insidertipps von Kolleg:innen, für jede Destination auf einen Blick.</p>" +
+      '<div class="stats"><span><b>' + list.length + "</b>Destinationen</span><span><b>" + total + "</b>Tipps</span><span><b>" + CATS.length + "</b>Kategorien</span></div>" +
+      '<button class="hero-btn" data-act="ns-open">📅 Meine Nightstops</button></div></section>' +
+      '<div class="home"><div class="dest-grid">' + tiles + "</div>" + forYouHtml() + "</div></div>";
   }
 
   function nav() {
@@ -644,14 +1083,18 @@ form.entry { background: var(--surface); border: 1px solid var(--line); border-r
       return '<button data-cat="' + c.slug + '" class="' + (S.cat === c.slug ? "on" : "") + '">' + c.icon + " " + esc(c.label) + (n ? " · " + n : "") + "</button>";
     }).join("");
     var chatOn = S.view === "chat" ? "on" : "";
-    return '<nav class="chips" aria-label="Kategorien"><button data-chat="1" class="' + chatOn + '">💬 Crew-Chat</button>' + chips + '</nav>' +
+    return '<nav class="chips" aria-label="Kategorien"><button data-chat="1" class="' + chatOn + '">💬 Crew-Chat</button>' + chips + "</nav>" +
       '<nav class="side" aria-label="Kategorien"><button class="side-chat ' + chatOn + '" data-chat="1"><span class="ico">💬</span><span class="lbl">Crew-Chat</span></button><h2>Empfehlungen von Kolleg:innen</h2><ul>' + side + "</ul></nav>";
   }
 
   function shell(inner) {
     var d = dest(S.dest);
-    return '<div class="app">' + header(d.code + " <span>· " + esc(d.city) + "</span>", true) +
+    return '<div class="app">' + header(esc(d.code) + " <span>· " + esc(d.city) + "</span>", true) +
       '<div class="body">' + nav() + '<main><div class="wrap">' + inner + "</div></main></div></div>";
+  }
+  // Pages without a destination (admin, nightstops)
+  function plainShell(titleHtml, inner) {
+    return '<div class="app">' + header(titleHtml, true) + '<div class="body"><main><div class="wrap">' + inner + "</div></main></div></div>";
   }
 
   function bestOf(destCode, slug) {
@@ -659,8 +1102,133 @@ form.entry { background: var(--surface); border: 1px solid var(--line); border-r
       .sort(function (a, b) { return avg(b) - avg(a) || allRatings(b).length - allRatings(a).length; }).slice(0, 2);
   }
 
+  // ---------- Map (schematic SVG, no tiles) ----------
+  function mapHtml(d) {
+    var h = hasCoords(d.hotel) ? d.hotel : null;
+    var items = S.entries.filter(function (e) { return e.dest === d.code && hasCoords(e); });
+    items.sort(function (a, b) { var wa = walkM(a), wb = walkM(b); return wa != null && wb != null ? wa - wb : byTitle(a, b); });
+    var note = '<p class="note">Vorschau: schematische Karte. In der App mit echter Karte (OpenStreetMap).</p>';
+    var head = '<div class="panel-head"><h2>🗺️ Karte</h2>' + (h ? '<span class="by"><span class="hkey">H</span> ' + esc(h.name || "Crew-Hotel") + "</span>" : "") + "</div>";
+    if (!items.length && !h) return '<section class="panel" id="map">' + head + '<p class="lead">Für ' + esc(d.city) + " gibt es noch keine Orte mit Koordinaten. Ergänze Breiten- und Längengrad bei einem Tipp, dann erscheint er hier.</p>" + note + "</section>";
+    var pts = items.concat(h ? [h] : []);
+    var W = 400, H = 300, P = 34;
+    var lat0 = pts.reduce(function (s, p) { return s + p.lat; }, 0) / pts.length, kx = Math.cos(lat0 * Math.PI / 180);
+    var xs = pts.map(function (p) { return p.lng * kx; }), ys = pts.map(function (p) { return -p.lat; });
+    var minX = Math.min.apply(null, xs), maxX = Math.max.apply(null, xs), minY = Math.min.apply(null, ys), maxY = Math.max.apply(null, ys);
+    var sc = Math.min((W - 2 * P) / Math.max(maxX - minX, 0.004), (H - 2 * P) / Math.max(maxY - minY, 0.003));
+    var ox = P + ((W - 2 * P) - (maxX - minX) * sc) / 2, oy = P + ((H - 2 * P) - (maxY - minY) * sc) / 2;
+    function pr(p) { return [ox + (p.lng * kx - minX) * sc, oy + (-p.lat - minY) * sc]; }
+    // Nudge markers apart so none hides another (schematic map, exact spot matters less than visibility)
+    var placed = [], pos = {};
+    if (h) { pos.h = pr(h); placed.push(pos.h); }
+    items.forEach(function (e) {
+      var q = pr(e), k = 0, c = q.slice();
+      while (k < 24 && placed.some(function (o) { return Math.abs(o[0] - c[0]) < 25 && Math.abs(o[1] - c[1]) < 25; })) {
+        k++; var ang = k * 2.4, rad = 14 + k * 3;
+        c = [Math.min(W - 16, Math.max(16, q[0] + Math.cos(ang) * rad)), Math.min(H - 16, Math.max(16, q[1] + Math.sin(ang) * rad))];
+      }
+      pos[e.id] = c; placed.push(c);
+    });
+    function where(p) { return p === h ? pos.h : pos[p.id]; }
+    function tr(p) { var q = where(p); return 'transform="translate(' + q[0].toFixed(1) + "," + q[1].toFixed(1) + ')"'; }
+    var grid = "";
+    for (var gx = 40; gx < W; gx += 40) grid += '<line x1="' + gx + '" y1="0" x2="' + gx + '" y2="' + H + '"/>';
+    for (var gy = 40; gy < H; gy += 40) grid += '<line x1="0" y1="' + gy + '" x2="' + W + '" y2="' + gy + '"/>';
+    var mPerUnit = 111320 / sc, len = 20;
+    [20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000, 50000].forEach(function (n) { if (n / mPerUnit <= 110) len = n; });
+    var bw = (len / mPerUnit).toFixed(1);
+    var scale = '<g class="scale" transform="translate(14,' + (H - 14) + ')"><line x1="0" y1="0" x2="' + bw + '" y2="0"/><line x1="0" y1="-4" x2="0" y2="4"/><line x1="' + bw + '" y1="-4" x2="' + bw + '" y2="4"/>' +
+      '<text class="map-txt" x="' + (bw / 2).toFixed(1) + '" y="-8" text-anchor="middle">' + (len >= 1000 ? len / 1000 + " km" : len + " m") + "</text></g>";
+    var north = '<g transform="translate(' + (W - 20) + ',22)"><path class="north" d="M0,-12 L6,6 L0,2 L-6,6Z"/><text class="map-txt" y="19" text-anchor="middle">N</text></g>';
+    var sel = S.mapSel, selE = null;
+    var pins = items.map(function (e, i) {
+      var on = sel === e.id;
+      if (on) selE = e;
+      return { on: on, html: '<g class="pin' + (on ? " sel" : "") + '" data-pin="' + esc(e.id) + '" ' + tr(e) + ' tabindex="0" role="button" aria-label="' + (i + 1) + ": " + esc(e.title) + '"><circle r="12"/><text text-anchor="middle" dy="4">' + (i + 1) + "</text></g>" };
+    });
+    var line = "";
+    if (h && selE) { var a = where(h), b = where(selE); line = '<line class="map-line" x1="' + a[0].toFixed(1) + '" y1="' + a[1].toFixed(1) + '" x2="' + b[0].toFixed(1) + '" y2="' + b[1].toFixed(1) + '"/>'; }
+    var hotelPin = h ? '<g class="pin hotel' + (sel === "h" ? " sel" : "") + '" data-pin="h" ' + tr(h) + ' tabindex="0" role="button" aria-label="Crew-Hotel: ' + esc(h.name || "") + '"><rect x="-13" y="-13" width="26" height="26" rx="6"/><text text-anchor="middle" dy="5">H</text></g>' : "";
+    var svg = '<svg class="map-svg" viewBox="0 0 ' + W + " " + H + '" role="group" aria-label="Schematische Karte von ' + esc(d.city) + '">' +
+      '<rect class="bg" width="' + W + '" height="' + H + '" rx="10"/><g class="grid">' + grid + "</g>" + line +
+      pins.filter(function (p) { return !p.on; }).map(function (p) { return p.html; }).join("") + hotelPin +
+      pins.filter(function (p) { return p.on; }).map(function (p) { return p.html; }).join("") + scale + north + "</svg>";
+    var info;
+    if (sel === "h" && h) info = '<div class="pin-info" aria-live="polite"><b>🏨 ' + esc(h.name || "Crew-Hotel") + "</b>" + (h.address ? "<span>" + esc(h.address) + "</span>" : "") + "</div>";
+    else if (selE) {
+      var w = walkM(selE), c = cat(selE.cat);
+      info = '<div class="pin-info" aria-live="polite"><b>' + esc(selE.title) + '</b><span class="by">' + (c ? c.icon + " " + esc(c.label) : "") + "</span>" +
+        (w != null ? '<span class="walk">🚶 ' + walkText(w) + " vom Crew-Hotel</span>" : "") +
+        '<button class="linkish" data-open-entry="' + esc(selE.id) + '">Zum Tipp →</button></div>';
+    } else info = '<div class="pin-info muted-info" aria-live="polite">Tippe auf einen Pin, um Titel und Fussweg zu sehen.</div>';
+    var legend = '<ul class="legend">' + (h ? '<li><button data-pin="h" class="' + (sel === "h" ? "on" : "") + '"><span class="num h">H</span><span class="t">' + esc(h.name || "Crew-Hotel") + "</span></button></li>" : "") +
+      items.map(function (e, i) {
+        var w = walkM(e);
+        return '<li><button data-pin="' + esc(e.id) + '" class="' + (sel === e.id ? "on" : "") + '"><span class="num">' + (i + 1) + '</span><span class="t">' + esc(e.title) + "</span>" +
+          (w != null ? '<span class="w">🚶 ' + walkText(w, true) + "</span>" : "") + "</button></li>";
+      }).join("") + "</ul>";
+    return '<section class="panel" id="map">' + head + svg + info + legend + note + "</section>";
+  }
+
+  // ---------- Practical info ----------
+  function infoPanel(d) {
+    var inf = d.info || emptyInfo(), editing = S.editInfo === d.code && isAdmin();
+    var h = '<section class="panel" aria-labelledby="pi-h"><div class="panel-head"><h2 id="pi-h">ℹ️ Praktische Infos</h2>' +
+      (isAdmin() && !editing ? '<button class="pill-btn" data-info-edit="' + esc(d.code) + '">Bearbeiten</button>' : "") + "</div>";
+    if (d.hotel && d.hotel.name) h += '<p class="hotel-line">🏨 <b>' + esc(d.hotel.name) + "</b>" + (d.hotel.address ? " · " + esc(d.hotel.address) : "") + "</p>";
+    if (editing) {
+      h += '<form class="mini-form" data-info-form="' + esc(d.code) + '"><div class="grid2">' + INFO_FIELDS.map(function (f) {
+        return '<label class="field"><span>' + f[1] + '</span><input name="' + f[0] + '" maxlength="300" value="' + esc(inf[f[0]]) + '"></label>';
+      }).join("") + '</div><div class="actions"><button type="button" class="ghost" data-info-cancel="1">Abbrechen</button><button type="submit" class="primary">Speichern</button></div></form>';
+    } else {
+      h += '<dl class="facts">' + INFO_FIELDS.map(function (f) {
+        var v = inf[f[0]];
+        return "<div><dt>" + f[1] + "</dt><dd" + (v ? "" : ' class="muted"') + ">" + (v ? esc(v) : "–") + "</dd></div>";
+      }).join("") + "</dl>";
+      if (isAdmin()) h += '<p class="note">Als Admin kannst du diese Infos bearbeiten. Hotel und Zeitzone verwaltest du unter Admin → Destinationen.</p>';
+    }
+    return h + "</section>";
+  }
+
+  // ---------- Meetups ----------
+  function meetTime(s, tz) {
+    var day = s.slice(0, 10), today = todayIn(tz);
+    var lbl = day === today ? "Heute" : day === addDays(today, 1) ? "Morgen" : dayFmt(day);
+    return lbl + ", " + s.slice(11, 16) + " Uhr (Ortszeit)";
+  }
+  function meetupsHtml(d) {
+    var list = S.meetups.filter(function (m) { return m.dest === d.code; }).sort(function (a, b) { return a.time < b.time ? -1 : 1; });
+    var items = list.map(function (m) {
+      var joined = m.attendees.some(function (a) { return a.id === ME.id; }), mine = m.creatorId === ME.id;
+      var names = m.attendees.map(function (a) { return a.id === ME.id ? "du" : a.name; });
+      var del = "";
+      if (mine) del = S.confirmMeet === m.id
+        ? '<span class="confirm">Wirklich löschen? <button class="yes" data-meet-del-yes="' + esc(m.id) + '">Löschen</button><button data-meet-del-no="1">Abbrechen</button></span>'
+        : '<button class="linkish danger" data-meet-del="' + esc(m.id) + '">Löschen</button>';
+      return '<article class="meet"><h3>' + esc(m.title) + '</h3><div class="meet-meta"><span>📍 ' + esc(m.place) + "</span><span>🕖 " + esc(meetTime(m.time, d.tz)) + "</span>" +
+        "<span>👥 " + m.attendees.length + " dabei" + (names.length ? ": " + esc(names.join(", ")) : "") + "</span></div>" +
+        '<div class="meet-foot">' + (joined ? '<span class="joined">✓ Du bist dabei</span>' : "") +
+        '<button class="join' + (joined ? " on" : "") + '" data-join="' + esc(m.id) + '">' + (joined ? "Doch nicht" : "Bin dabei") + "</button>" +
+        '<span class="by">von ' + esc(mine ? "dir" : m.creator) + "</span>" + del + "</div></article>";
+    }).join("");
+    var form = "";
+    if (S.meetForm) {
+      var v = S.meetDraft || { title: "", place: "", time: todayIn(d.tz) + "T19:00" }, er = S.meetErr || {};
+      var err = function (k) { return er[k] ? '<span class="err">' + esc(er[k]) + "</span>" : ""; };
+      form = '<form class="mini-form meet-form" data-meet-form="1" novalidate><div class="grid2">' +
+        '<label class="field"><span>Was?</span><input name="title" maxlength="80" value="' + esc(v.title) + '" placeholder="z. B. Pizza bei Da Mario">' + err("title") + "</label>" +
+        '<label class="field"><span>Wo?</span><input name="place" maxlength="120" value="' + esc(v.place) + '" placeholder="z. B. Hotel-Lobby">' + err("place") + "</label>" +
+        '<label class="field"><span>Wann? (Ortszeit)</span><input name="time" type="datetime-local" value="' + esc(v.time) + '">' + err("time") + "</label></div>" +
+        '<div class="actions"><button type="button" class="ghost" data-act="meet-cancel">Abbrechen</button><button type="submit" class="primary">Treffpunkt erstellen</button></div></form>';
+    }
+    return '<section class="panel" aria-labelledby="mt-h"><div class="panel-head"><h2 id="mt-h">🍻 Crew-Treffpunkte</h2>' +
+      (S.meetForm ? "" : '<button class="pill-btn" data-act="meet-new">+ Treffpunkt vorschlagen</button>') + "</div>" + form +
+      (items || (S.meetForm ? "" : '<p class="lead">Gerade ist nichts geplant. Schlag doch etwas vor!</p>')) +
+      '<p class="note">Treffpunkte verschwinden automatisch drei Stunden nach Beginn.</p></section>';
+  }
+
   function renderDest() {
-    var d = dest(S.dest), st = CITY_STYLE[d.code];
+    var d = dest(S.dest), st = styleOf(d.code);
     var big = CATS.filter(function (c) { return c.featured; }).map(function (c, i) {
       var n = count(d.code, c.slug), top = bestOf(d.code, c.slug);
       var tops = top.length
@@ -677,40 +1245,70 @@ form.entry { background: var(--surface); border: 1px solid var(--line); border-r
         '</span><span class="n">' + (n ? n + (n === 1 ? " Tipp" : " Tipps") : "Noch leer") + "</span></button>";
     }).join("");
     var info = d.code === "LJU" ? '<div class="info-box">Beispiel für einen Admin-Infotext: Crew-Hotel im Zentrum, Transfer ca. 25 Minuten. Shuttle-Treffpunkt in der Lobby.</div>' : "";
-    return shell('<div class="dest-head"><span class="dest-code">' + d.code + '</span><div><h1 class="page">' + esc(d.city) + '</h1><p class="lead">' + esc(d.country) + " · " + count(d.code) + " Tipps von Kolleg:innen</p></div></div>" + info +
-      chatTeaser(d) + '<div class="feat-grid">' + big + '</div><h2 class="more-h">Weitere Kategorien</h2><div class="cat-grid">' + small + "</div>");
+    return shell('<button class="back-dest" data-go="home">← Alle Destinationen</button>' +
+      '<div class="dest-head"><span class="dest-code">' + esc(d.code) + '</span><div><h1 class="page">' + esc(d.city) + '</h1><p class="lead">' + esc(d.country) + " · " + count(d.code) + " Tipps von Kolleg:innen</p></div></div>" +
+      '<div class="dest-actions"><button class="pill-btn' + (S.showMap ? " on" : "") + '" data-act="map" aria-expanded="' + S.showMap + '">🗺️ Karte</button>' +
+      '<button class="pill-btn" data-act="offline">⬇️ Für offline speichern</button></div>' +
+      (S.showMap ? mapHtml(d) : "") + info + chatTeaser(d) + meetupsHtml(d) +
+      '<div class="feat-grid">' + big + '</div><h2 class="more-h">Weitere Kategorien</h2><div class="cat-grid">' + small + "</div>" + infoPanel(d));
   }
 
+  // ---------- Entry cards ----------
+  function badgesHtml(e) {
+    var b = [];
+    if (e.priceLevel) b.push('<span class="badge" title="Preisniveau">' + "€".repeat(e.priceLevel) + "</span>");
+    var o = openState(e);
+    if (o) b.push(o.open ? '<span class="badge ok">🟢 ' + (o.allDay ? "Rund um die Uhr offen" : "Jetzt offen bis " + esc(o.until)) + "</span>" : '<span class="badge bad">🔴 Geschlossen</span>');
+    if (e.veggie) b.push('<span class="badge">🌱 Vegi</span>');
+    var w = walkM(e);
+    if (w != null) b.push('<span class="badge walk">🚶 ' + walkText(w) + "</span>");
+    return b.length ? '<div class="badges">' + b.join("") + "</div>" : "";
+  }
+  function photosHtml(e) {
+    var ps = e.photos || [];
+    if (!ps.length) return "";
+    return '<div class="photos">' + ps.map(function (p, i) {
+      return '<button class="thumb" data-photo="' + esc(p.id) + '" data-pentry="' + esc(e.id) + '" aria-label="Foto ' + (i + 1) + ' vergrössern"><img src="' + esc(p.src) + '" alt="" loading="lazy"></button>';
+    }).join("") + "</div>";
+  }
   function card(e) {
     var a = avg(e), n = allRatings(e).length, own = e.authorId === ME.id;
     var long = e.desc.length > 220 && !S.expanded[e.id];
     var meta = "";
     var maps = e.mapsUrl || (e.address ? "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(e.address) : "");
     if (e.address) meta += "<div>📍 " + esc(e.address) + "</div>";
+    if (e.openFrom && e.openUntil) {
+      var allDay = e.openFrom === e.openUntil;
+      meta += "<div>🕒 " + (allDay ? "Rund um die Uhr" : esc(e.openFrom) + "–" + esc(e.openUntil) + " Uhr") +
+        (e.closedDays && e.closedDays.length ? " · Ruhetag: " + e.closedDays.map(function (x) { return DAY_SHORT[x]; }).join(", ") : "") + "</div>";
+    }
     if (e.phone) meta += "<div>📞 " + esc(e.phone) + "</div>";
     if (maps) meta += '<div>🗺️ <a href="' + esc(maps) + '" target="_blank" rel="noopener noreferrer">In Google Maps öffnen</a></div>';
     if (e.website) meta += '<div>🔗 <a href="' + esc(e.website) + '" target="_blank" rel="noopener noreferrer">' + esc(e.website.replace(/^https?:\/\//, "")) + "</a></div>";
     var rate = "";
-    for (var i = 1; i <= 5; i++) rate += '<button data-rate="' + i + '" data-id="' + e.id + '" class="' + (i <= e.myRating ? "lit" : "") + '" aria-label="' + i + (i === 1 ? " Stern" : " Sterne") + '">★</button>';
+    for (var i = 1; i <= 5; i++) rate += '<button data-rate="' + i + '" data-id="' + esc(e.id) + '" class="' + (i <= e.myRating ? "lit" : "") + '" aria-label="' + i + (i === 1 ? " Stern" : " Sterne") + '">★</button>';
     var ownHtml = "";
     if (own) {
       ownHtml = S.confirmDel === e.id
-        ? '<span class="own confirm">Wirklich löschen? <button class="yes" data-del-yes="' + e.id + '">Löschen</button><button data-del-no="1">Abbrechen</button></span>'
-        : '<span class="own"><button class="edit" data-edit="' + e.id + '">Bearbeiten</button><button class="del" data-del="' + e.id + '">Löschen</button></span>';
+        ? '<span class="own confirm">Wirklich löschen? <button class="yes" data-del-yes="' + esc(e.id) + '">Löschen</button><button data-del-no="1">Abbrechen</button></span>'
+        : '<span class="own"><button class="edit" data-edit="' + esc(e.id) + '">Bearbeiten</button><button class="del" data-del="' + esc(e.id) + '">Löschen</button></span>';
     }
-    return '<article class="card" id="' + e.id + '"><div class="card-head"><h3>' + esc(e.title) + (e.example ? '<span class="tag">Beispiel</span>' : "") + "</h3>" +
+    return '<article class="card" id="' + esc(e.id) + '"><div class="card-head"><h3>' + esc(e.title) + (e.example ? '<span class="tag">Beispiel</span>' : "") + "</h3>" +
       '<div class="avg">' + (n ? a.toFixed(1) + " (" + n + ")" + starsHtml(a) : "Noch keine Bewertung") + "</div></div>" +
+      badgesHtml(e) +
       '<p class="desc' + (long ? " clamp" : "") + '">' + esc(e.desc) + "</p>" +
-      (e.desc.length > 220 ? '<button class="more" data-more="' + e.id + '">' + (long ? "Mehr anzeigen" : "Weniger anzeigen") + "</button>" : "") +
+      (e.desc.length > 220 ? '<button class="more" data-more="' + esc(e.id) + '">' + (long ? "Mehr anzeigen" : "Weniger anzeigen") + "</button>" : "") +
+      photosHtml(e) +
       (meta ? '<div class="meta">' + meta + "</div>" : "") +
       '<div class="card-foot"><div class="rate"><span>' + (e.myRating ? "Deine Bewertung" : "Bewerten") + '</span><span class="stars">' + rate + "</span></div>" +
-      '<button class="fav' + (e.fav ? " on" : "") + '" data-fav="' + e.id + '" aria-label="' + (e.fav ? "Aus Favoriten entfernen" : "Zu Favoriten hinzufügen") + '">♥</button>' +
-      '<span class="by">von ' + esc(e.author) + " · " + fmtDate(e.created) + "</span>" + ownHtml + "</div>" + commentsHtml(e) + "</article>";
+      '<button class="fav' + (e.fav ? " on" : "") + '" data-fav="' + esc(e.id) + '" aria-label="' + (e.fav ? "Aus Favoriten entfernen" : "Zu Favoriten hinzufügen") + '">♥</button>' +
+      '<span class="by">von ' + esc(e.author) + " · " + fmtDate(e.created) + "</span>" +
+      (own ? "" : '<button class="linkish report-link" data-report="entry" data-rid="' + esc(e.id) + '">Melden</button>') + ownHtml + "</div>" + commentsHtml(e) + "</article>";
   }
 
   function commentsHtml(e) {
     var list = e.comments || [], n = list.length, open = !!S.openComments[e.id];
-    var h = '<div class="comments"><button class="com-toggle" data-com-toggle="' + e.id + '" aria-expanded="' + open + '">💬 ' +
+    var h = '<div class="comments"><button class="com-toggle" data-com-toggle="' + esc(e.id) + '" aria-expanded="' + open + '">💬 ' +
       (n === 0 ? "Kommentieren" : n + (n === 1 ? " Kommentar" : " Kommentare")) + ' <span aria-hidden="true">' + (open ? "▲" : "▼") + "</span></button>";
     if (!open) return h + "</div>";
     h += '<div class="com-list">';
@@ -719,47 +1317,101 @@ form.entry { background: var(--surface); border: 1px solid var(--line); border-r
       var del = "";
       if (c.authorId === ME.id) {
         del = S.confirmCom === c.id
-          ? '<span class="com-del"><button class="danger" data-com-del-yes="' + c.id + '" data-entry="' + e.id + '">Wirklich löschen</button><button data-com-del-no="1">Abbrechen</button></span>'
-          : '<span class="com-del"><button class="danger" data-com-del="' + c.id + '">Löschen</button></span>';
+          ? '<span class="com-del"><button class="danger" data-com-del-yes="' + esc(c.id) + '" data-entry="' + esc(e.id) + '">Wirklich löschen</button><button data-com-del-no="1">Abbrechen</button></span>'
+          : '<span class="com-del"><button class="danger" data-com-del="' + esc(c.id) + '">Löschen</button></span>';
+      } else {
+        del = '<span class="com-del"><button data-report="comment" data-rid="' + esc(c.id) + '" data-rentry="' + esc(e.id) + '">Melden</button></span>';
       }
       h += '<div class="com"><div class="com-head"><b>' + esc(c.author) + "</b>" + (stars ? '<span class="com-stars" aria-label="' + stars + ' Sterne">' + "★".repeat(stars) + "</span>" : "") +
-        "<span>" + fmtDate(c.created) + "</span>" + del + '</div><p>' + esc(c.text) + "</p></div>";
+        "<span>" + fmtDate(c.created) + "</span>" + del + "</div><p>" + esc(c.text) + "</p></div>";
     });
-    h += '<form class="com-form" data-com-form="' + e.id + '"><label class="sr" for="com-' + e.id + '">Kommentar</label><textarea id="com-' + e.id + '" name="text" rows="2" maxlength="2000" placeholder="Deine Erfahrung, ein Update oder eine Frage…"></textarea>' +
+    h += '<form class="com-form" data-com-form="' + esc(e.id) + '"><label class="sr" for="com-' + esc(e.id) + '">Kommentar</label><textarea id="com-' + esc(e.id) + '" name="text" rows="2" maxlength="2000" placeholder="Deine Erfahrung, ein Update oder eine Frage…"></textarea>' +
       (S.comErr[e.id] ? '<span class="err">' + esc(S.comErr[e.id]) + "</span>" : "") +
       '<div class="actions"><button type="submit" class="primary">Kommentar senden</button></div></form></div>';
     return h + "</div>";
   }
 
+  // ---------- Category list ----------
   function renderList() {
-    var c = cat(S.cat), q = S.q.trim().toLowerCase();
+    var c = cat(S.cat), q = S.q.trim().toLowerCase(), d = dest(S.dest), hasHotel = d && hasCoords(d.hotel);
+    if (S.sort === "near" && !hasHotel) S.sort = "az";
+    var filtered = S.fPrice || S.fOpen || S.fVeg;
     var list = S.entries.filter(function (e) {
       if (e.dest !== S.dest || e.cat !== S.cat) return false;
       if (S.sort === "fav" && !e.fav) return false;
+      if (S.fPrice && e.priceLevel !== S.fPrice) return false;
+      if (S.fVeg && !e.veggie) return false;
+      if (S.fOpen) { var o = openState(e); if (!o || !o.open) return false; }
       if (q && (e.title + " " + e.desc + " " + (e.address || "") + " " + (e.comments || []).map(function (c) { return c.text; }).join(" ")).toLowerCase().indexOf(q) === -1) return false;
       return true;
     });
-    var byTitle = function (a, b) { return a.title.localeCompare(b.title, "de", { sensitivity: "base" }); };
     list.sort(function (a, b) {
       if (S.sort === "rating") return avg(b) - avg(a) || allRatings(b).length - allRatings(a).length || byTitle(a, b);
       if (S.sort === "new") return b.created < a.created ? -1 : b.created > a.created ? 1 : 0;
+      if (S.sort === "near") {
+        var wa = walkM(a), wb = walkM(b);
+        if (wa == null && wb == null) return byTitle(a, b);
+        if (wa == null) return 1;
+        if (wb == null) return -1;
+        return wa - wb;
+      }
       return byTitle(a, b);
     });
-    var tabs = [["az", "A–Z", "A–Z"], ["rating", "★ Bewertung", "★"], ["new", "Neueste", "Neu"], ["fav", "♥ Favoriten", "♥"]].map(function (t) {
-      return '<button data-sort="' + t[0] + '" class="' + (S.sort === t[0] ? "on" : "") + '"><span class="long">' + t[1] + '</span><span class="short">' + t[2] + "</span></button>";
+    var tdef = [["az", "A–Z", "A–Z"], ["rating", "★ Bewertung", "★"], ["new", "Neueste", "Neu"]];
+    if (hasHotel) tdef.push(["near", "📍 Nähe", "📍"]);
+    tdef.push(["fav", "♥ Favoriten", "♥"]);
+    var tabs = tdef.map(function (t) {
+      return '<button data-sort="' + t[0] + '" class="' + (S.sort === t[0] ? "on" : "") + '" aria-pressed="' + (S.sort === t[0]) + '"><span class="long">' + t[1] + '</span><span class="short">' + t[2] + "</span></button>";
     }).join("");
+    var price = [[0, "Alle"], [1, "€"], [2, "€€"], [3, "€€€"]].map(function (p) {
+      return '<button data-fprice="' + p[0] + '" class="' + (S.fPrice === p[0] ? "on" : "") + '" aria-pressed="' + (S.fPrice === p[0]) + '">' + p[1] + "</button>";
+    }).join("");
+    var chips = '<div class="fchips" role="group" aria-label="Filter"><span class="flbl">Preis</span>' + price + '<span class="fsep" aria-hidden="true"></span>' +
+      '<button data-fopen="1" class="' + (S.fOpen ? "on" : "") + '" aria-pressed="' + S.fOpen + '">🟢 Jetzt offen</button>' +
+      '<button data-fveg="1" class="' + (S.fVeg ? "on" : "") + '" aria-pressed="' + S.fVeg + '">🌱 Vegetarisch</button>' +
+      (filtered ? '<button class="linkish fclear" data-freset="1">Filter zurücksetzen</button>' : "") + "</div>";
     var body = list.length ? list.map(card).join("") :
-      '<div class="empty">' + (S.sort === "fav" ? "Du hast hier noch keine Favoriten. Tippe auf ♥ bei einem Eintrag." :
+      '<div class="empty">' + (filtered ? "Keine Tipps passen zu deinen Filtern." + (S.fOpen ? " Tipps ohne Öffnungszeiten werden bei „Jetzt offen“ ausgeblendet." : "") :
+        S.sort === "fav" ? "Du hast hier noch keine Favoriten. Tippe auf ♥ bei einem Eintrag." :
         q ? "Keine Treffer." : "Noch keine Tipps in dieser Kategorie. Sei die erste Person, die einen teilt!") + "</div>";
-    return shell('<div class="list-head"><h1 class="page">' + S.dest + ": " + esc(c.label) + '</h1><button class="primary" data-act="new">+ Neuer Tipp</button></div>' +
-      '<div class="tools"><div class="tabs" role="tablist">' + tabs + '</div><input id="search" class="search" type="search" placeholder="Suchen…" value="' + esc(S.q) + '"></div>' + body);
+    return shell('<div class="list-head"><h1 class="page">' + esc(S.dest) + ": " + esc(c.label) + '</h1><button class="primary" data-act="new">+ Neuer Tipp</button></div>' +
+      '<div class="tools"><div class="tabs" style="grid-template-columns:repeat(' + tdef.length + ',1fr)">' + tabs + '</div><input id="search" class="search" type="search" placeholder="Suchen…" aria-label="Suchen" value="' + esc(S.q) + '"></div>' + chips + body);
   }
 
+  // ---------- Entry form ----------
+  function draftFrom(e) {
+    e = e || {};
+    return { title: e.title || "", desc: e.desc || "", address: e.address || "", phone: e.phone || "", mapsUrl: e.mapsUrl || "", website: e.website || "",
+      priceLevel: e.priceLevel ? String(e.priceLevel) : "", openFrom: e.openFrom || "", openUntil: e.openUntil || "", closedDays: (e.closedDays || []).slice(),
+      veggie: !!e.veggie, lat: hasCoords(e) ? String(e.lat) : "", lng: hasCoords(e) ? String(e.lng) : "", photos: (e.photos || []).map(clone) };
+  }
+  function syncDraft(form) {
+    var el = form.elements;
+    ["title", "desc", "address", "phone", "mapsUrl", "website", "priceLevel", "openFrom", "openUntil", "lat", "lng"].forEach(function (k) { if (el[k]) S.draft[k] = el[k].value; });
+    if (el.veggie) S.draft.veggie = el.veggie.checked;
+    S.draft.closedDays = Array.prototype.map.call(form.querySelectorAll('input[name="closedDays"]:checked'), function (i) { return +i.value; });
+  }
+  function canDeletePhoto(p) { return p.ownerId === ME.id || isAdmin(); }
   function renderForm() {
-    var e = S.editing === "new" ? {} : S.entries.filter(function (x) { return x.id === S.editing; })[0] || {};
+    var e = S.draft;
     var err = function (k) { return S.errors[k] ? '<span class="err">' + esc(S.errors[k]) + "</span>" : ""; };
     var c = cat(S.cat);
-    return shell('<h1 class="page">' + (S.editing === "new" ? "Neuer Tipp: " + S.dest + " · " + esc(c.label) : "Tipp bearbeiten") + "</h1>" +
+    var days = [1, 2, 3, 4, 5, 6, 0].map(function (n) {
+      return '<label><input type="checkbox" name="closedDays" value="' + n + '"' + (e.closedDays.indexOf(n) !== -1 ? " checked" : "") + "> " + DAY_SHORT[n] + "</label>";
+    }).join("");
+    var priceOpts = [["", "Keine Angabe"], ["1", "€ · günstig"], ["2", "€€ · mittel"], ["3", "€€€ · gehoben"]].map(function (o) {
+      return '<option value="' + o[0] + '"' + (e.priceLevel === o[0] ? " selected" : "") + ">" + o[1] + "</option>";
+    }).join("");
+    var full = e.photos.length >= 4;
+    var photos = '<div class="field"><span>Fotos (max. 4)</span>' +
+      (e.photos.length ? '<div class="photos">' + e.photos.map(function (p, i) {
+        return '<div class="ph-wrap"><span class="thumb"><img src="' + esc(p.src) + '" alt="Foto ' + (i + 1) + '"></span>' +
+          (canDeletePhoto(p) ? '<button type="button" class="ph-del" data-dphoto="' + esc(p.id) + '" aria-label="Foto ' + (i + 1) + ' entfernen">×</button>' : "") + "</div>";
+      }).join("") + "</div>" : "") +
+      '<input id="f-photos" type="file" accept="image/*" multiple' + (full || S.photoBusy ? " disabled" : "") + ' aria-describedby="ph-hint">' +
+      '<span id="ph-hint" class="hint">' + (S.photoBusy ? "Foto wird verkleinert…" : full ? "Maximal 4 Fotos erreicht." : "Bilder bis 10 MB. Sie werden auf max. 1200 px verkleinert, Standort- und Kameradaten werden dabei entfernt.") + "</span>" +
+      (S.photoErr ? '<span class="err" role="alert">' + esc(S.photoErr) + "</span>" : "") + "</div>";
+    return shell('<h1 class="page">' + (S.editing === "new" ? "Neuer Tipp: " + esc(S.dest) + " · " + esc(c.label) : "Tipp bearbeiten") + "</h1>" +
       '<form class="entry" id="entry-form" novalidate>' +
       '<label class="field"><span>Titel *</span><input id="f-title" name="title" maxlength="150" value="' + esc(e.title) + '" placeholder="z. B. Pizzeria am Fluss">' + err("title") + "</label>" +
       '<label class="field"><span>Beschreibung *</span><textarea id="f-desc" name="desc" rows="6" maxlength="5000" placeholder="Was macht es besonders? Preise, Öffnungszeiten, Weg vom Hotel…">' + esc(e.desc) + "</textarea>" + err("desc") + "</label>" +
@@ -768,10 +1420,74 @@ form.entry { background: var(--surface); border: 1px solid var(--line); border-r
       '<label class="field"><span>Telefon</span><input id="f-phone" name="phone" type="tel" value="' + esc(e.phone) + '"></label>' +
       '<label class="field"><span>Google-Maps-Link</span><input id="f-maps" name="mapsUrl" value="' + esc(e.mapsUrl) + '" placeholder="https://maps.app.goo.gl/…">' + err("mapsUrl") + "</label>" +
       '<label class="field"><span>Website</span><input id="f-web" name="website" value="' + esc(e.website) + '" placeholder="https://…">' + err("website") + "</label>" +
-      '</div><div class="actions"><button type="button" class="ghost" data-act="cancel">Abbrechen</button><button type="submit" class="primary">' +
+      "</div>" +
+      '<fieldset class="fset"><legend>Details für Filter</legend><div class="grid2">' +
+      '<label class="field"><span>Preisniveau</span><select id="f-price" name="priceLevel">' + priceOpts + "</select></label>" +
+      '<label class="check"><input type="checkbox" id="f-veg" name="veggie"' + (e.veggie ? " checked" : "") + "> 🌱 Gute vegetarische Optionen</label>" +
+      '<label class="field"><span>Öffnet um</span><input id="f-from" name="openFrom" type="time" value="' + esc(e.openFrom) + '"></label>' +
+      '<label class="field"><span>Schliesst um</span><input id="f-until" name="openUntil" type="time" value="' + esc(e.openUntil) + '"></label>' +
+      "</div>" + err("hours") +
+      '<span class="hint">Schliesst nach Mitternacht? Einfach z. B. 17:00 bis 01:00 eintragen. Gleiche Zeiten = rund um die Uhr.</span>' +
+      '<div class="field"><span>Ruhetage</span><div class="days">' + days + "</div></div></fieldset>" +
+      '<fieldset class="fset"><legend>Lage (für Karte und Fussweg)</legend><div class="grid2">' +
+      '<label class="field"><span>Breitengrad</span><input id="f-lat" name="lat" inputmode="decimal" value="' + esc(e.lat) + '" placeholder="z. B. 46.0511"></label>' +
+      '<label class="field"><span>Längengrad</span><input id="f-lng" name="lng" inputmode="decimal" value="' + esc(e.lng) + '" placeholder="z. B. 14.5051"></label>' +
+      "</div>" + err("coords") + "</fieldset>" +
+      photos +
+      '<div class="actions"><button type="button" class="ghost" data-act="cancel">Abbrechen</button><button type="submit" class="primary">' +
       (S.editing === "new" ? "Tipp speichern" : "Änderungen speichern") + "</button></div></form>");
   }
 
+  function resizeImage(file) {
+    return new Promise(function (res, rej) {
+      if (!file.type || file.type.indexOf("image/") !== 0) return rej(new Error("„" + file.name + "“ ist kein Bild. Bitte wähle ein Foto, z. B. JPG oder PNG."));
+      if (file.size > 10 * 1024 * 1024) return rej(new Error("„" + file.name + "“ ist grösser als 10 MB. Bitte wähle ein kleineres Foto."));
+      var url = URL.createObjectURL(file), img = new Image();
+      img.onload = function () {
+        var w = img.naturalWidth, h = img.naturalHeight, k = Math.min(1, 1200 / Math.max(w, h, 1));
+        var cv = document.createElement("canvas");
+        cv.width = Math.max(1, Math.round(w * k)); cv.height = Math.max(1, Math.round(h * k));
+        var cx = cv.getContext("2d");
+        cx.fillStyle = "#fff"; cx.fillRect(0, 0, cv.width, cv.height);
+        cx.drawImage(img, 0, 0, cv.width, cv.height);
+        URL.revokeObjectURL(url);
+        // Re-encoding through canvas drops EXIF data such as GPS position
+        res(cv.toDataURL("image/jpeg", 0.8));
+      };
+      img.onerror = function () { URL.revokeObjectURL(url); rej(new Error("„" + file.name + "“ konnte nicht gelesen werden. Ist es ein gültiges Bild?")); };
+      img.src = url;
+    });
+  }
+  function photoBytes() {
+    var n = 0;
+    S.entries.forEach(function (e) { if (e.id !== S.editing) (e.photos || []).forEach(function (p) { n += p.src.length; }); });
+    if (S.draft) S.draft.photos.forEach(function (p) { n += p.src.length; });
+    return n;
+  }
+  function handleFiles(fileList) {
+    var files = Array.prototype.slice.call(fileList || []);
+    if (!files.length || !S.draft) return;
+    S.photoErr = null;
+    var room = 4 - S.draft.photos.length;
+    if (files.length > room) {
+      S.photoErr = room > 0 ? "Maximal 4 Fotos pro Tipp. Es " + (room === 1 ? "wurde nur das erste" : "wurden nur die ersten " + room) + " übernommen." : "Maximal 4 Fotos pro Tipp.";
+      files = files.slice(0, Math.max(0, room));
+    }
+    var draft = S.draft;
+    S.photoBusy = true; render();
+    var chain = Promise.resolve();
+    files.forEach(function (f) {
+      chain = chain.then(function () {
+        return resizeImage(f).then(function (src) {
+          if (photoBytes() + src.length > PHOTO_CAP) throw new Error("Der Fotospeicher dieser Vorschau ist voll (ca. 3 MB). Entferne zuerst ein anderes Foto.");
+          draft.photos.push({ id: "p" + Date.now() + Math.random().toString(36).slice(2, 7), src: src, ownerId: ME.id, owner: ME.name });
+        }).catch(function (err) { S.photoErr = err.message; });
+      });
+    });
+    chain.then(function () { S.photoBusy = false; if (S.view === "form" && S.draft === draft) render(); });
+  }
+
+  // ---------- Chat ----------
   function chatOf(code) { return S.chats.filter(function (m) { return m.dest === code; }).sort(function (a, b) { return a.created < b.created ? -1 : 1; }); }
   function dayLabel(iso) {
     var d = new Date(iso), t = new Date(), y = new Date(); y.setDate(t.getDate() - 1);
@@ -784,7 +1500,7 @@ form.entry { background: var(--surface); border: 1px solid var(--line); border-r
 
   function chatTeaser(d) {
     var msgs = chatOf(d.code), last = msgs[msgs.length - 1];
-    return '<button class="teaser" data-chat="1"><span class="teaser-ico">💬' + (last ? '<i></i>' : "") + '</span><span class="teaser-body"><b>Crew-Chat ' + esc(d.city) + "</b>" +
+    return '<button class="teaser" data-chat="1"><span class="teaser-ico">💬' + (last ? "<i></i>" : "") + '</span><span class="teaser-body"><b>Crew-Chat ' + esc(d.city) + "</b>" +
       (last ? '<span class="teaser-last"><em>' + esc(last.authorId === ME.id ? "Du" : last.author) + ":</em> " + esc(last.text) + "</span>" : '<span class="teaser-last">Noch keine Nachrichten. Schreib die erste!</span>') +
       "</span>" + (last ? '<span class="teaser-time">' + (dayLabel(last.created) === "Heute" ? timeLabel(last.created) : dayLabel(last.created)) + "</span>" : "") + '<span class="teaser-go">→</span></button>';
   }
@@ -797,50 +1513,241 @@ form.entry { background: var(--surface); border: 1px solid var(--line); border-r
       var same = prev && !newDay && prev.authorId === m.authorId;
       if (newDay) h += '<div class="day">' + dayLabel(m.created) + "</div>";
       var del = mine ? (S.confirmChat === m.id
-        ? '<button class="mdel" data-chat-del-yes="' + m.id + '">Löschen?</button><button class="mdel" data-chat-del-no="1">Nein</button>'
-        : '<button class="mdel" data-chat-del="' + m.id + '">Löschen</button>') : "";
+        ? '<button class="mdel" data-chat-del-yes="' + esc(m.id) + '">Löschen?</button><button class="mdel" data-chat-del-no="1">Nein</button>'
+        : '<button class="mdel" data-chat-del="' + esc(m.id) + '">Löschen</button>')
+        : '<button class="mdel" data-report="chat" data-rid="' + esc(m.id) + '">Melden</button>';
       h += '<div class="msg-row ' + (mine ? "mine" : "") + (same ? "" : " gap") + '"><div class="bubble">' + (!mine && !same ? '<div class="who">' + esc(m.author) + "</div>" : "") +
-        '<p>' + esc(m.text) + '</p><div class="meta-line">' + del + "<span>" + timeLabel(m.created) + "</span></div></div></div>";
+        "<p>" + esc(m.text) + '</p><div class="meta-line">' + del + "<span>" + timeLabel(m.created) + "</span></div></div></div>";
     });
     if (!msgs.length) h = '<p class="chat-empty">Noch keine Nachrichten. Bist du gerade in ' + esc(d.city) + "? Schreib die erste Nachricht!</p>";
-    return shell('<div><h1 class="page">💬 Crew-Chat ' + d.code + '</h1><p class="lead">Für alle Crews, die gerade in ' + esc(d.city) + " sind: verabreden, Tipps teilen, Taxi teilen.</p></div>" +
+    return shell('<div><h1 class="page">💬 Crew-Chat ' + esc(d.code) + '</h1><p class="lead">Für alle Crews, die gerade in ' + esc(d.city) + " sind: verabreden, Tipps teilen, Taxi teilen.</p></div>" +
+      meetupsHtml(d) +
       '<div class="chat"><div class="chat-list" id="chat-list">' + h + "</div>" +
       '<form class="chat-form" data-chat-form="1"><div class="chat-input"><label class="sr" for="chat-text">Nachricht</label><textarea id="chat-text" name="text" rows="1" maxlength="1000" placeholder="Nachricht an alle in ' + esc(d.city) + '…"></textarea><button type="submit" class="primary">Senden</button></div>' +
       '<p class="chat-hint">Enter zum Senden. In der Vorschau bleiben Nachrichten nur in deinem Browser, in der echten App sehen sie alle Crews live.</p></form></div>');
   }
 
+  // ---------- Reports ----------
+  function resolveTarget(r) {
+    if (r.type === "entry") {
+      var e = find(r.targetId);
+      return e ? "Tipp „" + e.title + "“ (" + e.dest + " · " + (cat(e.cat) ? cat(e.cat).label : "") + ")" : null;
+    }
+    if (r.type === "comment") {
+      var en = find(r.entryId), c = en && (en.comments || []).filter(function (x) { return x.id === r.targetId; })[0];
+      return c ? "Kommentar von " + c.author + " zu „" + en.title + "“: " + c.text : null;
+    }
+    var m = S.chats.filter(function (x) { return x.id === r.targetId; })[0];
+    return m ? "Chat " + m.dest + " · " + m.author + ": " + m.text : null;
+  }
+  function reportModal() {
+    var r = S.reporting, prev = resolveTarget({ type: r.type, targetId: r.id, entryId: r.entry });
+    if (!prev) { S.reporting = null; return ""; }
+    var kind = r.type === "entry" ? "Tipp" : r.type === "comment" ? "Kommentar" : "Chat-Nachricht";
+    return '<div class="overlay" data-close-overlay="1"><form class="modal" data-report-form="1" role="dialog" aria-modal="true" aria-labelledby="rep-h">' +
+      '<h2 id="rep-h">' + kind + " melden</h2>" + '<div class="rep-target">' + esc(prev.length > 220 ? prev.slice(0, 220) + "…" : prev) + "</div>" +
+      '<fieldset class="reasons"><legend>Was stimmt nicht?</legend>' + REASONS.map(function (x, i) {
+        return '<label><input type="radio" name="reason" value="' + x + '"' + (i === 0 ? " checked" : "") + "> " + x + "</label>";
+      }).join("") + "</fieldset>" +
+      '<label class="field"><span>Notiz (optional)</span><textarea name="note" rows="3" maxlength="500" placeholder="z. B. Lokal ist seit Sommer geschlossen"></textarea></label>' +
+      '<p class="note">Deine Meldung sehen nur Admins.</p>' +
+      '<div class="actions"><button type="button" class="ghost" data-report-cancel="1">Abbrechen</button><button type="submit" class="primary">Melden</button></div></form></div>';
+  }
+
+  function lightboxHtml() {
+    var e = find(S.lightbox.entry), p = e && (e.photos || []).filter(function (x) { return x.id === S.lightbox.photo; })[0];
+    if (!p) { S.lightbox = null; return ""; }
+    var del = "";
+    if (canDeletePhoto(p)) del = S.confirmPhoto
+      ? '<span>Foto wirklich löschen?</span><button class="lb-del" data-lb-del-yes="1">Löschen</button><button data-lb-del-no="1">Abbrechen</button>'
+      : '<button class="lb-del" data-lb-del="1">Foto löschen</button>';
+    return '<div class="overlay" data-close-overlay="1" role="dialog" aria-modal="true" aria-label="Foto zu ' + esc(e.title) + '"><div class="lb">' +
+      '<img src="' + esc(p.src) + '" alt="Foto zu ' + esc(e.title) + '"><div class="lb-bar"><span>Foto von ' + esc(p.ownerId === ME.id ? "dir" : p.owner) + "</span>" + del +
+      '<button data-lb-close="1">Schliessen</button></div></div></div>';
+  }
+
+  // ---------- Admin ----------
+  function tzSelect(name, value) {
+    var opts = TZ_OPTIONS.indexOf(value) === -1 && value ? [value].concat(TZ_OPTIONS) : TZ_OPTIONS;
+    return '<select name="' + name + '">' + opts.map(function (t) { return '<option value="' + esc(t) + '"' + (t === value ? " selected" : "") + ">" + esc(t) + "</option>"; }).join("") + "</select>";
+  }
+  function adminReports() {
+    var open = S.reports.filter(function (r) { return r.status === "open"; }).reverse();
+    var done = S.reports.filter(function (r) { return r.status !== "open"; }).reverse();
+    var item = function (r) {
+      var prev = resolveTarget(r);
+      return '<article class="rep' + (r.status === "open" ? "" : " done") + '"><div class="rep-head"><b>' + esc(r.reason) + "</b>" +
+        '<span class="by">' + (r.type === "entry" ? "Tipp" : r.type === "comment" ? "Kommentar" : "Chat") + " · gemeldet von " + esc(r.reporter) + " · " + fmtDate(r.created) + "</span></div>" +
+        '<div class="rep-target">' + (prev ? esc(prev.length > 260 ? prev.slice(0, 260) + "…" : prev) : "<i>Inhalt wurde bereits gelöscht.</i>") + "</div>" +
+        (r.note ? '<p class="rep-note">Notiz: ' + esc(r.note) + "</p>" : "") +
+        (r.status === "open" ? '<div class="meet-foot">' + (prev ? '<button class="danger-btn" data-rep-del="' + esc(r.id) + '">Inhalt löschen</button>' : "") +
+          '<button class="pill-btn" data-rep-done="' + esc(r.id) + '">Erledigt</button></div>' : '<span class="by">' + (r.status === "deleted" ? "Inhalt gelöscht" : "Erledigt") + "</span>") + "</article>";
+    };
+    return (open.length ? open.map(item).join("") : '<div class="empty">Keine offenen Meldungen. Alles sauber! 🎉</div>') +
+      (done.length ? '<h2 class="more-h">Erledigt (' + done.length + ")</h2>" + done.map(item).join("") : "");
+  }
+  function adminRoles() {
+    return '<section class="panel"><p class="note">In der App bestimmen die E-Mail-Adressen in <code>ADMIN_EMAILS</code> die ersten Admins. Danach vergeben Admins hier weitere Rollen.</p>' +
+      S.users.map(function (u) {
+        var self = u.id === ME.id;
+        return '<div class="urow"><div class="u-who"><b>' + esc(u.name) + (self ? " (du)" : "") + '</b><span class="by">' + esc(u.email) + "</span></div>" +
+          '<div class="seg" role="group" aria-label="Rolle von ' + esc(u.name) + '">' + [["user", "User"], ["admin", "Admin"]].map(function (r) {
+            return '<button data-role="' + esc(u.id) + '" data-role-val="' + r[0] + '" class="' + (u.role === r[0] ? "on" : "") + '" aria-pressed="' + (u.role === r[0]) + '"' + (self ? ' disabled title="Deine eigene Rolle kannst du nicht ändern"' : "") + ">" + r[1] + "</button>";
+          }).join("") + "</div></div>";
+      }).join("") + "</section>";
+  }
+  function destFormFields(v, err, first) {
+    var e = function (k) { return err[k] ? '<span class="err">' + esc(err[k]) + "</span>" : ""; };
+    return '<div class="grid2">' + (first || "") +
+      '<label class="field"><span>Stadt</span><input name="city" maxlength="60" value="' + esc(v.city) + '">' + e("city") + "</label>" +
+      '<label class="field"><span>Land</span><input name="country" maxlength="60" value="' + esc(v.country) + '">' + e("country") + "</label>" +
+      '<label class="field"><span>Zeitzone</span>' + tzSelect("tz", v.tz) + "</label>";
+  }
+  function adminDests() {
+    var rows = S.dests.map(function (d) {
+      var editing = S.editDest === d.code, h = d.hotel || {};
+      var row = '<div class="drow"><div class="u-who"><b>' + esc(d.code) + " · " + esc(d.city) + '</b><span class="by">' + esc(d.country) + " · " + esc(d.tz) +
+        " · " + (hasCoords(d.hotel) ? "🏨 " + esc(d.hotel.name || "Hotel") : "kein Hotel") + "</span></div>" +
+        '<div class="drow-act"><span class="switch-wrap"><button class="switch" role="switch" aria-checked="' + (d.active !== false) + '" data-dactive="' + esc(d.code) + '" aria-label="' + esc(d.code) + ' aktiv"></button><span class="by">' + (d.active !== false ? "Aktiv" : "Ausgeblendet") + "</span></span>" +
+        (editing ? "" : '<button class="pill-btn" data-dedit="' + esc(d.code) + '">Bearbeiten</button>') + "</div></div>";
+      if (editing) {
+        var v = S.destDraft[d.code] || { city: d.city, country: d.country, tz: d.tz, hname: h.name || "", haddr: h.address || "", hlat: hasCoords(h) ? String(h.lat) : "", hlng: hasCoords(h) ? String(h.lng) : "" };
+        var er = S.destErr[d.code] || {};
+        row += '<form class="mini-form dest-edit" data-dest-form="' + esc(d.code) + '" novalidate>' + destFormFields(v, er) +
+          '<label class="field"><span>Crew-Hotel</span><input name="hname" maxlength="100" value="' + esc(v.hname) + '" placeholder="z. B. Hotel am Fluss"></label>' +
+          '<label class="field"><span>Hotel-Adresse</span><input name="haddr" maxlength="160" value="' + esc(v.haddr) + '"></label>' +
+          '<label class="field"><span>Hotel Breitengrad</span><input name="hlat" inputmode="decimal" value="' + esc(v.hlat) + '" placeholder="z. B. 46.0511"></label>' +
+          '<label class="field"><span>Hotel Längengrad</span><input name="hlng" inputmode="decimal" value="' + esc(v.hlng) + '" placeholder="z. B. 14.5051"></label></div>' +
+          (er.coords ? '<span class="err">' + esc(er.coords) + "</span>" : "") +
+          '<div class="actions"><button type="button" class="ghost" data-dedit-cancel="1">Abbrechen</button><button type="submit" class="primary">Speichern</button></div></form>';
+      }
+      return '<div class="dblock">' + row + "</div>";
+    }).join("");
+    var nv = S.destDraft._new || { code: "", city: "", country: "", tz: "Europe/Zurich" }, ne = S.destErr._new || {};
+    var add = '<section class="panel"><h2>Neue Destination</h2><form class="mini-form" data-dest-add="1" novalidate>' +
+      destFormFields(nv, ne, '<label class="field"><span>IATA-Code</span><input name="code" maxlength="3" autocapitalize="characters" value="' + esc(nv.code) + '" placeholder="z. B. LIS">' + (ne.code ? '<span class="err">' + esc(ne.code) + "</span>" : "") + "</label>") + "</div>" +
+      '<div class="actions"><button type="submit" class="primary">Destination hinzufügen</button></div></form>' +
+      '<p class="note">Neue Destinationen erscheinen sofort auf der Startseite (mit allgemeiner Skyline). Ausgeblendete sind nur hier sichtbar.</p></section>';
+    return '<section class="panel">' + rows + "</section>" + add;
+  }
+  function renderAdmin() {
+    if (!isAdmin()) return plainShell("🛡️ Admin", '<div class="empty">Dieser Bereich ist nur für Admins.</div>');
+    var n = openReports();
+    var tabs = [["reports", "Meldungen" + (n ? " (" + n + ")" : "")], ["roles", "Rollen"], ["dests", "Destinationen"]].map(function (t) {
+      return '<button data-atab="' + t[0] + '" class="' + (S.adminTab === t[0] ? "on" : "") + '" aria-pressed="' + (S.adminTab === t[0]) + '">' + t[1] + "</button>";
+    }).join("");
+    var body = S.adminTab === "roles" ? adminRoles() : S.adminTab === "dests" ? adminDests() : adminReports();
+    return plainShell("🛡️ Admin", '<button class="back-dest" data-go="home">← Alle Destinationen</button><div><h1 class="page">Admin</h1><p class="lead">Meldungen prüfen, Rollen vergeben und Destinationen verwalten.</p></div>' +
+      '<div class="tabs atabs" style="grid-template-columns:repeat(3,1fr)">' + tabs + "</div>" + body);
+  }
+
+  // ---------- My nightstops ----------
+  function renderNightstops() {
+    var today = localDay();
+    var list = S.nightstops.slice().sort(function (a, b) { return a.date < b.date ? -1 : a.date > b.date ? 1 : 0; });
+    var rows = list.length ? list.map(function (n) {
+      var d = dest(n.dest);
+      return '<div class="urow"><div class="u-who"><b>' + esc(n.dest) + " · " + esc(d ? d.city : "") + '</b><span class="by">' + esc(dayFmt(n.date, true)) + " · " + relDay(n.date) + "</span></div>" +
+        '<button class="linkish danger" data-ns-del="' + esc(n.id) + '">Entfernen</button></div>';
+    }).join("") : '<p class="lead">Noch keine Nightstops eingetragen.</p>';
+    var opts = activeDests().map(function (d) { return '<option value="' + esc(d.code) + '">' + esc(d.code) + " · " + esc(d.city) + "</option>"; }).join("");
+    return plainShell("📅 Meine Nightstops", '<button class="back-dest" data-go="home">← Alle Destinationen</button>' +
+      '<div><h1 class="page">📅 Meine Nightstops</h1><p class="lead">Trag deine nächsten Nightstops ein. Auf der Startseite zeigen wir dir unter „Für dich“ die neusten Tipps für diese Städte.</p></div>' +
+      '<section class="panel"><h2>Nightstop hinzufügen</h2><form class="mini-form" data-ns-form="1" novalidate><div class="grid2">' +
+      '<label class="field"><span>Destination</span><select name="dest">' + opts + "</select></label>" +
+      '<label class="field"><span>Datum</span><input type="date" name="date" min="' + today + '" value="' + addDays(today, 1) + '"></label></div>' +
+      (S.nsErr ? '<span class="err">' + esc(S.nsErr) + "</span>" : "") +
+      '<div class="actions"><button type="submit" class="primary">Hinzufügen</button></div></form></section>' +
+      '<section class="panel"><h2>Geplant</h2>' + rows + "</section>");
+  }
+
+  // ---------- Render ----------
+  function prune() {
+    var now = Date.now(), n = S.meetups.length, k = S.nightstops.length, today = localDay();
+    S.meetups = S.meetups.filter(function (m) { var t = zonedToEpoch(m.time, tzOf(m.dest)); return !isNaN(t) && t + 3 * 3600e3 > now; });
+    S.nightstops = S.nightstops.filter(function (x) { return x.date >= today; });
+    if (S.meetups.length !== n || S.nightstops.length !== k) persist();
+  }
+
   function render() {
+    prune();
     var focusSearch = document.activeElement && document.activeElement.id === "search";
     var pos = focusSearch ? document.activeElement.selectionStart : 0;
+    if ((S.view === "dest" || S.view === "list" || S.view === "chat" || S.view === "form") && !dest(S.dest)) S.view = "home";
+    if (S.view === "form" && !S.draft) S.view = "list";
     if (!S.loggedIn) root.innerHTML = renderLogin();
     else if (S.view === "home") root.innerHTML = renderHome();
     else if (S.view === "dest") root.innerHTML = renderDest();
     else if (S.view === "form") root.innerHTML = renderForm();
+    else if (S.view === "admin") root.innerHTML = renderAdmin();
+    else if (S.view === "nightstops") root.innerHTML = renderNightstops();
     else if (S.view === "chat") { root.innerHTML = renderChat(); var cl = document.getElementById("chat-list"); if (cl) cl.scrollTop = cl.scrollHeight; }
     else root.innerHTML = renderList();
+    if (S.loggedIn && S.reporting) {
+      root.insertAdjacentHTML("beforeend", reportModal());
+      var r0 = root.querySelector('.modal input[name="reason"]'); if (r0) r0.focus();
+    }
+    if (S.loggedIn && S.lightbox) {
+      root.insertAdjacentHTML("beforeend", lightboxHtml());
+      var lc = root.querySelector("[data-lb-close]"); if (lc) lc.focus();
+    }
     if (focusSearch) { var s = document.getElementById("search"); if (s) { s.focus(); s.setSelectionRange(pos, pos); } }
   }
 
   function go(view) { S.view = view; S.confirmDel = null; S.errors = {}; render(); window.scrollTo(0, 0); }
   function find(id) { return S.entries.filter(function (e) { return e.id === id; })[0]; }
+  function resetFilters() { S.sort = "az"; S.q = ""; S.fPrice = 0; S.fOpen = false; S.fVeg = false; }
+  function openEntry(id) {
+    var e = find(id);
+    if (!e) return;
+    S.dest = e.dest; S.cat = e.cat; resetFilters(); S.lightbox = null;
+    go("list");
+    var el = document.getElementById(id);
+    if (el) { el.scrollIntoView({ block: "start" }); el.classList.add("flash"); }
+  }
+  function deleteTarget(r) {
+    if (r.type === "entry") S.entries = S.entries.filter(function (e) { return e.id !== r.targetId; });
+    else if (r.type === "comment") { var en = find(r.entryId); if (en) en.comments = en.comments.filter(function (c) { return c.id !== r.targetId; }); }
+    else S.chats = S.chats.filter(function (m) { return m.id !== r.targetId; });
+    S.reports.forEach(function (x) { if (x.status === "open" && x.type === r.type && x.targetId === r.targetId) x.status = "deleted"; });
+  }
+  function parseCoord(s) { s = String(s || "").trim().replace(",", "."); return s === "" ? null : /^-?\d+(\.\d+)?$/.test(s) ? parseFloat(s) : NaN; }
+  function coordsErr(lat, lng) {
+    if (lat === null && lng === null) return null;
+    if (lat === null || lng === null || isNaN(lat) || isNaN(lng) || lat < -90 || lat > 90 || lng < -180 || lng > 180) return "Bitte beide Koordinaten gültig angeben, z. B. 46.0511 und 14.5051 (oder beide leer lassen).";
+    return null;
+  }
 
   root.addEventListener("click", function (ev) {
+    if (ev.target.dataset && ev.target.dataset.closeOverlay) { S.reporting = null; S.lightbox = null; S.confirmPhoto = false; render(); return; }
+    var pin = ev.target.closest("[data-pin]");
+    if (pin) { var pid = pin.getAttribute("data-pin"); S.mapSel = S.mapSel === pid ? null : pid; render(); return; }
     var t = ev.target.closest("button");
-    if (!t) return;
+    if (!t || t.disabled) return;
     var d = t.dataset;
     if (d.act === "login") { S.loggedIn = true; persist(); go("home"); }
     else if (d.act === "logout") { S.loggedIn = false; persist(); render(); }
     else if (d.go === "home") go("home");
-    else if (d.dest) { S.dest = d.dest; S.cat = null; go("dest"); }
+    else if (d.go === "admin") { S.adminTab = S.adminTab || "reports"; go("admin"); }
+    else if (d.act === "ns-open") { S.nsErr = null; go("nightstops"); }
+    else if (d.dest) { S.dest = d.dest; S.cat = null; S.mapSel = null; S.editInfo = null; S.meetForm = false; go("dest"); }
     else if (d.chat) { S.cat = null; go("chat"); }
     else if (d.chatDel) { S.confirmChat = d.chatDel; render(); }
     else if (d.chatDelNo) { S.confirmChat = null; render(); }
     else if (d.chatDelYes) { S.chats = S.chats.filter(function (m) { return m.id !== d.chatDelYes; }); S.confirmChat = null; persist(); render(); }
-    else if (d.cat) { S.cat = d.cat; S.sort = "az"; S.q = ""; go("list"); }
+    else if (d.cat) { S.cat = d.cat; resetFilters(); go("list"); }
     else if (d.sort) { S.sort = d.sort; S.confirmDel = null; render(); }
-    else if (d.act === "new") { S.editing = "new"; go("form"); }
-    else if (d.act === "cancel") go("list");
-    else if (d.edit) { S.editing = d.edit; go("form"); }
+    else if (d.fprice) { S.fPrice = +d.fprice; render(); }
+    else if (d.fopen) { S.fOpen = !S.fOpen; render(); }
+    else if (d.fveg) { S.fVeg = !S.fVeg; render(); }
+    else if (d.freset) { S.fPrice = 0; S.fOpen = false; S.fVeg = false; render(); }
+    else if (d.act === "new") { S.editing = "new"; S.draft = draftFrom(null); S.photoErr = null; go("form"); }
+    else if (d.act === "cancel") { S.draft = null; go("list"); }
+    else if (d.edit) { S.editing = d.edit; S.draft = draftFrom(find(d.edit)); S.photoErr = null; go("form"); }
+    else if (d.dphoto) {
+      var dp = S.draft && S.draft.photos.filter(function (p) { return p.id === d.dphoto; })[0];
+      if (dp && canDeletePhoto(dp)) { syncDraft(document.getElementById("entry-form")); S.draft.photos = S.draft.photos.filter(function (p) { return p !== dp; }); S.photoErr = null; render(); }
+    }
     else if (d.del) { S.confirmDel = d.del; render(); }
     else if (d.delNo) { S.confirmDel = null; render(); }
     else if (d.delYes) { S.entries = S.entries.filter(function (e) { return e.id !== d.delYes; }); S.confirmDel = null; persist(); render(); }
@@ -851,54 +1758,188 @@ form.entry { background: var(--surface); border: 1px solid var(--line); border-r
     else if (d.comDel) { S.confirmCom = d.comDel; render(); }
     else if (d.comDelNo) { S.confirmCom = null; render(); }
     else if (d.comDelYes) { var en = find(d.entry); en.comments = en.comments.filter(function (c) { return c.id !== d.comDelYes; }); S.confirmCom = null; persist(); render(); }
+    // City page extras
+    else if (d.act === "map") { S.showMap = !S.showMap; render(); }
+    else if (d.act === "offline") toast("In der App werden die Tipps dieser Stadt fürs Fliegen ohne Netz gespeichert.");
+    else if (d.openEntry) openEntry(d.openEntry);
+    else if (d.infoEdit) { S.editInfo = d.infoEdit; render(); }
+    else if (d.infoCancel) { S.editInfo = null; render(); }
+    // Meetups
+    else if (d.act === "meet-new") { S.meetForm = true; S.meetErr = null; S.meetDraft = null; render(); var mi = root.querySelector('[data-meet-form] input[name="title"]'); if (mi) mi.focus(); }
+    else if (d.act === "meet-cancel") { S.meetForm = false; S.meetErr = null; S.meetDraft = null; render(); }
+    else if (d.join) {
+      var mt = S.meetups.filter(function (m) { return m.id === d.join; })[0];
+      if (mt) {
+        var inIt = mt.attendees.some(function (a) { return a.id === ME.id; });
+        mt.attendees = inIt ? mt.attendees.filter(function (a) { return a.id !== ME.id; }) : mt.attendees.concat([{ id: ME.id, name: ME.name }]);
+        persist(); render();
+      }
+    }
+    else if (d.meetDel) { S.confirmMeet = d.meetDel; render(); }
+    else if (d.meetDelNo) { S.confirmMeet = null; render(); }
+    else if (d.meetDelYes) { S.meetups = S.meetups.filter(function (m) { return !(m.id === d.meetDelYes && m.creatorId === ME.id); }); S.confirmMeet = null; persist(); render(); toast("Treffpunkt gelöscht."); }
+    // Reports
+    else if (d.report) { S.reporting = { type: d.report, id: d.rid, entry: d.rentry || null }; render(); }
+    else if (d.reportCancel) { S.reporting = null; render(); }
+    // Photos
+    else if (d.photo) { S.lightbox = { entry: d.pentry, photo: d.photo }; S.confirmPhoto = false; render(); }
+    else if (d.lbClose) { S.lightbox = null; S.confirmPhoto = false; render(); }
+    else if (d.lbDel) { S.confirmPhoto = true; render(); }
+    else if (d.lbDelNo) { S.confirmPhoto = false; render(); }
+    else if (d.lbDelYes) {
+      var le = find(S.lightbox.entry), lp = le && le.photos.filter(function (p) { return p.id === S.lightbox.photo; })[0];
+      if (lp && canDeletePhoto(lp)) { le.photos = le.photos.filter(function (p) { return p !== lp; }); persist(); toast("Foto gelöscht."); }
+      S.lightbox = null; S.confirmPhoto = false; render();
+    }
+    // Admin
+    else if (d.atab) { S.adminTab = d.atab; S.editDest = null; render(); }
+    else if (d.repDone) { S.reports.forEach(function (r) { if (r.id === d.repDone) r.status = "done"; }); persist(); render(); }
+    else if (d.repDel) {
+      var rp = S.reports.filter(function (r) { return r.id === d.repDel; })[0];
+      if (rp) { deleteTarget(rp); rp.status = "deleted"; persist(); render(); toast("Inhalt gelöscht und Meldung erledigt."); }
+    }
+    else if (d.role) {
+      if (d.role === ME.id) return;
+      S.users.forEach(function (u) { if (u.id === d.role) u.role = d.roleVal === "admin" ? "admin" : "user"; });
+      persist(); render();
+    }
+    else if (d.dactive) { S.dests.forEach(function (x) { if (x.code === d.dactive) x.active = x.active === false; }); persist(); render(); }
+    else if (d.dedit) { S.editDest = d.dedit; delete S.destDraft[d.dedit]; delete S.destErr[d.dedit]; render(); }
+    else if (d.deditCancel) { delete S.destDraft[S.editDest]; delete S.destErr[S.editDest]; S.editDest = null; render(); }
+    // Nightstops / digest
+    else if (d.nsDel) { S.nightstops = S.nightstops.filter(function (n) { return n.id !== d.nsDel; }); persist(); render(); }
+    else if (d.digest) {
+      S.digest = !S.digest; persist(); render();
+      toast(S.digest ? "Digest aktiviert. In der App kommt er jeden Montag per E-Mail." : "Digest deaktiviert.");
+    }
   });
 
   root.addEventListener("keydown", function (ev) {
-    if (ev.target.id === "chat-text" && ev.key === "Enter" && !ev.shiftKey) { ev.preventDefault(); ev.target.form.requestSubmit(); }
+    if (ev.target.id === "chat-text" && ev.key === "Enter" && !ev.shiftKey) { ev.preventDefault(); ev.target.form.requestSubmit(); return; }
+    var pin = ev.target.closest && ev.target.closest("g[data-pin]");
+    if (pin && (ev.key === "Enter" || ev.key === " ")) {
+      ev.preventDefault();
+      var pid = pin.getAttribute("data-pin");
+      S.mapSel = S.mapSel === pid ? null : pid; render();
+      var again = root.querySelector('g[data-pin="' + pid + '"]'); if (again) again.focus();
+    }
+  });
+  document.addEventListener("keydown", function (ev) {
+    if (ev.key === "Escape" && (S.reporting || S.lightbox)) { S.reporting = null; S.lightbox = null; S.confirmPhoto = false; render(); }
   });
 
   root.addEventListener("input", function (ev) {
-    if (ev.target.id === "search") { S.q = ev.target.value; render(); }
+    if (ev.target.id === "search") { S.q = ev.target.value; render(); return; }
+    if (ev.target.form && ev.target.form.id === "entry-form" && S.draft && ev.target.type !== "file") {
+      syncDraft(ev.target.form);
+      // Clear the error of the field being fixed
+      var ek = { openFrom: "hours", openUntil: "hours", lat: "coords", lng: "coords" }[ev.target.name] || ev.target.name;
+      if (S.errors[ek]) {
+        delete S.errors[ek];
+        var box = ev.target.closest(ek === "hours" || ek === "coords" ? ".fset" : ".field");
+        var es = box && box.querySelector(".err"); if (es) es.remove();
+      }
+    }
+  });
+  root.addEventListener("change", function (ev) {
+    if (ev.target.id === "f-photos") { syncDraft(ev.target.form); handleFiles(ev.target.files); return; }
+    if (ev.target.form && ev.target.form.id === "entry-form" && S.draft) syncDraft(ev.target.form);
   });
 
   root.addEventListener("submit", function (ev) {
     ev.preventDefault();
-    if (ev.target.dataset.chatForm) {
-      var ct = ev.target.elements.text.value.trim();
+    var fm = ev.target, ds = fm.dataset, val = function (n) { return fm.elements[n] ? String(fm.elements[n].value).trim() : ""; };
+    if (ds.chatForm) {
+      var ct = val("text");
       if (!ct) return;
       S.chats.push({ id: "m" + Date.now(), dest: S.dest, author: ME.name, authorId: ME.id, created: new Date().toISOString(), text: ct });
       persist(); render(); var ta = document.getElementById("chat-text"); if (ta) ta.focus(); return;
     }
-    var cf = ev.target.dataset.comForm;
-    if (cf) {
-      var txt = ev.target.elements.text.value.trim(), en = find(cf);
+    if (ds.comForm) {
+      var cf = ds.comForm, txt = val("text"), en = find(cf);
       if (!txt) { S.comErr[cf] = "Bitte einen Kommentar eingeben"; render(); return; }
       S.comErr[cf] = null;
       en.comments = en.comments || [];
       en.comments.push({ id: "c" + Date.now(), author: ME.name, authorId: ME.id, stars: 0, created: new Date().toISOString().slice(0, 10), text: txt });
       persist(); render(); return;
     }
-    var f = ev.target, v = function (n) { return f.elements[n].value.trim(); };
-    var errs = {};
-    if (v("title").length < 2) errs.title = "Bitte einen Titel eingeben";
-    if (v("desc").length < 5) errs.desc = "Bitte eine kurze Beschreibung eingeben";
-    ["mapsUrl", "website"].forEach(function (k) { if (v(k) && !/^https?:\/\/\S+$/i.test(v(k))) errs[k] = "Bitte einen Link mit https:// eingeben"; });
-    if (Object.keys(errs).length) {
-      // keep what was typed
-      var keep = { title: v("title"), desc: v("desc"), address: v("address"), phone: v("phone"), mapsUrl: v("mapsUrl"), website: v("website") };
-      S.errors = errs; render();
-      var g = document.getElementById("entry-form");
-      Object.keys(keep).forEach(function (k) { g.elements[k].value = keep[k]; });
-      return;
+    if (ds.meetForm) {
+      var md = { title: val("title"), place: val("place"), time: val("time") }, me2 = {}, tz = tzOf(S.dest);
+      if (md.title.length < 2) me2.title = "Bitte sag kurz, was ihr vorhabt.";
+      if (md.place.length < 2) me2.place = "Bitte einen Treffpunkt angeben.";
+      var ep = zonedToEpoch(md.time, tz);
+      if (isNaN(ep)) me2.time = "Bitte Datum und Uhrzeit wählen.";
+      else if (ep < Date.now() - 30 * 60000) me2.time = "Dieser Zeitpunkt ist schon vorbei.";
+      if (Object.keys(me2).length) { S.meetErr = me2; S.meetDraft = md; render(); return; }
+      S.meetups.push({ id: "mt" + Date.now(), dest: S.dest, title: md.title, place: md.place, time: md.time.slice(0, 16),
+        creator: ME.name, creatorId: ME.id, attendees: [{ id: ME.id, name: ME.name }] });
+      S.meetForm = false; S.meetErr = null; S.meetDraft = null; persist(); render(); toast("Treffpunkt erstellt. Viel Spass!"); return;
     }
-    var data = { title: v("title"), desc: v("desc"), address: v("address") || null, phone: v("phone") || null, mapsUrl: v("mapsUrl") || null, website: v("website") || null };
+    if (ds.reportForm) {
+      var rr = S.reporting, reason = (fm.querySelector('input[name="reason"]:checked') || {}).value || "Sonstiges";
+      S.reports.push({ id: "r" + Date.now(), type: rr.type, targetId: rr.id, entryId: rr.entry, reason: reason, note: val("note"),
+        reporter: ME.name, reporterId: ME.id, created: new Date().toISOString(), status: "open" });
+      S.reporting = null; persist(); render(); toast("Danke! Ein Admin schaut sich die Meldung an."); return;
+    }
+    if (ds.infoForm) {
+      var di = dest(ds.infoForm);
+      if (di && isAdmin()) { di.info = di.info || emptyInfo(); INFO_FIELDS.forEach(function (f) { di.info[f[0]] = val(f[0]); }); persist(); toast("Praktische Infos gespeichert."); }
+      S.editInfo = null; render(); return;
+    }
+    if (ds.destForm) {
+      var code = ds.destForm, dd = dest(code);
+      var dv = { city: val("city"), country: val("country"), tz: val("tz"), hname: val("hname"), haddr: val("haddr"), hlat: val("hlat"), hlng: val("hlng") }, de = {};
+      if (dv.city.length < 2) de.city = "Bitte eine Stadt angeben.";
+      if (dv.country.length < 2) de.country = "Bitte ein Land angeben.";
+      var hl = parseCoord(dv.hlat), hg = parseCoord(dv.hlng), ce = coordsErr(hl, hg);
+      if (ce) de.coords = ce;
+      if (Object.keys(de).length) { S.destErr[code] = de; S.destDraft[code] = dv; render(); return; }
+      dd.city = dv.city; dd.country = dv.country; dd.tz = dv.tz;
+      dd.hotel = (hl === null && !dv.hname && !dv.haddr) ? null : { name: dv.hname || "Crew-Hotel", address: dv.haddr, lat: hl, lng: hg };
+      delete S.destErr[code]; delete S.destDraft[code]; S.editDest = null; persist(); render(); toast(code + " gespeichert."); return;
+    }
+    if (ds.destAdd) {
+      var nv = { code: val("code").toUpperCase(), city: val("city"), country: val("country"), tz: val("tz") }, ne = {};
+      if (!/^[A-Z]{3}$/.test(nv.code)) ne.code = "Bitte einen IATA-Code mit genau 3 Buchstaben eingeben, z. B. LIS.";
+      else if (dest(nv.code)) ne.code = "Diese Destination gibt es schon.";
+      if (nv.city.length < 2) ne.city = "Bitte eine Stadt angeben.";
+      if (nv.country.length < 2) ne.country = "Bitte ein Land angeben.";
+      if (Object.keys(ne).length) { S.destErr._new = ne; S.destDraft._new = nv; render(); return; }
+      S.dests.push({ code: nv.code, city: nv.city, country: nv.country, tz: nv.tz || "Europe/Zurich", active: true, hotel: null, info: emptyInfo() });
+      delete S.destErr._new; delete S.destDraft._new; persist(); render(); toast(nv.code + " · " + nv.city + " wurde hinzugefügt."); return;
+    }
+    if (ds.nsForm) {
+      var nd = val("dest"), dt = val("date");
+      if (!dest(nd)) S.nsErr = "Bitte eine Destination wählen.";
+      else if (!/^\d{4}-\d{2}-\d{2}$/.test(dt)) S.nsErr = "Bitte ein Datum wählen.";
+      else if (dt < localDay()) S.nsErr = "Das Datum liegt in der Vergangenheit.";
+      else if (S.nightstops.some(function (n) { return n.dest === nd && n.date === dt; })) S.nsErr = "Diesen Nightstop hast du schon eingetragen.";
+      else { S.nsErr = null; S.nightstops.push({ id: "n" + Date.now(), dest: nd, date: dt }); persist(); toast("Nightstop eingetragen."); }
+      render(); return;
+    }
+    if (fm.id !== "entry-form" || !S.draft) return;
+    syncDraft(fm);
+    var x = S.draft, errs = {};
+    var tv = function (k) { return String(x[k] || "").trim(); };
+    if (tv("title").length < 2) errs.title = "Bitte einen Titel eingeben";
+    if (tv("desc").length < 5) errs.desc = "Bitte eine kurze Beschreibung eingeben";
+    ["mapsUrl", "website"].forEach(function (k) { if (tv(k) && !/^https?:\/\/\S+$/i.test(tv(k))) errs[k] = "Bitte einen Link mit https:// eingeben"; });
+    if (!!x.openFrom !== !!x.openUntil) errs.hours = "Bitte Öffnungs- und Schliesszeit angeben (oder beide leer lassen).";
+    var la = parseCoord(x.lat), lo = parseCoord(x.lng), cerr = coordsErr(la, lo);
+    if (cerr) errs.coords = cerr;
+    if (Object.keys(errs).filter(function (k) { return errs[k]; }).length) { S.errors = errs; render(); var fe = root.querySelector(".err"); if (fe) fe.scrollIntoView({ block: "center" }); return; }
+    if (S.photoBusy) { S.photoErr = "Einen Moment, das Foto wird noch verarbeitet."; render(); return; }
+    var data = { title: tv("title"), desc: tv("desc"), address: tv("address") || null, phone: tv("phone") || null, mapsUrl: tv("mapsUrl") || null, website: tv("website") || null,
+      priceLevel: +x.priceLevel || null, openFrom: x.openFrom || null, openUntil: x.openUntil || null, closedDays: x.closedDays.slice().sort(), veggie: !!x.veggie,
+      lat: la, lng: lo, photos: x.photos };
     if (S.editing === "new") {
-      var today = new Date().toISOString().slice(0, 10);
-      S.entries.push(Object.assign({ id: "u" + Date.now(), dest: S.dest, cat: S.cat, author: ME.name, authorId: ME.id, created: today, ratings: [], myRating: 0, fav: false, example: false }, data));
+      var today = localDay();
+      S.entries.push(Object.assign({ id: "u" + Date.now(), dest: S.dest, cat: S.cat, author: ME.name, authorId: ME.id, created: today, ratings: [], myRating: 0, fav: false, example: false, comments: [] }, data));
       S.sort = "new";
     } else {
       Object.assign(find(S.editing), data);
     }
+    S.draft = null;
     persist(); go("list");
   });
 
