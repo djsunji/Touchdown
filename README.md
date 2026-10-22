@@ -2,7 +2,7 @@
 
 Touchdown ist die Knowledge Base für Crew-Nightstops: Kolleg:innen legen Tipps (Restaurants, Aktivitäten, ÖPNV, Shopping …) pro Destination an, bewerten sie mit 1–5 Sternen und markieren Favoriten. Login mit dem Firmen-Account über Microsoft Entra ID (Azure AD).
 
-Destinationen: MUC, OSL, MXP, LJU, BUD, VCE, FLR, TLV, NCE, GOT, ZRH, BRN. Admins legen weitere direkt in der App an oder entfernen sie (`/admin`), ohne Code-Änderung. Für rund 40 weitere europäische Städte (z. B. LIS, BCN, FCO, AMS, BER, VIE, PRG, ATH, IST, LHR, GVA) ist bereits eine gezeichnete Kachel mit dem echten Wahrzeichen hinterlegt: Code eintippen, Stadt, Land, Zeitzone und Grafik werden übernommen. Für unbekannte Codes wird eine Grafik erzeugt (per Würfel neu würfelbar).
+Destinationen: MUC, OSL, MXP, LJU, BUD, VCE, FLR, TLV, NCE, GOT, ZRH, BRN. Admins legen weitere direkt in der App an oder entfernen sie (`/admin`), ohne Code-Änderung. Für rund 140 weitere europäische Städte (z. B. LIS, BCN, FCO, AMS, BER, CDG, VIE, PRG, ATH, IST, LHR, GVA, ARN, KEF) ist bereits eine gezeichnete Kachel mit dem echten Wahrzeichen hinterlegt: Code eintippen, Stadt, Land, Zeitzone und Grafik werden übernommen. Für unbekannte Codes wird eine Grafik erzeugt (per Würfel neu würfelbar).
 
 ## Vorschau
 
