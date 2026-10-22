@@ -156,6 +156,32 @@ main { flex: 1; min-width: 0; padding: 24px 32px 48px; }
 .dest:hover .go { transform: translateX(3px); }
 @media (max-width: 520px) { .dest .landmark { display: none; } .dest .city { font-size: 15px; } }
 @media (prefers-reduced-motion: reduce) { .dest, .dest .sil, .dest .go { transition: none; } .dest:hover, .dest:hover .sil { transform: none; } }
+/* Tile text stays readable on every sky (light and dark theme): dark scrims behind the top and bottom text */
+.dest::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 46%; background: linear-gradient(180deg, rgba(0,0,0,.38), transparent); z-index: -1; pointer-events: none; }
+.dest::after { height: 42%; background: linear-gradient(180deg, transparent, rgba(0,0,0,.72) 70%); pointer-events: none; }
+.dest .top-txt { text-shadow: 0 1px 3px rgba(0,0,0,.55); }
+.dest .country { opacity: .92; }
+.dest .pill { background: rgba(0,0,0,.42); border-color: rgba(255,255,255,.35); }
+.dest .landmark { opacity: 1; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,.8); }
+.dest .go { text-shadow: 0 1px 3px rgba(0,0,0,.7); }
+.dest .art, .dest .art-blank { z-index: -2; }
+.dest .art-blank { position: absolute; inset: 0; background: #9aa3ad; }
+/* Admin: live tile preview next to the destination form */
+.dest-form-wrap { display: grid; gap: 16px; align-items: start; }
+@media (min-width: 640px) { .dest-form-wrap { grid-template-columns: minmax(0, 1fr) 168px; } .dest-form-wrap > .tile-prev { order: 2; } }
+.tile-prev { display: grid; gap: 4px; justify-items: start; }
+.tile-prev > span { font-size: 13px; font-weight: 600; }
+.tile-prev .dest { width: 168px; pointer-events: none; box-shadow: 0 6px 18px rgba(4, 14, 28, .22); }
+.tile-prev .dest .code { font-size: 44px; }
+.tile-prev .dest .landmark { display: block; }
+.dest-del { border: 1px solid #f3c2bd; border-radius: 8px; padding: 10px 12px; margin-top: 12px; }
+form[data-dest-add] input[name="code"] { text-transform: uppercase; }
+.dest-del summary { cursor: pointer; font-size: 14px; font-weight: 600; color: var(--danger); }
+.dest-del .mini-form { margin-top: 8px; }
+.dest-del p { margin: 0; font-size: 14px; }
+.dest-del .field input.confirm-in { max-width: 160px; text-transform: uppercase; }
+:root[data-theme="dark"] .dest-del { border-color: #6b2a24; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .dest-del { border-color: #6b2a24; } }
 
 /* Destination overview */
 .dest-head { display: flex; align-items: center; gap: 16px; }
@@ -471,7 +497,9 @@ code { font-size: 12px; background: var(--hover); border-radius: 4px; padding: 1
     { code: "FLR", city: "Florenz", country: "Italien" },
     { code: "TLV", city: "Tel Aviv", country: "Israel" },
     { code: "NCE", city: "Nizza", country: "Frankreich" },
-    { code: "GOT", city: "Göteborg", country: "Schweden" }
+    { code: "GOT", city: "Göteborg", country: "Schweden" },
+    { code: "ZRH", city: "Zürich", country: "Schweiz" },
+    { code: "BRN", city: "Bern", country: "Schweiz" }
   ];
 
   // The first four are the main categories, shown large on the city page
@@ -572,7 +600,9 @@ code { font-size: 12px; background: var(--hover); border-radius: 4px; padding: 1
     FLR: { sky: ["#471c13", "#f29d6c"], ink: "#250f09", far: "#6a3020", tag: "Duomo di Firenze" },
     TLV: { sky: ["#163a5a", "#f5c27c"], ink: "#0a1b2a", far: "#2d6c86", tag: "Azrieli & Strand" },
     NCE: { sky: ["#1f2d63", "#f2a7a0"], ink: "#120f2e", far: "#3a5a9a", tag: "Promenade des Anglais" },
-    GOT: { sky: ["#132639", "#86abc6"], ink: "#08131d", far: "#2b4a63", tag: "Läppstiftet & Älvsborgsbron" }
+    GOT: { sky: ["#132639", "#86abc6"], ink: "#08131d", far: "#2b4a63", tag: "Läppstiftet & Älvsborgsbron" },
+    ZRH: { sky: ["#14304f", "#9cc3e4"], ink: "#0a1626", far: "#3d6488", tag: "Grossmünster & Zürichsee" },
+    BRN: { sky: ["#2a1f45", "#d9a3a8"], ink: "#140f24", far: "#54487a", tag: "Zytglogge & Bundeshaus" }
   };
   
   // Palm tree drawn with strokes; x = trunk base, h = height
@@ -591,7 +621,44 @@ code { font-size: 12px; background: var(--hover); border-radius: 4px; padding: 1
     return d;
   }
   
+  // Snow-capped Alps in the background (Swiss destinations)
+  function alps(s) {
+    return '<path fill="' + s.far + '" d="M0,70 L18,52 L30,60 L52,34 L66,50 L80,42 L104,64 L126,38 L144,54 L160,30 L182,52 L200,44 L200,100 L0,100Z"/>' +
+      '<path fill="#fff" opacity=".55" d="M46,41 L52,34 L58,42 L54,40 L50,43Z M120,45 L126,38 L132,46 L128,44 L124,47Z M154,37 L160,30 L167,39 L162,37 L158,40Z M76,46 L80,42 L84,47 L80,45Z"/>';
+  }
+
   var SKYLINE = {
+    ZRH: function (s) {
+      // Grossmünster twin towers, Fraumünster spire, St. Peter clock tower, lake in front
+      return alps(s) +
+        '<g fill="' + s.ink + '"><rect x="0" y="76" width="200" height="16"/>' +
+        '<rect x="6" y="66" width="14" height="12"/><path d="M5,66 L13,58 L21,66Z"/><rect x="22" y="70" width="12" height="8"/><path d="M21,70 L28,63 L35,70Z"/>' +
+        '<rect x="40" y="38" width="8" height="40"/><path d="M39,38 L44,10 L49,38Z"/><rect x="48" y="58" width="20" height="20"/><path d="M47,58 L58,50 L69,58Z"/>' +
+        '<rect x="88" y="56" width="34" height="22"/><path d="M87,56 L105,46 L123,56Z"/>' +
+        '<rect x="84" y="28" width="11" height="50"/><rect x="115" y="28" width="11" height="50"/>' +
+        '<path d="M83,28 Q89.5,16 96,28Z M114,28 Q120.5,16 127,28Z"/><rect x="89" y="13" width="1.2" height="7"/><rect x="120" y="13" width="1.2" height="7"/>' +
+        '<rect x="146" y="40" width="12" height="38"/><path d="M145,40 L152,16 L159,40Z"/>' +
+        '<rect x="160" y="64" width="16" height="14"/><path d="M159,64 L168,56 L177,64Z"/><rect x="178" y="68" width="22" height="10"/></g>' +
+        '<circle cx="152" cy="47" r="3.2" fill="' + s.sky[1] + '" opacity=".75"/>' +
+        '<rect x="0" y="88" width="200" height="12" fill="' + s.far + '"/>' +
+        '<path d="M8,93 L64,93 M96,96 L150,96 M168,92 L196,92" stroke="' + s.sky[1] + '" stroke-width="1" opacity=".55"/>';
+    },
+    BRN: function (s) {
+      // Zytglogge clock tower, Bundeshaus with its dome, Münster spire, Aare below
+      return alps(s) +
+        '<g fill="' + s.ink + '"><path d="M0,100 L0,78 Q100,70 200,80 L200,100Z"/>' +
+        '<rect x="14" y="40" width="16" height="42"/><path d="M12,40 L22,22 L32,40Z"/><rect x="21.4" y="14" width="1.2" height="9"/>' +
+        '<rect x="0" y="68" width="14" height="14"/><rect x="30" y="66" width="18" height="16"/><path d="M29,66 L39,58 L49,66Z"/>' +
+        '<rect x="56" y="58" width="70" height="22"/><rect x="80" y="48" width="22" height="12"/>' +
+        '<path d="M78,49 Q78,30 91,28 Q104,30 104,49Z"/><rect x="90" y="20" width="2" height="9"/><circle cx="91" cy="19" r="1.6"/>' +
+        '<path d="M56,58 Q56,50 62,50 Q68,50 68,58Z M114,58 Q114,50 120,50 Q126,50 126,58Z"/>' +
+        '<rect x="138" y="62" width="34" height="18"/><path d="M137,62 L155,52 L173,62Z"/>' +
+        '<rect x="156" y="30" width="12" height="34"/><rect x="155" y="26" width="14" height="5"/><path d="M156,26 L162,6 L168,26Z"/>' +
+        '<rect x="176" y="68" width="24" height="12"/></g>' +
+        '<circle cx="22" cy="47" r="4" fill="' + s.sky[1] + '" opacity=".8"/><path d="M22,47 L22,44.5 M22,47 L24,48" stroke="' + s.ink + '" stroke-width=".8"/>' +
+        '<path d="M0,94 Q60,86 110,92 Q160,98 200,90 L200,100 L0,100Z" fill="' + s.far + '"/>' +
+        '<path d="M14,95 Q50,90 90,93 M130,96 Q160,95 186,92" stroke="' + s.sky[1] + '" stroke-width="1" fill="none" opacity=".55"/>';
+    },
     MUC: function (s) {
       return '<path fill="' + s.far + '" d="M0,72 L22,52 L38,64 L58,40 L80,62 L100,47 L122,63 L142,42 L166,60 L186,50 L200,58 L200,100 L0,100Z"/>' +
         '<g fill="' + s.ink + '"><rect x="64" y="66" width="72" height="34"/><path d="M84,66 L100,54 L116,66Z"/>' +
@@ -686,26 +753,90 @@ code { font-size: 12px; background: var(--hover); border-radius: 4px; padding: 1
     }
   };
   
-  // Generic fallback art for destinations added later by admins
-  var GENERIC_SKIES = [["#1d2f5c", "#8fb3e0", "#0b1430", "#33507f"], ["#3b1f3f", "#e59a7a", "#1d0f20", "#5d3757"],
-    ["#173a35", "#96cdb4", "#0a1d1a", "#2d5d52"], ["#40260f", "#e8b46a", "#1f1307", "#62411e"]];
-  function styleOf(code) {
-    if (CITY_STYLE[code]) return CITY_STYLE[code];
-    var h = 0;
-    for (var i = 0; i < code.length; i++) h = (h * 31 + code.charCodeAt(i)) % 9973;
-    var p = GENERIC_SKIES[h % GENERIC_SKIES.length];
-    return { sky: [p[0], p[1]], ink: p[2], far: p[3], tag: "", seed: h + 11 };
+  // ---------- Generated artwork for destinations added by admins ----------
+  // Everything is derived from the IATA code, so a new destination always gets the same picture:
+  // sky colours, background (mountains, hills or sea), old-town houses and one landmark.
+  function rng(code) {
+    var seed = 0;
+    for (var i = 0; i < code.length; i++) seed = (seed * 31 + code.charCodeAt(i)) % 233280;
+    seed = (seed * 7919 + 17) % 233280;
+    return function () {
+      seed = (seed * 9301 + 49297) % 233280;
+      return seed / 233280;
+    };
   }
-  function genericSkyline(s) {
-    var seed = s.seed || 7, x = 0, g = "";
-    while (x < 200) {
-      seed = (seed * 9301 + 49297) % 233280; var w = 10 + Math.floor(seed / 233280 * 16);
-      seed = (seed * 9301 + 49297) % 233280; var h = 16 + Math.floor(seed / 233280 * 48);
-      g += '<rect x="' + x + '" y="' + (92 - h) + '" width="' + (w - 1) + '" height="' + h + '"/>';
-      x += w;
+  // Evening palettes in the style of the built-in cities (sky top, sky bottom, silhouette, background)
+  var PALETTES = [
+    ["#1d2f5c", "#e9a27a", "#0e1430", "#3b4f86"],
+    ["#2b1a3f", "#e58f8f", "#150c22", "#56386e"],
+    ["#0f3a48", "#9fd3c7", "#06191f", "#2a6170"],
+    ["#3b1f12", "#f0b26a", "#1f0f08", "#6e3e22"],
+    ["#1a2a4a", "#a8b8e8", "#0a1226", "#3c5488"],
+    ["#401a2c", "#f39c8b", "#220c17", "#6f3049"],
+    ["#13324a", "#f4c98a", "#08182a", "#2e5f7e"],
+    ["#22323a", "#c5d6c0", "#0e171b", "#4a6266"],
+    ["#2e1d52", "#c79ae0", "#160d2c", "#5a3f8a"],
+    ["#173d33", "#e7c37f", "#0a1e19", "#356a58"]
+  ];
+  // Colours for a destination: hand-picked for the built-in ones, generated from the code otherwise
+  function styleFor(code, tag) {
+    if (CITY_STYLE[code]) return CITY_STYLE[code];
+    var p = PALETTES[Math.floor(rng(code)() * PALETTES.length)];
+    return { sky: [p[0], p[1]], ink: p[2], far: p[3], tag: tag || "" };
+  }
+  var styleOf = styleFor;
+  function n1(v) { return v.toFixed(1); }
+  function landmark(kind, x, ink, s) {
+    switch (kind) {
+      case 0: // cathedral with a dome
+        return '<rect x="' + (x - 22) + '" y="62" width="44" height="30"/><path d="M' + (x - 16) + ',63 Q' + (x - 16) + ',38 ' + x + ',36 Q' + (x + 16) + ',38 ' + (x + 16) + ',63Z"/><rect x="' + (x - 1) + '" y="24" width="2" height="13"/><circle cx="' + x + '" cy="23" r="1.8"/>';
+      case 1: // church with a tall spire
+        return '<rect x="' + (x - 18) + '" y="64" width="30" height="28"/><path d="M' + (x - 19) + ',64 L' + (x - 3) + ',54 L' + (x + 13) + ',64Z"/><rect x="' + (x + 10) + '" y="36" width="12" height="56"/><path d="M' + (x + 9) + ',36 L' + (x + 16) + ',8 L' + (x + 23) + ',36Z"/>';
+      case 2: // twin towers
+        return '<rect x="' + (x - 16) + '" y="60" width="32" height="32"/><rect x="' + (x - 20) + '" y="30" width="11" height="62"/><rect x="' + (x + 9) + '" y="30" width="11" height="62"/><path d="M' + (x - 21) + ',30 L' + (x - 14.5) + ',16 L' + (x - 8) + ',30Z M' + (x + 8) + ',30 L' + (x + 14.5) + ',16 L' + (x + 21) + ',30Z"/>';
+      case 3: // clock tower
+        return '<rect x="' + (x - 8) + '" y="34" width="16" height="58"/><path d="M' + (x - 10) + ',34 L' + x + ',14 L' + (x + 10) + ',34Z"/><circle cx="' + x + '" cy="44" r="4" fill="' + s.sky[1] + '" opacity=".8"/><path d="M' + x + ',44 L' + x + ',41 M' + x + ',44 L' + (x + 2) + ',45" stroke="' + ink + '" stroke-width=".8"/>';
+      case 4: // modern towers
+        return '<rect x="' + (x - 20) + '" y="30" width="13" height="62"/><path d="M' + (x - 4) + ',92 L' + (x - 4) + ',18 L' + (x + 10) + ',26 L' + (x + 10) + ',92Z"/><rect x="' + (x + 13) + '" y="40" width="11" height="52"/><rect x="' + (x + 2) + '" y="10" width="1.2" height="10"/>';
+      default: // castle on a hill
+        return '<path d="M' + (x - 36) + ',92 Q' + x + ',58 ' + (x + 36) + ',92Z"/><rect x="' + (x - 18) + '" y="56" width="36" height="14"/><rect x="' + (x - 6) + '" y="38" width="12" height="20"/><path d="M' + (x - 18) + ',56 h4 v-4 h4 v4 h4 v-4 h4 v4 h4 v-4 h4 v4 h4 v-4 h4 v4Z M' + (x - 7) + ',38 h3 v-3 h3 v3 h2 v-3 h3 v3 h2 v2 h-13Z"/>';
     }
-    return '<path fill="' + s.far + '" d="M0,74 Q50,58 100,68 Q150,78 200,62 L200,100 L0,100Z"/><g fill="' + s.ink + '">' + g + '</g>' +
-      '<rect x="0" y="92" width="200" height="8" fill="' + s.ink + '"/>';
+  }
+  function generatedSkyline(code) {
+    return function (s) {
+      var r = rng(code + "sky");
+      var bg = Math.floor(r() * 3); // 0 mountains, 1 hills, 2 sea
+      var far = "", x, i;
+      if (bg === 0) {
+        var d = "M0,74";
+        for (x = 0; x <= 200; x += 25) d += " L" + (x + 12) + "," + n1(30 + r() * 24) + " L" + (x + 25) + "," + n1(52 + r() * 14);
+        far = '<path fill="' + s.far + '" d="' + d + ' L200,100 L0,100Z"/>';
+      } else {
+        far = '<path fill="' + s.far + '" d="M0,' + n1(58 + r() * 10) + " Q50," + n1(40 + r() * 14) + " 100," + n1(54 + r() * 10) + " Q150," + n1(44 + r() * 14) + " 200," + n1(52 + r() * 10) + ' L200,100 L0,100Z"/>';
+        // a few distant buildings on the hills
+        for (i = 0; i < 6; i++) {
+          var bx = Math.floor(r() * 190);
+          var bh = 8 + Math.floor(r() * 14);
+          far += '<rect x="' + bx + '" y="' + (78 - bh) + '" width="' + (6 + Math.floor(r() * 6)) + '" height="' + (bh + 14) + '" fill="' + s.far + '"/>';
+        }
+      }
+      var kind = Math.floor(r() * 6);
+      var lx = 70 + Math.floor(r() * 60);
+      var houses = "";
+      for (x = 0; x < 200; ) {
+        var w = 10 + Math.floor(r() * 12);
+        var h = 14 + Math.floor(r() * 26);
+        if (x + w > lx - 34 && x < lx + 34) { x = lx + 34; continue; }
+        houses += '<rect x="' + x + '" y="' + (92 - h) + '" width="' + w + '" height="' + h + '"/>';
+        if (r() < 0.55) houses += '<path d="M' + (x - 1) + "," + (92 - h) + " L" + n1(x + w / 2) + "," + n1(92 - h - 6 - r() * 4) + " L" + (x + w + 1) + "," + (92 - h) + 'Z"/>';
+        x += w + Math.floor(r() * 3);
+      }
+      var ground = bg === 2
+        ? '<rect x="0" y="92" width="200" height="8" fill="' + s.far + '"/><path d="M8,95 L70,95 M110,97 L190,97" stroke="' + s.sky[1] + '" stroke-width="1" opacity=".55"/>'
+        : '<rect x="0" y="92" width="200" height="8" fill="' + s.ink + '"/>';
+      var k = 1.25;
+      return far + '<g fill="' + s.ink + '">' + houses + '<g transform="translate(' + lx + ',92) scale(' + k + ') translate(' + (-lx) + ',-92)">' + landmark(kind, lx, s.ink, s) + "</g></g>" + ground;
+    };
   }
 
   function cityArt(code) {
@@ -718,7 +849,7 @@ code { font-size: 12px; background: var(--hover); border-radius: 4px; padding: 1
       '<defs><linearGradient id="' + id + '" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="' + s.sky[0] + '"/><stop offset="1" stop-color="' + s.sky[1] + '"/></linearGradient></defs>' +
       '<rect width="200" height="250" fill="url(#' + id + ')"/>' +
       '<g>' + stars + '</g><mask id="m' + code + '"><rect width="200" height="250" fill="#fff"/><circle cx="166" cy="37" r="10" fill="#000"/></mask><circle cx="160" cy="42" r="11" fill="#fff6dc" opacity=".92" mask="url(#m' + code + ')"/>' +
-      '<g class="sil" transform="translate(0,150)">' + (SKYLINE[code] || genericSkyline)(s) + '</g></svg>';
+      '<g class="sil" transform="translate(0,150)">' + (SKYLINE[code] || generatedSkyline(code))(s) + '</g></svg>';
   }
 
   // Example comments: [author, stars given, date, text]
@@ -740,7 +871,8 @@ code { font-size: 12px; background: var(--hover); border-radius: 4px; padding: 1
 
   // ---------- Destinations: timezone, practical info, crew hotel ----------
   var TZ = { MUC: "Europe/Berlin", OSL: "Europe/Oslo", MXP: "Europe/Rome", LJU: "Europe/Ljubljana", BUD: "Europe/Budapest",
-    VCE: "Europe/Rome", FLR: "Europe/Rome", TLV: "Asia/Jerusalem", NCE: "Europe/Paris", GOT: "Europe/Stockholm" };
+    VCE: "Europe/Rome", FLR: "Europe/Rome", TLV: "Asia/Jerusalem", NCE: "Europe/Paris", GOT: "Europe/Stockholm",
+    ZRH: "Europe/Zurich", BRN: "Europe/Zurich" };
   var TZ_OPTIONS = ["Europe/Zurich", "Europe/Berlin", "Europe/Vienna", "Europe/Paris", "Europe/Rome", "Europe/Madrid", "Europe/Lisbon",
     "Europe/London", "Europe/Dublin", "Europe/Amsterdam", "Europe/Brussels", "Europe/Copenhagen", "Europe/Oslo", "Europe/Stockholm",
     "Europe/Helsinki", "Europe/Prague", "Europe/Warsaw", "Europe/Budapest", "Europe/Ljubljana", "Europe/Zagreb", "Europe/Belgrade",
@@ -753,7 +885,9 @@ code { font-size: 12px; background: var(--hover); border-radius: 4px; padding: 1
     BUD: ["HUF (Forint)", "112"],
     TLV: ["ILS (Schekel)", "100 Polizei · 101 Ambulanz (Magen David Adom) · 102 Feuerwehr"],
     NCE: ["EUR", "112 · 15 SAMU (Ambulanz)"],
-    GOT: ["SEK (Schwedische Krone)", "112"]
+    GOT: ["SEK (Schwedische Krone)", "112"],
+    ZRH: ["Schweizer Franken (CHF)", "112 Notruf · 117 Polizei · 144 Sanität · 118 Feuerwehr"],
+    BRN: ["Schweizer Franken (CHF)", "112 Notruf · 117 Polizei · 144 Sanität · 118 Feuerwehr"]
   };
   var HOTEL0 = {
     LJU: { name: "Crew-Hotel (Beispiel)", address: "Zentrum, Ljubljana", lat: 46.0511, lng: 14.5051 },
@@ -921,14 +1055,22 @@ code { font-size: 12px; background: var(--hover); border-radius: 4px; padding: 1
     showMap: false, mapSel: null, editInfo: null,
     meetForm: false, meetErr: null, meetDraft: null, confirmMeet: null,
     reporting: null, lightbox: null, confirmPhoto: false,
-    adminTab: "reports", editDest: null, destErr: {}, destDraft: {}, nsErr: null
+    adminTab: "reports", editDest: null, destErr: {}, destDraft: {}, nsErr: null, delErr: {},
+    // Built-in destinations added after a version: added once to saved state, so a later admin delete sticks
+    destSeed: saved && typeof saved.destSeed === "number" ? saved.destSeed : (saved && Array.isArray(saved.dests) ? 1 : 2)
   };
+  if (S.destSeed < 2) {
+    defaultDests().forEach(function (d) {
+      if ((d.code === "ZRH" || d.code === "BRN") && !S.dests.some(function (x) { return x.code === d.code; })) S.dests.push(d);
+    });
+    S.destSeed = 2;
+  }
 
   var storageWarned = false;
   function persist() {
     try {
       localStorage.setItem(KEY, JSON.stringify({ loggedIn: S.loggedIn, entries: S.entries, chats: S.chats, dests: S.dests, meetups: S.meetups,
-        reports: S.reports, users: S.users, nightstops: S.nightstops, digest: S.digest }));
+        reports: S.reports, users: S.users, nightstops: S.nightstops, digest: S.digest, destSeed: S.destSeed }));
       return true;
     } catch (e) {
       if (!storageWarned) { storageWarned = true; toast("Speichern im Browser klappt gerade nicht (Speicher voll oder gesperrt). Deine Änderungen gelten bis zum Neuladen."); }
@@ -1057,11 +1199,11 @@ code { font-size: 12px; background: var(--hover); border-radius: 4px; padding: 1
   function renderHome() {
     var total = S.entries.length, list = activeDests();
     var tiles = list.map(function (d) {
-      var n = count(d.code), st = styleOf(d.code), live = recentChatCount(d.code);
+      var n = count(d.code), st = styleFor(d.code), live = recentChatCount(d.code);
       return '<button class="dest" data-dest="' + esc(d.code) + '" aria-label="' + esc(d.city) + ", " + n + ' Tipps">' + cityArt(d.code) +
         (live ? '<span class="chat-live">💬 ' + live + "</span>" : "") +
         '<span class="top-txt"><span class="code">' + esc(d.code) + '</span><span class="city">' + esc(d.city) + '</span><span class="country">' + esc(d.country) + "</span></span>" +
-        '<span class="bottom-txt"><span class="pill">' + n + (n === 1 ? " Tipp" : " Tipps") + '</span><span class="landmark">' + esc(st.tag || d.country) + '</span><span class="go">→</span></span></button>';
+        '<span class="bottom-txt"><span class="pill">' + n + (n === 1 ? " Tipp" : " Tipps") + '</span><span class="landmark">' + esc(d.landmark || st.tag) + '</span><span class="go">→</span></span></button>';
     }).join("");
     return '<div class="app">' + header(BRAND, false) +
       '<div class="preview-note">Vorschau mit Beispieldaten. Deine Änderungen bleiben nur in diesem Browser.</div>' +
@@ -1601,7 +1743,34 @@ code { font-size: 12px; background: var(--hover); border-radius: 4px; padding: 1
     return '<div class="grid2">' + (first || "") +
       '<label class="field"><span>Stadt</span><input name="city" maxlength="60" value="' + esc(v.city) + '">' + e("city") + "</label>" +
       '<label class="field"><span>Land</span><input name="country" maxlength="60" value="' + esc(v.country) + '">' + e("country") + "</label>" +
-      '<label class="field"><span>Zeitzone</span>' + tzSelect("tz", v.tz) + "</label>";
+      '<label class="field"><span>Zeitzone</span>' + tzSelect("tz", v.tz) + "</label>" +
+      '<label class="field"><span>Wahrzeichen (Text auf der Kachel, optional)</span><input name="landmark" maxlength="60" value="' + esc(v.landmark || "") + '" placeholder="z. B. Torre de Belém"></label>';
+  }
+  // The city tile as it will appear on the home page; the artwork comes from the 3-letter code only
+  function tilePreviewInner(code, city, country, lm) {
+    var c = /^[A-Za-z]{3}$/.test(code || "") ? code.toUpperCase() : "";
+    var tag = lm || (c && CITY_STYLE[c] ? CITY_STYLE[c].tag : "");
+    return "<span>Kachel</span>" + '<div class="dest">' + (c ? cityArt(c) : '<span class="art-blank"></span>') +
+      '<span class="top-txt"><span class="code">' + esc(c || "???") + '</span><span class="city">' + esc(city || "Stadt") + '</span><span class="country">' + esc(country || "Land") + "</span></span>" +
+      '<span class="bottom-txt"><span class="pill">' + (c ? count(c) : 0) + (c && count(c) === 1 ? " Tipp" : " Tipps") + '</span><span class="landmark">' + esc(tag) + '</span><span class="go">→</span></span></div>';
+  }
+  function tilePreview(code, city, country, lm) {
+    return '<div class="tile-prev" aria-hidden="true">' + tilePreviewInner(code, city, country, lm) + "</div>";
+  }
+  function refreshTilePreview(fm) {
+    var box = fm.querySelector(".tile-prev"); if (!box) return;
+    var g = function (n) { return fm.elements[n] ? String(fm.elements[n].value).trim() : ""; };
+    box.innerHTML = tilePreviewInner(fm.dataset.destForm || g("code"), g("city"), g("country"), g("landmark"));
+  }
+  function destDeleteHtml(d) {
+    var err = S.delErr[d.code];
+    return '<details class="dest-del"' + (err ? " open" : "") + '><summary>🗑 Destination entfernen…</summary>' +
+      '<form class="mini-form" data-dest-del="' + esc(d.code) + '" novalidate>' +
+      "<p>Löscht " + esc(d.city) + " mit <b>allen Tipps, Fotos, Kommentaren, Chat-Nachrichten und Treffpunkten</b>. Das lässt sich nicht rückgängig machen. Zum Ausblenden reicht es, «Aktiv» auszuschalten.</p>" +
+      '<label class="field"><span>Zum Bestätigen <b>' + esc(d.code) + "</b> eintippen</span>" +
+      '<input class="confirm-in" name="confirm" autocomplete="off" autocapitalize="characters"></label>' +
+      (err ? '<span class="err" role="alert">' + esc(err) + "</span>" : "") +
+      '<div class="actions"><button type="submit" class="danger-btn">' + esc(d.code) + " endgültig löschen</button></div></form></details>";
   }
   function adminDests() {
     var rows = S.dests.map(function (d) {
@@ -1611,23 +1780,24 @@ code { font-size: 12px; background: var(--hover); border-radius: 4px; padding: 1
         '<div class="drow-act"><span class="switch-wrap"><button class="switch" role="switch" aria-checked="' + (d.active !== false) + '" data-dactive="' + esc(d.code) + '" aria-label="' + esc(d.code) + ' aktiv"></button><span class="by">' + (d.active !== false ? "Aktiv" : "Ausgeblendet") + "</span></span>" +
         (editing ? "" : '<button class="pill-btn" data-dedit="' + esc(d.code) + '">Bearbeiten</button>') + "</div></div>";
       if (editing) {
-        var v = S.destDraft[d.code] || { city: d.city, country: d.country, tz: d.tz, hname: h.name || "", haddr: h.address || "", hlat: hasCoords(h) ? String(h.lat) : "", hlng: hasCoords(h) ? String(h.lng) : "" };
+        var v = S.destDraft[d.code] || { city: d.city, country: d.country, tz: d.tz, landmark: d.landmark || "", hname: h.name || "", haddr: h.address || "", hlat: hasCoords(h) ? String(h.lat) : "", hlng: hasCoords(h) ? String(h.lng) : "" };
         var er = S.destErr[d.code] || {};
-        row += '<form class="mini-form dest-edit" data-dest-form="' + esc(d.code) + '" novalidate>' + destFormFields(v, er) +
+        row += '<form class="mini-form dest-edit" data-dest-form="' + esc(d.code) + '" novalidate><div class="dest-form-wrap">' + tilePreview(d.code, v.city, v.country, v.landmark) + "<div>" + destFormFields(v, er) +
           '<label class="field"><span>Crew-Hotel</span><input name="hname" maxlength="100" value="' + esc(v.hname) + '" placeholder="z. B. Hotel am Fluss"></label>' +
           '<label class="field"><span>Hotel-Adresse</span><input name="haddr" maxlength="160" value="' + esc(v.haddr) + '"></label>' +
           '<label class="field"><span>Hotel Breitengrad</span><input name="hlat" inputmode="decimal" value="' + esc(v.hlat) + '" placeholder="z. B. 46.0511"></label>' +
           '<label class="field"><span>Hotel Längengrad</span><input name="hlng" inputmode="decimal" value="' + esc(v.hlng) + '" placeholder="z. B. 14.5051"></label></div>' +
-          (er.coords ? '<span class="err">' + esc(er.coords) + "</span>" : "") +
-          '<div class="actions"><button type="button" class="ghost" data-dedit-cancel="1">Abbrechen</button><button type="submit" class="primary">Speichern</button></div></form>';
+          (er.coords ? '<span class="err">' + esc(er.coords) + "</span>" : "") + "</div></div>" +
+          '<div class="actions"><button type="button" class="ghost" data-dedit-cancel="1">Abbrechen</button><button type="submit" class="primary">Speichern</button></div></form>' +
+          destDeleteHtml(d);
       }
       return '<div class="dblock">' + row + "</div>";
     }).join("");
-    var nv = S.destDraft._new || { code: "", city: "", country: "", tz: "Europe/Zurich" }, ne = S.destErr._new || {};
-    var add = '<section class="panel"><h2>Neue Destination</h2><form class="mini-form" data-dest-add="1" novalidate>' +
-      destFormFields(nv, ne, '<label class="field"><span>IATA-Code</span><input name="code" maxlength="3" autocapitalize="characters" value="' + esc(nv.code) + '" placeholder="z. B. LIS">' + (ne.code ? '<span class="err">' + esc(ne.code) + "</span>" : "") + "</label>") + "</div>" +
+    var nv = S.destDraft._new || { code: "", city: "", country: "", tz: "Europe/Zurich", landmark: "" }, ne = S.destErr._new || {};
+    var add = '<section class="panel"><h2>Neue Destination</h2><form class="mini-form" data-dest-add="1" novalidate><div class="dest-form-wrap">' +
+      tilePreview(nv.code, nv.city, nv.country, nv.landmark) + "<div>" + destFormFields(nv, ne, '<label class="field"><span>IATA-Code</span><input name="code" maxlength="3" autocapitalize="characters" value="' + esc(nv.code) + '" placeholder="z. B. LIS">' + (ne.code ? '<span class="err">' + esc(ne.code) + "</span>" : "") + "</label>") + "</div></div></div>" +
       '<div class="actions"><button type="submit" class="primary">Destination hinzufügen</button></div></form>' +
-      '<p class="note">Neue Destinationen erscheinen sofort auf der Startseite (mit allgemeiner Skyline). Ausgeblendete sind nur hier sichtbar.</p></section>';
+      '<p class="note">Neue Destinationen erscheinen sofort auf der Startseite, mit einer aus dem IATA-Code erzeugten Skyline. Ausgeblendete sind nur hier sichtbar.</p></section>';
     return '<section class="panel">' + rows + "</section>" + add;
   }
   function renderAdmin() {
@@ -1710,6 +1880,25 @@ code { font-size: 12px; background: var(--hover); border-radius: 4px; padding: 1
     else if (r.type === "comment") { var en = find(r.entryId); if (en) en.comments = en.comments.filter(function (c) { return c.id !== r.targetId; }); }
     else S.chats = S.chats.filter(function (m) { return m.id !== r.targetId; });
     S.reports.forEach(function (x) { if (x.status === "open" && x.type === r.type && x.targetId === r.targetId) x.status = "deleted"; });
+  }
+  // Remove a destination with everything that belongs to it (tips, photos, comments, chat, meetups, nightstops, their reports)
+  function removeDest(code) {
+    var gone = {};
+    S.entries.forEach(function (e) {
+      if (e.dest !== code) return;
+      gone[e.id] = 1;
+      (e.comments || []).forEach(function (c) { gone[c.id] = 1; });
+      (e.photos || []).forEach(function (ph) { gone[ph.id] = 1; });
+    });
+    S.chats.forEach(function (m) { if (m.dest === code) gone[m.id] = 1; });
+    S.entries = S.entries.filter(function (e) { return e.dest !== code; });
+    S.chats = S.chats.filter(function (m) { return m.dest !== code; });
+    S.meetups = S.meetups.filter(function (m) { return m.dest !== code; });
+    S.nightstops = S.nightstops.filter(function (n) { return n.dest !== code; });
+    S.reports = S.reports.filter(function (r) { return !gone[r.targetId] && !(r.entryId && gone[r.entryId]); });
+    S.dests = S.dests.filter(function (d) { return d.code !== code; });
+    delete S.destDraft[code]; delete S.destErr[code];
+    if (S.dest === code) { S.dest = null; S.cat = null; }
   }
   function parseCoord(s) { s = String(s || "").trim().replace(",", "."); return s === "" ? null : /^-?\d+(\.\d+)?$/.test(s) ? parseFloat(s) : NaN; }
   function coordsErr(lat, lng) {
@@ -1830,6 +2019,7 @@ code { font-size: 12px; background: var(--hover); border-radius: 4px; padding: 1
 
   root.addEventListener("input", function (ev) {
     if (ev.target.id === "search") { S.q = ev.target.value; render(); return; }
+    if (ev.target.form && (ev.target.form.dataset.destAdd || ev.target.form.dataset.destForm)) { refreshTilePreview(ev.target.form); return; }
     if (ev.target.form && ev.target.form.id === "entry-form" && S.draft && ev.target.type !== "file") {
       syncDraft(ev.target.form);
       // Clear the error of the field being fixed
@@ -1888,25 +2078,31 @@ code { font-size: 12px; background: var(--hover); border-radius: 4px; padding: 1
     }
     if (ds.destForm) {
       var code = ds.destForm, dd = dest(code);
-      var dv = { city: val("city"), country: val("country"), tz: val("tz"), hname: val("hname"), haddr: val("haddr"), hlat: val("hlat"), hlng: val("hlng") }, de = {};
+      var dv = { city: val("city"), country: val("country"), tz: val("tz"), landmark: val("landmark"), hname: val("hname"), haddr: val("haddr"), hlat: val("hlat"), hlng: val("hlng") }, de = {};
       if (dv.city.length < 2) de.city = "Bitte eine Stadt angeben.";
       if (dv.country.length < 2) de.country = "Bitte ein Land angeben.";
       var hl = parseCoord(dv.hlat), hg = parseCoord(dv.hlng), ce = coordsErr(hl, hg);
       if (ce) de.coords = ce;
       if (Object.keys(de).length) { S.destErr[code] = de; S.destDraft[code] = dv; render(); return; }
-      dd.city = dv.city; dd.country = dv.country; dd.tz = dv.tz;
+      dd.city = dv.city; dd.country = dv.country; dd.tz = dv.tz; dd.landmark = dv.landmark;
       dd.hotel = (hl === null && !dv.hname && !dv.haddr) ? null : { name: dv.hname || "Crew-Hotel", address: dv.haddr, lat: hl, lng: hg };
       delete S.destErr[code]; delete S.destDraft[code]; S.editDest = null; persist(); render(); toast(code + " gespeichert."); return;
     }
     if (ds.destAdd) {
-      var nv = { code: val("code").toUpperCase(), city: val("city"), country: val("country"), tz: val("tz") }, ne = {};
+      var nv = { code: val("code").toUpperCase(), city: val("city"), country: val("country"), tz: val("tz"), landmark: val("landmark") }, ne = {};
       if (!/^[A-Z]{3}$/.test(nv.code)) ne.code = "Bitte einen IATA-Code mit genau 3 Buchstaben eingeben, z. B. LIS.";
       else if (dest(nv.code)) ne.code = "Diese Destination gibt es schon.";
       if (nv.city.length < 2) ne.city = "Bitte eine Stadt angeben.";
       if (nv.country.length < 2) ne.country = "Bitte ein Land angeben.";
       if (Object.keys(ne).length) { S.destErr._new = ne; S.destDraft._new = nv; render(); return; }
-      S.dests.push({ code: nv.code, city: nv.city, country: nv.country, tz: nv.tz || "Europe/Zurich", active: true, hotel: null, info: emptyInfo() });
+      S.dests.push({ code: nv.code, city: nv.city, country: nv.country, tz: nv.tz || "Europe/Zurich", landmark: nv.landmark, active: true, hotel: null, info: emptyInfo() });
       delete S.destErr._new; delete S.destDraft._new; persist(); render(); toast(nv.code + " · " + nv.city + " wurde hinzugefügt."); return;
+    }
+    if (ds.destDel) {
+      var xc = ds.destDel;
+      if (!isAdmin() || !dest(xc)) return;
+      if (val("confirm").toUpperCase() !== xc) { S.delErr[xc] = "Zum Bestätigen " + xc + " eintippen"; render(); return; }
+      removeDest(xc); delete S.delErr[xc]; S.editDest = null; persist(); render(); toast(xc + " wurde gelöscht."); return;
     }
     if (ds.nsForm) {
       var nd = val("dest"), dt = val("date");
