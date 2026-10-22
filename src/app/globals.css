@@ -123,3 +123,13 @@ body {
 /* ---------- Offline banner ---------- */
 .offline-banner { position: sticky; top: 0; z-index: 60; background: #92400e; color: #fff; text-align: center; font-size: 13px; padding: 6px 12px; }
 @media (max-width: 640px) { .report-pop, .report-pop-left { position: fixed; top: auto; left: 12px; right: 12px; bottom: 12px; width: auto; max-width: none; } }
+
+/* Card text stays readable on every sky: dark scrims behind the top and bottom text */
+.dest::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 46%; background: linear-gradient(180deg, rgba(0, 0, 0, .38), transparent); z-index: -1; pointer-events: none; }
+.dest::after { height: 42%; background: linear-gradient(180deg, transparent, rgba(0, 0, 0, .72) 70%); }
+.dest .top-txt { text-shadow: 0 1px 3px rgba(0, 0, 0, .55); }
+.dest .country { opacity: .92; }
+.dest .pill { background: rgba(0, 0, 0, .42); border-color: rgba(255, 255, 255, .35); }
+.dest .landmark { opacity: 1; color: #fff; text-shadow: 0 1px 3px rgba(0, 0, 0, .8); }
+.dest .go { text-shadow: 0 1px 3px rgba(0, 0, 0, .7); }
+.dest .art-wrap { z-index: -2; }

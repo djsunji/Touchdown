@@ -168,7 +168,7 @@ export function LocationPicker({
             </ul>
           )}
           {msg && <p className="text-sm text-gray-600">{msg}</p>}
-          <div ref={mapEl} className="map-box h-56" />
+          <div ref={mapEl} className="map-box small" />
         </>
       ) : (
         <p className="text-sm text-gray-500">Karten sind deaktiviert. Ein Google-Maps-Link mit Koordinaten setzt die Position automatisch.</p>

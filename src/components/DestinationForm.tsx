@@ -1,7 +1,8 @@
 "use client";
 
-import { useActionState } from "react";
-import { saveDestination } from "@/app/admin/actions";
+import { useActionState, useState } from "react";
+import { deleteDestination, saveDestination } from "@/app/admin/actions";
+import { CITY_STYLE, cityArt } from "@/lib/cityArt";
 import type { FormState } from "@/app/actions";
 import type { MapConfig } from "@/lib/mapConfig";
 import type { LatLng } from "@/lib/geo";
@@ -17,72 +18,263 @@ type Dest = {
   hotelAddress: string | null;
   hotelLat: number | null;
   hotelLng: number | null;
+  landmark: string;
 };
 
 const input = "w-full rounded-md border px-3 py-2";
 const INITIAL: FormState = {};
 
 /** Create a destination (no `d`) or edit one. Saving needs no deploy. */
-export function DestinationForm({ d, mapConfig, center }: { d?: Dest; mapConfig: MapConfig; center: LatLng | null }) {
+export function DestinationForm({
+  d,
+  mapConfig,
+  center,
+}: {
+  d?: Dest;
+  mapConfig: MapConfig;
+  center: LatLng | null;
+}) {
   const mode = d ? "update" : "create";
-  const [state, action, pending] = useActionState<FormState, FormData>(saveDestination.bind(null, mode), INITIAL);
+  const [state, action, pending] = useActionState<FormState, FormData>(
+    saveDestination.bind(null, mode),
+    INITIAL,
+  );
   const saved = !pending && state !== INITIAL && !state.error;
+  // Live preview of the city card; the artwork is generated from the IATA code
+  const [code, setCode] = useState(d?.code ?? "");
+  const [city, setCity] = useState(d?.city ?? "");
+  const [country, setCountry] = useState(d?.country ?? "");
+  const [landmark, setLandmark] = useState(d?.landmark ?? "");
+  const previewCode = /^[A-Za-z]{3}$/.test(code) ? code.toUpperCase() : "";
   return (
-    <form action={action} className="grid gap-3 sm:grid-cols-2">
-      <label className="block text-sm">
-        <span className="mb-1 block font-medium">IATA-Code</span>
-        {d ? (
-          <>
-            <input type="hidden" name="code" value={d.code} />
-            <input value={d.code} disabled className={`${input} bg-gray-50`} />
-          </>
+    <>
+      <form action={action} className="grid gap-3 sm:grid-cols-[1fr_1fr_auto]">
+        <label className="block text-sm">
+          <span className="mb-1 block font-medium">IATA-Code</span>
+          {d ? (
+            <>
+              <input type="hidden" name="code" value={d.code} />
+              <input
+                value={d.code}
+                disabled
+                className={`${input} bg-gray-50`}
+              />
+            </>
+          ) : (
+            <input
+              name="code"
+              required
+              maxLength={3}
+              placeholder="z. B. LIS"
+              className={`${input} uppercase`}
+              autoCapitalize="characters"
+              value={code}
+              onChange={(e) => setCode(e.target.value)}
+            />
+          )}
+        </label>
+        <div
+          className="sm:col-start-3 sm:row-span-4 sm:row-start-1"
+          aria-hidden
+        >
+          <TilePreview
+            code={previewCode}
+            city={city}
+            country={country}
+            landmark={
+              landmark || (previewCode && CITY_STYLE[previewCode]?.tag) || ""
+            }
+          />
+        </div>
+        <label className="block text-sm">
+          <span className="mb-1 block font-medium">Zeitzone</span>
+          <input
+            name="timezone"
+            required
+            defaultValue={d?.timezone ?? "Europe/Zurich"}
+            placeholder="z. B. Europe/Lisbon"
+            className={input}
+          />
+        </label>
+        <label className="block text-sm">
+          <span className="mb-1 block font-medium">Stadt</span>
+          <input
+            name="city"
+            required
+            maxLength={80}
+            value={city}
+            onChange={(e) => setCity(e.target.value)}
+            className={input}
+          />
+        </label>
+        <label className="block text-sm">
+          <span className="mb-1 block font-medium">Land</span>
+          <input
+            name="country"
+            required
+            maxLength={80}
+            value={country}
+            onChange={(e) => setCountry(e.target.value)}
+            className={input}
+          />
+        </label>
+        <label className="block text-sm sm:col-span-2">
+          <span className="mb-1 block font-medium">
+            Wahrzeichen (Text auf der Kachel, optional)
+          </span>
+          <input
+            name="landmark"
+            maxLength={60}
+            value={landmark}
+            onChange={(e) => setLandmark(e.target.value)}
+            placeholder="z. B. Torre de Belém"
+            className={input}
+          />
+        </label>
+        <label className="block text-sm">
+          <span className="mb-1 block font-medium">Crew-Hotel</span>
+          <input
+            name="hotelName"
+            maxLength={150}
+            defaultValue={d?.hotelName ?? ""}
+            placeholder="Name des Hotels"
+            className={input}
+          />
+        </label>
+        <label className="block text-sm">
+          <span className="mb-1 block font-medium">Hotel-Adresse</span>
+          <input
+            name="hotelAddress"
+            maxLength={300}
+            defaultValue={d?.hotelAddress ?? ""}
+            className={input}
+          />
+        </label>
+        <div className="sm:col-span-3">
+          <span className="mb-1 block text-sm font-medium">
+            Hotel auf der Karte
+          </span>
+          <LocationPicker
+            config={mapConfig}
+            dest={d?.code ?? ""}
+            initial={
+              d?.hotelLat != null && d?.hotelLng != null
+                ? { lat: d.hotelLat, lng: d.hotelLng }
+                : null
+            }
+            center={center}
+            addressField="hotelAddress"
+            latName="hotelLat"
+            lngName="hotelLng"
+          />
+        </div>
+        <label className="flex items-center gap-2 text-sm sm:col-span-3">
+          <input
+            type="checkbox"
+            name="active"
+            defaultChecked={d?.active ?? true}
+          />
+          Aktiv (auf der Startseite sichtbar)
+        </label>
+        <div className="flex items-center gap-3 sm:col-span-3">
+          <button
+            disabled={pending}
+            className="rounded-md bg-brand px-4 py-2 text-sm font-medium text-brand-contrast disabled:opacity-60"
+          >
+            {pending ? "Speichere…" : d ? "Speichern" : "Destination anlegen"}
+          </button>
+          {state.error && (
+            <p className="text-sm text-red-600" role="alert">
+              {state.error}
+            </p>
+          )}
+          {saved && <p className="text-sm text-green-700">Gespeichert ✓</p>}
+        </div>
+      </form>
+      {d && <DeleteDestination code={d.code} city={d.city} />}
+    </>
+  );
+}
+
+/** The city card as it will appear on the home page */
+function TilePreview({
+  code,
+  city,
+  country,
+  landmark,
+}: {
+  code: string;
+  city: string;
+  country: string;
+  landmark: string;
+}) {
+  return (
+    <div>
+      <span className="mb-1 block text-sm font-medium">Kachel</span>
+      <div className="dest pointer-events-none" style={{ width: 168 }}>
+        {code ? (
+          // Artwork is generated from the 3-letter code only (validated above), no free text
+          <span
+            className="art-wrap"
+            dangerouslySetInnerHTML={{ __html: cityArt(code) }}
+          />
         ) : (
-          <input name="code" required maxLength={3} placeholder="z. B. LIS" className={`${input} uppercase`} autoCapitalize="characters" />
+          <span className="art-wrap bg-gray-300" />
         )}
-      </label>
-      <label className="block text-sm">
-        <span className="mb-1 block font-medium">Zeitzone</span>
-        <input name="timezone" required defaultValue={d?.timezone ?? "Europe/Zurich"} placeholder="z. B. Europe/Lisbon" className={input} />
-      </label>
-      <label className="block text-sm">
-        <span className="mb-1 block font-medium">Stadt</span>
-        <input name="city" required maxLength={80} defaultValue={d?.city} className={input} />
-      </label>
-      <label className="block text-sm">
-        <span className="mb-1 block font-medium">Land</span>
-        <input name="country" required maxLength={80} defaultValue={d?.country} className={input} />
-      </label>
-      <label className="block text-sm">
-        <span className="mb-1 block font-medium">Crew-Hotel</span>
-        <input name="hotelName" maxLength={150} defaultValue={d?.hotelName ?? ""} placeholder="Name des Hotels" className={input} />
-      </label>
-      <label className="block text-sm">
-        <span className="mb-1 block font-medium">Hotel-Adresse</span>
-        <input name="hotelAddress" maxLength={300} defaultValue={d?.hotelAddress ?? ""} className={input} />
-      </label>
-      <div className="sm:col-span-2">
-        <span className="mb-1 block text-sm font-medium">Hotel auf der Karte</span>
-        <LocationPicker
-          config={mapConfig}
-          dest={d?.code ?? ""}
-          initial={d?.hotelLat != null && d?.hotelLng != null ? { lat: d.hotelLat, lng: d.hotelLng } : null}
-          center={center}
-          addressField="hotelAddress"
-          latName="hotelLat"
-          lngName="hotelLng"
-        />
+        <span className="top-txt">
+          <span className="code">{code || "???"}</span>
+          <span className="city">{city || "Stadt"}</span>
+          <span className="country">{country || "Land"}</span>
+        </span>
+        <span className="bottom-txt">
+          <span className="pill">0 Tipps</span>
+          <span className="landmark">{landmark}</span>
+          <span className="go">→</span>
+        </span>
       </div>
-      <label className="flex items-center gap-2 text-sm sm:col-span-2">
-        <input type="checkbox" name="active" defaultChecked={d?.active ?? true} />
-        Aktiv (auf der Startseite sichtbar)
-      </label>
-      <div className="flex items-center gap-3 sm:col-span-2">
-        <button disabled={pending} className="rounded-md bg-brand px-4 py-2 text-sm font-medium text-brand-contrast disabled:opacity-60">
-          {pending ? "Speichere…" : d ? "Speichern" : "Destination anlegen"}
+    </div>
+  );
+}
+
+function DeleteDestination({ code, city }: { code: string; city: string }) {
+  const [state, action, pending] = useActionState<FormState, FormData>(
+    deleteDestination.bind(null, code),
+    INITIAL,
+  );
+  return (
+    <details className="mt-4 rounded-md border border-red-200 p-3">
+      <summary className="cursor-pointer text-sm font-medium text-red-700">
+        🗑 Destination entfernen…
+      </summary>
+      <form action={action} className="mt-2 space-y-2 text-sm">
+        <p className="text-gray-700">
+          Löscht {city} mit{" "}
+          <b>
+            allen Tipps, Fotos, Kommentaren, Chat-Nachrichten und Treffpunkten
+          </b>
+          . Das lässt sich nicht rückgängig machen. Zum Ausblenden reicht es,
+          «Aktiv» auszuschalten.
+        </p>
+        <label className="block">
+          Zum Bestätigen <b>{code}</b> eintippen:
+          <input
+            name="confirm"
+            autoComplete="off"
+            className="ml-2 w-24 rounded-md border px-2 py-1 uppercase"
+          />
+        </label>
+        <button
+          disabled={pending}
+          className="rounded-md bg-red-600 px-3 py-1.5 text-white hover:bg-red-700 disabled:opacity-60"
+        >
+          {pending ? "Lösche…" : `${code} endgültig löschen`}
         </button>
-        {state.error && <p className="text-sm text-red-600" role="alert">{state.error}</p>}
-        {saved && <p className="text-sm text-green-700">Gespeichert ✓</p>}
-      </div>
-    </form>
+        {state.error && (
+          <p className="text-red-600" role="alert">
+            {state.error}
+          </p>
+        )}
+      </form>
+    </details>
   );
 }

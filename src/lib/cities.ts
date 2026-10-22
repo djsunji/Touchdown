@@ -12,6 +12,8 @@ const CITY_CENTER: Record<string, LatLng> = {
   TLV: { lat: 32.0853, lng: 34.7818 },
   NCE: { lat: 43.7102, lng: 7.262 },
   GOT: { lat: 57.7089, lng: 11.9746 },
+  ZRH: { lat: 47.3717, lng: 8.5423 },
+  BRN: { lat: 46.948, lng: 7.4474 },
 };
 
 export function mapCenter(d: { code: string; hotelLat: number | null; hotelLng: number | null }): LatLng | null {

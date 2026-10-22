@@ -3,7 +3,7 @@ import type { CSSProperties } from "react";
 import { db } from "@/lib/db";
 import { requireUser } from "@/lib/session";
 import { CATEGORIES } from "@/lib/categories";
-import { CITY_STYLE } from "@/lib/cityArt";
+import { styleFor } from "@/lib/cityArt";
 import { loadChat } from "@/lib/chat";
 import { ChatTeaser } from "@/components/ChatRoom";
 import { Meetups } from "@/components/Meetups";
@@ -14,7 +14,6 @@ import { mapConfig } from "@/lib/mapConfig";
 
 const FEATURED = CATEGORIES.filter((c) => c.featured);
 const OTHERS = CATEGORIES.filter((c) => !c.featured);
-const FALLBACK_SKY = ["#0a2148", "#2f7fd0"];
 
 export default async function DestinationPage({ params }: { params: Promise<{ dest: string }> }) {
   const { dest } = await params;
@@ -46,7 +45,7 @@ export default async function DestinationPage({ params }: { params: Promise<{ de
       .sort((a, b) => b.avg - a.avg || b.ratings.length - a.ratings.length)
       .slice(0, 2);
 
-  const sky = CITY_STYLE[dest]?.sky ?? FALLBACK_SKY;
+  const sky = styleFor(dest).sky;
   function countBy(slug: string) {
     return entries.filter((e) => e.category === slug).length;
   }

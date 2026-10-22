@@ -37,6 +37,8 @@ model Destination {
   timezone     String        @default("Europe/Zurich")
   // Inactive destinations are hidden from the start page (e.g. no longer flown)
   active       Boolean       @default(true)
+  // Text on the city card, e.g. "Frauenkirche" (built-in cities have their own)
+  landmark     String        @default("")
   // Free text shown on the destination start page (special notes)
   info         String        @default("")
   sortOrder    Int           @default(0)
@@ -209,4 +211,10 @@ model Nightstop {
 
   @@unique([userId, destinationCode, date])
   @@index([date])
+}
+
+// Small key/value store, e.g. which seed version has run (so deleted destinations stay deleted)
+model AppSetting {
+  key   String @id
+  value String
 }

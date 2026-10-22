@@ -2,7 +2,7 @@
 
 Touchdown ist die Knowledge Base für Crew-Nightstops: Kolleg:innen legen Tipps (Restaurants, Aktivitäten, ÖPNV, Shopping …) pro Destination an, bewerten sie mit 1–5 Sternen und markieren Favoriten. Login mit dem Firmen-Account über Microsoft Entra ID (Azure AD).
 
-Destinationen: MUC, OSL, MXP, LJU, BUD, VCE, FLR, TLV, NCE, GOT. Admins legen weitere direkt in der App an (`/admin`), ohne Code-Änderung.
+Destinationen: MUC, OSL, MXP, LJU, BUD, VCE, FLR, TLV, NCE, GOT, ZRH, BRN. Admins legen weitere direkt in der App an oder entfernen sie (`/admin`), ohne Code-Änderung. Für neue Destinationen wird die Kachel-Grafik (Himmel, Silhouette, Wahrzeichen) automatisch aus dem IATA-Code erzeugt.
 
 ## Vorschau
 
@@ -133,7 +133,7 @@ npm start
 
 - Farben: `--brand`, `--brand-light` und `--accent` in `src/app/globals.css`
 - Logo: `public/logo.png` (Login), `public/logo-icon.png` (Header), `src/app/icon.png` und `src/app/apple-icon.png` (Favicon)
-- Neue Destination: in der App unter `/admin → Destinationen`. Eine eigene Skyline-Grafik braucht einen Eintrag in `CITY_STYLE`/`SKYLINE` in `src/lib/cityArt.ts`, sonst wird eine allgemeine verwendet
+- Neue Destination: in der App unter `/admin → Destinationen`, die Grafik entsteht automatisch. Eine von Hand gezeichnete Skyline braucht einen Eintrag in `CITY_STYLE`/`SKYLINE` in `src/lib/cityArt.ts`
 - Kategorien: `src/lib/categories.ts` (der `slug` wird in der Datenbank gespeichert, also nach dem Livegang nicht mehr ändern)
-- Start-Destinationen und Notfallnummern: `prisma/seed.ts` (das Seed legt nur Fehlendes an und überschreibt keine Änderungen aus der App)
+- Start-Destinationen und Notfallnummern: `prisma/seed.ts`. Jede Seed-Version läuft pro Datenbank nur einmal; in der App gelöschte Destinationen kommen also nicht zurück. Für neue Start-Städte `SEED_VERSION` erhöhen
 - App-Icon: `public/icon-192.png`, `public/icon-512.png`, `public/icon-maskable-512.png`

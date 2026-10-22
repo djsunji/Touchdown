@@ -65,6 +65,7 @@ const destinationSchema = z.object({
   timezone: z.string().trim().refine(validTimeZone, "Unbekannte Zeitzone"),
   hotelName: optional(150),
   hotelAddress: optional(300),
+  landmark: z.string().trim().max(60),
 });
 
 /** Creates a destination (mode "create") or updates an existing one. */
@@ -77,6 +78,7 @@ export async function saveDestination(mode: "create" | "update", _prev: FormStat
     timezone: formData.get("timezone") ?? "",
     hotelName: formData.get("hotelName") ?? "",
     hotelAddress: formData.get("hotelAddress") ?? "",
+    landmark: formData.get("landmark") ?? "",
   });
   if (!parsed.success) return { error: parsed.error.issues[0].message };
 
@@ -101,6 +103,17 @@ export async function saveDestination(mode: "create" | "update", _prev: FormStat
     if (!(await db.destination.findUnique({ where: { code } }))) return { error: "Destination nicht gefunden" };
     await db.destination.update({ where: { code }, data });
   }
+  revalidatePath("/", "layout");
+  return {};
+}
+
+/** Deletes a destination with all its tips, photos, chat and meetups. The code must be typed to confirm. */
+export async function deleteDestination(code: string, _prev: FormState, formData: FormData): Promise<FormState> {
+  await requireAdmin();
+  const typed = String(formData.get("confirm") ?? "").trim().toUpperCase();
+  if (typed !== code) return { error: `Zum Bestätigen ${code} eintippen` };
+  const deleted = await db.destination.deleteMany({ where: { code } });
+  if (!deleted.count) return { error: "Destination nicht gefunden" };
   revalidatePath("/", "layout");
   return {};
 }

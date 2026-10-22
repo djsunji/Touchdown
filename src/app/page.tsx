@@ -102,7 +102,7 @@ export default async function Home() {
                   <span className="pill">
                     {n} {n === 1 ? "Tipp" : "Tipps"}
                   </span>
-                  <span className="landmark">{CITY_STYLE[d.code]?.tag}</span>
+                  <span className="landmark">{d.landmark || CITY_STYLE[d.code]?.tag}</span>
                   <span className="go">→</span>
                 </span>
               </Link>

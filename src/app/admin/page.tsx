@@ -256,6 +256,7 @@ async function Destinations() {
                 hotelAddress: d.hotelAddress,
                 hotelLat: d.hotelLat,
                 hotelLng: d.hotelLng,
+                landmark: d.landmark,
               }}
             />
             <p className="mt-3 text-sm text-gray-500">
