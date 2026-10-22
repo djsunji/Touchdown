@@ -87,7 +87,7 @@ export default async function Home() {
             return (
               <Link key={d.code} href={`/${d.code}`} className="dest" aria-label={`${d.city}, ${n} Tipps`}>
                 {/* Static artwork generated in src/lib/cityArt.ts, no user input */}
-                <span className="art-wrap" dangerouslySetInnerHTML={{ __html: cityArt(d.code) }} />
+                <span className="art-wrap" dangerouslySetInnerHTML={{ __html: cityArt(d.code, d.artSeed) }} />
                 {chatCount[d.code] ? (
                   <span className="chat-live" title="Nachrichten im Crew-Chat in den letzten 24 Stunden">
                     💬 {chatCount[d.code]}

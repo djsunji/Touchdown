@@ -45,7 +45,7 @@ export default async function DestinationPage({ params }: { params: Promise<{ de
       .sort((a, b) => b.avg - a.avg || b.ratings.length - a.ratings.length)
       .slice(0, 2);
 
-  const sky = styleFor(dest).sky;
+  const sky = styleFor(dest, destination.artSeed).sky;
   function countBy(slug: string) {
     return entries.filter((e) => e.category === slug).length;
   }

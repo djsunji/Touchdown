@@ -39,6 +39,8 @@ model Destination {
   active       Boolean       @default(true)
   // Text on the city card, e.g. "Frauenkirche" (built-in cities have their own)
   landmark     String        @default("")
+  // Seed for the generated card artwork (destinations without hand-drawn art); re-rollable in /admin
+  artSeed      Int           @default(0)
   // Free text shown on the destination start page (special notes)
   info         String        @default("")
   sortOrder    Int           @default(0)

@@ -1,8 +1,8 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { deleteDestination, saveDestination } from "@/app/admin/actions";
-import { CITY_STYLE, cityArt } from "@/lib/cityArt";
+import { CITY_STYLE, cityArt, newArtSeed } from "@/lib/cityArt";
 import type { FormState } from "@/app/actions";
 import type { MapConfig } from "@/lib/mapConfig";
 import type { LatLng } from "@/lib/geo";
@@ -19,6 +19,7 @@ type Dest = {
   hotelLat: number | null;
   hotelLng: number | null;
   landmark: string;
+  artSeed: number;
 };
 
 const input = "w-full rounded-md border px-3 py-2";
@@ -45,7 +46,13 @@ export function DestinationForm({
   const [city, setCity] = useState(d?.city ?? "");
   const [country, setCountry] = useState(d?.country ?? "");
   const [landmark, setLandmark] = useState(d?.landmark ?? "");
+  // New destinations start with a random picture (set after hydration); "Neue Grafik" rolls another one
+  const [seed, setSeed] = useState(d?.artSeed ?? 0);
+  useEffect(() => {
+    if (!d) setSeed(newArtSeed());
+  }, [d]);
   const previewCode = /^[A-Za-z]{3}$/.test(code) ? code.toUpperCase() : "";
+  const handDrawn = !!previewCode && Object.hasOwn(CITY_STYLE, previewCode);
   return (
     <>
       <form action={action} className="grid gap-3 sm:grid-cols-[1fr_1fr_auto]">
@@ -73,11 +80,10 @@ export function DestinationForm({
             />
           )}
         </label>
-        <div
-          className="sm:col-start-3 sm:row-span-4 sm:row-start-1"
-          aria-hidden
-        >
+        <div className="sm:col-start-3 sm:row-span-4 sm:row-start-1">
+          <input type="hidden" name="artSeed" value={seed} />
           <TilePreview
+            seed={seed}
             code={previewCode}
             city={city}
             country={country}
@@ -85,6 +91,15 @@ export function DestinationForm({
               landmark || (previewCode && CITY_STYLE[previewCode]?.tag) || ""
             }
           />
+          {previewCode && !handDrawn && (
+            <button
+              type="button"
+              onClick={() => setSeed(newArtSeed())}
+              className="mt-2 w-[168px] rounded-md border px-3 py-1.5 text-sm hover:bg-gray-50"
+            >
+              🎲 Neue Grafik
+            </button>
+          )}
         </div>
         <label className="block text-sm">
           <span className="mb-1 block font-medium">Zeitzone</span>
@@ -198,11 +213,13 @@ export function DestinationForm({
 
 /** The city card as it will appear on the home page */
 function TilePreview({
+  seed,
   code,
   city,
   country,
   landmark,
 }: {
+  seed: number;
   code: string;
   city: string;
   country: string;
@@ -211,12 +228,12 @@ function TilePreview({
   return (
     <div>
       <span className="mb-1 block text-sm font-medium">Kachel</span>
-      <div className="dest pointer-events-none" style={{ width: 168 }}>
+      <div className="dest pointer-events-none" style={{ width: 168 }} aria-hidden>
         {code ? (
           // Artwork is generated from the 3-letter code only (validated above), no free text
           <span
             className="art-wrap"
-            dangerouslySetInnerHTML={{ __html: cityArt(code) }}
+            dangerouslySetInnerHTML={{ __html: cityArt(code, seed) }}
           />
         ) : (
           <span className="art-wrap bg-gray-300" />

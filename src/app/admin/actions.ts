@@ -92,8 +92,10 @@ export async function saveDestination(mode: "create" | "update", _prev: FormStat
     if (!validLatLng(hotelLat, hotelLng)) return { error: "Ungültige Hotel-Position" };
   }
   const active = formData.get("active") === "on";
+  const seedRaw = Number(formData.get("artSeed"));
+  const artSeed = Number.isInteger(seedRaw) && seedRaw >= 0 && seedRaw < 1_000_000 ? seedRaw : 0;
   const { code, ...rest } = parsed.data;
-  const data = { ...rest, hotelLat, hotelLng, active };
+  const data = { ...rest, hotelLat, hotelLng, active, artSeed };
 
   if (mode === "create") {
     if (await db.destination.findUnique({ where: { code } })) return { error: `${code} gibt es schon` };
