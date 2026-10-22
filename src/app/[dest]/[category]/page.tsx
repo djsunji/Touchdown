@@ -141,7 +141,7 @@ export default async function CategoryPage({
   const anyFilter = !!(filters.price || filters.open || filters.veg);
   const sorts = SORTS.filter((s) => s.key !== "near" || hotel);
   const chip = (active: boolean) =>
-    `rounded-full px-3 py-1.5 text-sm ring-1 ${active ? "bg-brand text-brand-contrast ring-brand" : "bg-white ring-black/10 hover:bg-gray-50"}`;
+    `touch-target rounded-full px-3 py-1.5 text-sm ring-1 ${active ? "bg-brand text-brand-contrast ring-brand" : "bg-white ring-black/10 hover:bg-gray-50"}`;
 
   return (
     <div className="mx-auto max-w-4xl">
@@ -157,7 +157,7 @@ export default async function CategoryPage({
         </Link>
       </div>
 
-      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center">
+      <div className="mb-4 flex flex-col gap-3 xl:flex-row xl:items-center">
         <div
           className="grid flex-1 overflow-hidden rounded-md bg-white text-sm shadow-sm ring-1 ring-black/5"
           style={{ gridTemplateColumns: `repeat(${sorts.length}, minmax(0, 1fr))` }}
@@ -166,14 +166,14 @@ export default async function CategoryPage({
             <Link
               key={s.key}
               href={href(s.key)}
-              className={`px-2 py-2.5 text-center ${sort === s.key ? "bg-gray-600 text-white" : "hover:bg-gray-50"}`}
+              className={`touch-target px-2 py-2.5 text-center whitespace-nowrap ${sort === s.key ? "bg-gray-600 text-white" : "hover:bg-gray-50"}`}
             >
               <span className="sm:hidden">{s.short}</span>
               <span className="hidden sm:inline">{s.label}</span>
             </Link>
           ))}
         </div>
-        <form className="sm:w-56">
+        <form className="xl:w-56">
           {sort !== "az" && <input type="hidden" name="sort" value={sort} />}
           {filters.price && <input type="hidden" name="price" value={filters.price} />}
           {filters.open && <input type="hidden" name="open" value="1" />}

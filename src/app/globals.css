@@ -133,3 +133,25 @@ body {
 .dest .landmark { opacity: 1; color: #fff; text-shadow: 0 1px 3px rgba(0, 0, 0, .8); }
 .dest .go { text-shadow: 0 1px 3px rgba(0, 0, 0, .7); }
 .dest .art-wrap { z-index: -2; }
+
+/* ---------- Touch devices (iPad, phones): finger-sized targets, no zoom on input focus ---------- */
+@media (pointer: coarse) {
+  button, summary, select, .back-btn, .touch-target,
+  a.rounded-md, a.rounded-full, a.rounded-lg, header a { min-height: 44px; }
+  .touch-target, header a, a.rounded-full { display: inline-flex; align-items: center; justify-content: center; gap: .3em; }
+  button.chat-del { min-height: 30px; padding: 0 6px; }
+  .leaflet-container button, .leaflet-container a { min-height: 0; }
+  /* iOS zooms into fields with text smaller than 16px */
+  input:not([type=checkbox]):not([type=radio]), select, textarea { font-size: 16px !important; }
+  /* Rating stars and small icon buttons get a bigger hit area without changing their look */
+  button { touch-action: manipulation; }
+}
+
+/* Installed app (home screen) on iPhone/iPad: keep the header below the status bar and the notch */
+header.bg-brand { padding-top: env(safe-area-inset-top); padding-left: env(safe-area-inset-left); padding-right: env(safe-area-inset-right); }
+body { padding-bottom: env(safe-area-inset-bottom); }
+
+/* Sidebar on the city pages sits right below the sticky header */
+:root { --hdr: calc(3.5rem + env(safe-area-inset-top)); }
+@media (pointer: coarse) { :root { --hdr: calc(4.25rem + env(safe-area-inset-top)); } }
+.dest-sidebar { top: var(--hdr); height: calc(100dvh - var(--hdr)); }

@@ -16,13 +16,13 @@ export function CategoryNav({ dest, counts, showMap }: { dest: string; counts: R
 
   return (
     <>
-      {/* Mobile: horizontal chips */}
-      <nav className="flex gap-2 overflow-x-auto px-4 py-3 md:hidden">
+      {/* Phone and iPad portrait: horizontal chips */}
+      <nav className="cat-chips flex gap-2 overflow-x-auto px-4 py-3 lg:hidden" aria-label="Kategorien">
         {extra.map((x) => (
           <Link
             key={x.slug}
             href={`/${dest}/${x.slug}`}
-            className={`shrink-0 rounded-full px-3 py-1.5 text-sm ring-1 ${
+            className={`shrink-0 rounded-full px-3 py-1.5 text-sm whitespace-nowrap ring-1 ${
               active === x.slug ? "bg-brand text-brand-contrast ring-brand" : "bg-white ring-black/10"
             }`}
           >
@@ -33,7 +33,7 @@ export function CategoryNav({ dest, counts, showMap }: { dest: string; counts: R
           <Link
             key={c.slug}
             href={`/${dest}/${c.slug}`}
-            className={`shrink-0 rounded-full px-3 py-1.5 text-sm ring-1 ${
+            className={`shrink-0 rounded-full px-3 py-1.5 text-sm whitespace-nowrap ring-1 ${
               active === c.slug ? "bg-brand text-brand-contrast ring-brand" : "bg-white ring-black/10"
             }`}
           >
@@ -43,8 +43,8 @@ export function CategoryNav({ dest, counts, showMap }: { dest: string; counts: R
         ))}
       </nav>
 
-      {/* Desktop / tablet: sidebar */}
-      <nav className="hidden w-72 shrink-0 border-r border-black/5 bg-white md:block">
+      {/* Desktop and iPad landscape: sidebar, stays in place while the content scrolls */}
+      <nav className="dest-sidebar sticky hidden w-64 shrink-0 overflow-y-auto overscroll-contain border-r border-black/5 bg-white lg:block xl:w-72" aria-label="Kategorien">
         <div className="mx-3 mt-4 space-y-2">
           {extra.map((x) => (
             <Link

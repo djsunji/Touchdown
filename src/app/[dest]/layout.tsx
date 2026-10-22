@@ -44,9 +44,9 @@ export default async function DestinationLayout({
           <UserMenu user={user} />
         </div>
       </header>
-      <div className="flex flex-1 flex-col md:flex-row">
+      <div className="flex flex-1 flex-col lg:flex-row">
         <CategoryNav dest={destination.code} counts={counts} showMap={!!mapConfig()} />
-        <main className="min-w-0 flex-1 px-4 py-6 md:px-8">{children}</main>
+        <main className="min-w-0 flex-1 px-4 py-6 sm:px-6 lg:px-8">{children}</main>
       </div>
     </div>
   );

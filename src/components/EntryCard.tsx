@@ -121,7 +121,7 @@ export function EntryCard({ e }: { e: EntryView }) {
         {!e.canEdit && <ReportButton type="entry" id={e.id} />}
         {e.canEdit && (
           <span className="ml-auto flex gap-4">
-            <Link href={e.editHref} className="text-sm text-brand hover:underline">Bearbeiten</Link>
+            <Link href={e.editHref} className="touch-target text-sm text-brand hover:underline">Bearbeiten</Link>
             <DeleteButton entryId={e.id} title={e.title} />
           </span>
         )}

@@ -107,7 +107,7 @@ export function ChatRoom({ dest, city, initial }: { dest: string; city: string; 
   }
 
   return (
-    <div className="flex h-[calc(100dvh-17rem)] min-h-[360px] flex-col overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-black/5 md:h-[calc(100dvh-10rem)]">
+    <div className="flex h-[calc(100dvh-17rem)] min-h-[360px] flex-col overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-black/5 lg:h-[calc(100dvh-10rem)]">
       <div ref={listRef} onScroll={onScroll} className="flex-1 space-y-1 overflow-y-auto px-4 py-4">
         {messages.length === 0 && (
           <p className="py-16 text-center text-sm text-gray-500">
@@ -141,7 +141,7 @@ export function ChatRoom({ dest, city, initial }: { dest: string; city: string; 
                           </button>
                         </>
                       ) : (
-                        <button type="button" onClick={() => setConfirmId(m.id)} className="md:opacity-0 md:group-hover:opacity-100 md:focus:opacity-100">
+                        <button type="button" onClick={() => setConfirmId(m.id)} className="chat-del [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover:opacity-100 focus:opacity-100">
                           Löschen
                         </button>
                       ))}
