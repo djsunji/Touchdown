@@ -2,7 +2,7 @@
 
 Touchdown ist die Knowledge Base für Crew-Nightstops: Kolleg:innen legen Tipps (Restaurants, Aktivitäten, ÖPNV, Shopping …) pro Destination an, bewerten sie mit 1–5 Sternen und markieren Favoriten. Login mit dem Firmen-Account über Microsoft Entra ID (Azure AD).
 
-Destinationen: MUC, OSL, MXP, LJU, BUD, VCE, FLR, TLV, NCE, GOT, ZRH, BRN. Admins legen weitere direkt in der App an oder entfernen sie (`/admin`), ohne Code-Änderung. Für neue Destinationen wird die Kachel-Grafik (Himmel, Silhouette, Wahrzeichen) automatisch aus dem IATA-Code erzeugt.
+Destinationen: MUC, OSL, MXP, LJU, BUD, VCE, FLR, TLV, NCE, GOT, ZRH, BRN. Admins legen weitere direkt in der App an oder entfernen sie (`/admin`), ohne Code-Änderung. Für rund 40 weitere europäische Städte (z. B. LIS, BCN, FCO, AMS, BER, VIE, PRG, ATH, IST, LHR, GVA) ist bereits eine gezeichnete Kachel mit dem echten Wahrzeichen hinterlegt: Code eintippen, Stadt, Land, Zeitzone und Grafik werden übernommen. Für unbekannte Codes wird eine Grafik erzeugt (per Würfel neu würfelbar).
 
 ## Vorschau
 
@@ -133,7 +133,7 @@ npm start
 
 - Farben: `--brand`, `--brand-light` und `--accent` in `src/app/globals.css`
 - Logo: `public/logo.png` (Login), `public/logo-icon.png` (Header), `src/app/icon.png` und `src/app/apple-icon.png` (Favicon)
-- Neue Destination: in der App unter `/admin → Destinationen`, die Grafik entsteht automatisch. Eine von Hand gezeichnete Skyline braucht einen Eintrag in `CITY_STYLE`/`SKYLINE` in `src/lib/cityArt.ts`
+- Neue Destination: in der App unter `/admin → Destinationen`, die Grafik entsteht automatisch. Eine neue von Hand gezeichnete Skyline kommt als Eintrag in eine der Dateien unter `src/lib/skylines/` (Konventionen in `shared.ts`)
 - Kategorien: `src/lib/categories.ts` (der `slug` wird in der Datenbank gespeichert, also nach dem Livegang nicht mehr ändern)
 - Start-Destinationen und Notfallnummern: `prisma/seed.ts`. Jede Seed-Version läuft pro Datenbank nur einmal; in der App gelöschte Destinationen kommen also nicht zurück. Für neue Start-Städte `SEED_VERSION` erhöhen
 - App-Icon: `public/icon-192.png`, `public/icon-512.png`, `public/icon-maskable-512.png`

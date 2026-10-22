@@ -2,7 +2,7 @@
 
 import { useActionState, useEffect, useState } from "react";
 import { deleteDestination, saveDestination } from "@/app/admin/actions";
-import { CITY_STYLE, cityArt, newArtSeed } from "@/lib/cityArt";
+import { CITY_STYLE, cityArt, knownCity, newArtSeed } from "@/lib/cityArt";
 import type { FormState } from "@/app/actions";
 import type { MapConfig } from "@/lib/mapConfig";
 import type { LatLng } from "@/lib/geo";
@@ -45,6 +45,7 @@ export function DestinationForm({
   const [code, setCode] = useState(d?.code ?? "");
   const [city, setCity] = useState(d?.city ?? "");
   const [country, setCountry] = useState(d?.country ?? "");
+  const [timezone, setTimezone] = useState(d?.timezone ?? "Europe/Zurich");
   const [landmark, setLandmark] = useState(d?.landmark ?? "");
   // New destinations start with a random picture (set after hydration); "Neue Grafik" rolls another one
   const [seed, setSeed] = useState(d?.artSeed ?? 0);
@@ -53,6 +54,30 @@ export function DestinationForm({
   }, [d]);
   const previewCode = /^[A-Za-z]{3}$/.test(code) ? code.toUpperCase() : "";
   const handDrawn = !!previewCode && Object.hasOwn(CITY_STYLE, previewCode);
+  // A code from the drawn library fills in city, country and time zone (fields the admin left untouched)
+  const [autofilled, setAutofilled] = useState({
+    city: "",
+    country: "",
+    timezone: "",
+  });
+  function changeCode(value: string) {
+    setCode(value);
+    const known = /^[A-Za-z]{3}$/.test(value)
+      ? knownCity(value.toUpperCase())
+      : null;
+    if (!known) return;
+    const untouched = (cur: string, prev: string, dflt = "") =>
+      !cur || cur === prev || cur === dflt;
+    if (untouched(city, autofilled.city)) setCity(known.city);
+    if (untouched(country, autofilled.country)) setCountry(known.country);
+    if (untouched(timezone, autofilled.timezone, "Europe/Zurich"))
+      setTimezone(known.timezone);
+    setAutofilled({
+      city: known.city,
+      country: known.country,
+      timezone: known.timezone,
+    });
+  }
   return (
     <>
       <form action={action} className="grid gap-3 sm:grid-cols-[1fr_1fr_auto]">
@@ -76,7 +101,7 @@ export function DestinationForm({
               className={`${input} uppercase`}
               autoCapitalize="characters"
               value={code}
-              onChange={(e) => setCode(e.target.value)}
+              onChange={(e) => changeCode(e.target.value)}
             />
           )}
         </label>
@@ -91,6 +116,13 @@ export function DestinationForm({
               landmark || (previewCode && CITY_STYLE[previewCode]?.tag) || ""
             }
           />
+          {previewCode && (
+            <p className="mt-2 w-[168px] text-xs text-gray-600">
+              {handDrawn
+                ? `Gezeichnete Grafik mit ${CITY_STYLE[previewCode].tag}`
+                : `Für ${previewCode} gibt es noch keine gezeichnete Stadt, die Grafik wird erzeugt.`}
+            </p>
+          )}
           {previewCode && !handDrawn && (
             <button
               type="button"
@@ -106,7 +138,8 @@ export function DestinationForm({
           <input
             name="timezone"
             required
-            defaultValue={d?.timezone ?? "Europe/Zurich"}
+            value={timezone}
+            onChange={(e) => setTimezone(e.target.value)}
             placeholder="z. B. Europe/Lisbon"
             className={input}
           />
@@ -142,7 +175,9 @@ export function DestinationForm({
             maxLength={60}
             value={landmark}
             onChange={(e) => setLandmark(e.target.value)}
-            placeholder="z. B. Torre de Belém"
+            placeholder={
+              handDrawn ? CITY_STYLE[previewCode].tag : "z. B. Torre de Belém"
+            }
             className={input}
           />
         </label>
@@ -228,7 +263,11 @@ function TilePreview({
   return (
     <div>
       <span className="mb-1 block text-sm font-medium">Kachel</span>
-      <div className="dest pointer-events-none" style={{ width: 168 }} aria-hidden>
+      <div
+        className="dest pointer-events-none"
+        style={{ width: 168 }}
+        aria-hidden
+      >
         {code ? (
           // Artwork is generated from the 3-letter code only (validated above), no free text
           <span

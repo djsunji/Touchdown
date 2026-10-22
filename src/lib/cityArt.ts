@@ -1,12 +1,12 @@
 // Landmark silhouettes per destination, viewBox 0 0 200 100 (ground at y=100).
-type CityStyle = {
-  sky: [string, string];
-  ink: string;
-  far: string;
-  tag: string;
-};
+// The first twelve cities are drawn here; many more come from the library in ./skylines,
+// so a destination added in the admin area gets its real landmark when its IATA code is known.
+import { alps, palm, spires, type CityStyle } from "./skylines/shared";
+import { LIBRARY } from "./skylines";
 
-export const CITY_STYLE: Record<string, CityStyle> = {
+export type { CityStyle };
+
+const BUILTIN_STYLE: Record<string, CityStyle> = {
   MUC: {
     sky: ["#1b3b6f", "#7fb0de"],
     ink: "#0c1a31",
@@ -81,73 +81,7 @@ export const CITY_STYLE: Record<string, CityStyle> = {
   },
 };
 
-// Palm tree drawn with strokes; x = trunk base, h = height
-function palm(ink: string, x: number, h: number) {
-  const top = 92 - h;
-  const tx = x + 3;
-  let d =
-    "M" + x + ",92 Q" + (x + 4) + "," + (92 - h / 2) + " " + tx + "," + top;
-  [
-    [-12, 4],
-    [-9, -4],
-    [0, -7],
-    [9, -4],
-    [12, 5],
-  ].forEach((f) => {
-    d +=
-      " M" +
-      tx +
-      "," +
-      top +
-      " Q" +
-      (tx + f[0] / 2) +
-      "," +
-      (top - 4) +
-      " " +
-      (tx + f[0]) +
-      "," +
-      (top + f[1]);
-  });
-  return (
-    '<path d="' +
-    d +
-    '" stroke="' +
-    ink +
-    '" stroke-width="1.8" fill="none" stroke-linecap="round"/>'
-  );
-}
-
-function spires(x0: number, x1: number, step: number, base: number, h: number) {
-  let d = "";
-  for (let x = x0; x <= x1; x += step)
-    d +=
-      "M" +
-      (x - 2) +
-      "," +
-      base +
-      "L" +
-      x +
-      "," +
-      (base - h) +
-      "L" +
-      (x + 2) +
-      "," +
-      base +
-      "Z";
-  return d;
-}
-
-// Snow-capped Alps in the background (Swiss destinations)
-function alps(s: CityStyle) {
-  return (
-    '<path fill="' +
-    s.far +
-    '" d="M0,70 L18,52 L30,60 L52,34 L66,50 L80,42 L104,64 L126,38 L144,54 L160,30 L182,52 L200,44 L200,100 L0,100Z"/>' +
-    '<path fill="#fff" opacity=".55" d="M46,41 L52,34 L58,42 L54,40 L50,43Z M120,45 L126,38 L132,46 L128,44 L124,47Z M154,37 L160,30 L167,39 L162,37 L158,40Z M76,46 L80,42 L84,47 L80,45Z"/>'
-  );
-}
-
-const SKYLINE: Record<string, (s: CityStyle) => string> = {
+const BUILTIN_SKYLINE: Record<string, (s: CityStyle) => string> = {
   MUC: (s) => {
     return (
       '<path fill="' +
@@ -447,6 +381,32 @@ const SKYLINE: Record<string, (s: CityStyle) => string> = {
   },
 };
 
+export const CITY_STYLE: Record<string, CityStyle> = {
+  ...Object.fromEntries(
+    Object.entries(LIBRARY).map(([code, c]) => [code, c.style]),
+  ),
+  ...BUILTIN_STYLE,
+};
+const SKYLINE: Record<string, (s: CityStyle) => string> = {
+  ...Object.fromEntries(
+    Object.entries(LIBRARY).map(([code, c]) => [code, c.draw]),
+  ),
+  ...BUILTIN_SKYLINE,
+};
+
+/** City data for a known IATA code (used to fill the admin form), or null */
+export function knownCity(code: string) {
+  const c = Object.hasOwn(LIBRARY, code) ? LIBRARY[code] : null;
+  return c
+    ? {
+        city: c.city,
+        country: c.country,
+        timezone: c.timezone,
+        tag: c.style.tag,
+      }
+    : null;
+}
+
 // ---------- Generated artwork for destinations added in the app ----------
 // A random "art seed" (stored per destination, re-rollable in the admin area) picks the evening
 // palette, the background, the old town, one or two landmarks, water, trees and the moon.
@@ -545,7 +505,6 @@ function tree(x: number, h: number, ink: string) {
 function generatedSkyline(code: string, seed: number) {
   return (s: CityStyle) => {
     const r = rng(key(code, seed) + "/sky");
-    const pick = <T>(arr: T[]) => arr[Math.floor(r() * arr.length)];
     // Background: 0 mountains, 1 snowy alps, 2 hills with distant town, 3 sea horizon, 4 distant skyline
     const bg = Math.floor(r() * 5);
     let far = "";
