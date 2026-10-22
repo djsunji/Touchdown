@@ -177,7 +177,10 @@ body { padding-bottom: env(safe-area-inset-bottom, 0px); }
 .dest .art-blank { position: absolute; inset: 0; background: #9aa3ad; }
 /* Admin: live tile preview next to the destination form */
 .dest-form-wrap { display: grid; gap: 16px; align-items: start; }
-@media (min-width: 640px) { .dest-form-wrap { grid-template-columns: minmax(0, 1fr) 168px; } .dest-form-wrap > .tile-prev { order: 2; } }
+@media (min-width: 640px) { .dest-form-wrap { grid-template-columns: minmax(0, 1fr) 168px; } .dest-form-wrap > .tile-col { order: 2; } }
+.tile-col { display: grid; gap: 8px; justify-items: start; }
+.tile-col .dice { width: 168px; }
+.tile-col .dice[hidden] { display: none; }
 .tile-prev { display: grid; gap: 4px; justify-items: start; }
 .tile-prev > span { font-size: 13px; font-weight: 600; }
 .tile-prev .dest { width: 168px; pointer-events: none; box-shadow: 0 6px 18px rgba(4, 14, 28, .22); }
@@ -787,17 +790,25 @@ code { font-size: 12px; background: var(--hover); border-radius: 4px; padding: 1
   };
   
   // ---------- Generated artwork for destinations added by admins ----------
-  // Everything is derived from the IATA code, so a new destination always gets the same picture:
-  // sky colours, background (mountains, hills or sea), old-town houses and one landmark.
-  function rng(code) {
-    var seed = 0;
-    for (var i = 0; i < code.length; i++) seed = (seed * 31 + code.charCodeAt(i)) % 233280;
-    seed = (seed * 7919 + 17) % 233280;
+  // A random "art seed" (stored per destination, re-rollable in the admin area) picks the evening
+  // palette, the background, the old town, one or two landmarks, water, trees and the moon.
+  function rng(key) {
+    // string hash -> mulberry32
+    var h = 1779033703 ^ key.length;
+    for (var i = 0; i < key.length; i++) {
+      h = Math.imul(h ^ key.charCodeAt(i), 3432918353);
+      h = (h << 13) | (h >>> 19);
+    }
+    var a = h >>> 0;
     return function () {
-      seed = (seed * 9301 + 49297) % 233280;
-      return seed / 233280;
+      a = (a + 0x6d2b79f5) | 0;
+      var t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
     };
   }
+  // A new random art seed (1 … 999999)
+  function newArtSeed() { return 1 + Math.floor(Math.random() * 999999); }
   // Evening palettes in the style of the built-in cities (sky top, sky bottom, silhouette, background)
   var PALETTES = [
     ["#1d2f5c", "#e9a27a", "#0e1430", "#3b4f86"],
@@ -809,17 +820,28 @@ code { font-size: 12px; background: var(--hover); border-radius: 4px; padding: 1
     ["#13324a", "#f4c98a", "#08182a", "#2e5f7e"],
     ["#22323a", "#c5d6c0", "#0e171b", "#4a6266"],
     ["#2e1d52", "#c79ae0", "#160d2c", "#5a3f8a"],
-    ["#173d33", "#e7c37f", "#0a1e19", "#356a58"]
+    ["#173d33", "#e7c37f", "#0a1e19", "#356a58"],
+    ["#0b2440", "#5fa8d3", "#04101d", "#22507a"],
+    ["#3d1530", "#f6b26b", "#1d0917", "#6b2f52"],
+    ["#1c3b2a", "#d8e2a0", "#0b1a12", "#3e6b4c"],
+    ["#2a2a48", "#f2d0a4", "#121224", "#4d4d7a"]
   ];
-  // Colours for a destination: hand-picked for the built-in ones, generated from the code otherwise
-  function styleFor(code, tag) {
-    if (CITY_STYLE[code]) return CITY_STYLE[code];
-    var p = PALETTES[Math.floor(rng(code)() * PALETTES.length)];
+  function artKey(code, seed) { return code + ":" + seed; }
+  function hasOwn(o, k) { return Object.prototype.hasOwnProperty.call(o, k); }
+  function isHandDrawn(code) { return hasOwn(CITY_STYLE, code); }
+  // Colours for a destination: hand-picked for the built-in ones, generated from code + art seed otherwise
+  function styleFor(code, seed, tag) {
+    if (hasOwn(CITY_STYLE, code)) return CITY_STYLE[code];
+    var p = PALETTES[Math.floor(rng(artKey(code, seed || 0))() * PALETTES.length)];
     return { sky: [p[0], p[1]], ink: p[2], far: p[3], tag: tag || "" };
   }
-  var styleOf = styleFor;
+  // Style of a stored destination (uses its art seed)
+  function styleOf(code) { var d = dest(code); return styleFor(code, d ? d.artSeed || 0 : 0); }
   function n1(v) { return v.toFixed(1); }
-  function landmark(kind, x, ink, s) {
+  var LANDMARKS = 14;
+  // One landmark centred at x, standing on the ground line y=92
+  function landmark(kind, x, s) {
+    var ink = s.ink, glow = s.sky[1];
     switch (kind) {
       case 0: // cathedral with a dome
         return '<rect x="' + (x - 22) + '" y="62" width="44" height="30"/><path d="M' + (x - 16) + ',63 Q' + (x - 16) + ',38 ' + x + ',36 Q' + (x + 16) + ',38 ' + (x + 16) + ',63Z"/><rect x="' + (x - 1) + '" y="24" width="2" height="13"/><circle cx="' + x + '" cy="23" r="1.8"/>';
@@ -828,61 +850,160 @@ code { font-size: 12px; background: var(--hover); border-radius: 4px; padding: 1
       case 2: // twin towers
         return '<rect x="' + (x - 16) + '" y="60" width="32" height="32"/><rect x="' + (x - 20) + '" y="30" width="11" height="62"/><rect x="' + (x + 9) + '" y="30" width="11" height="62"/><path d="M' + (x - 21) + ',30 L' + (x - 14.5) + ',16 L' + (x - 8) + ',30Z M' + (x + 8) + ',30 L' + (x + 14.5) + ',16 L' + (x + 21) + ',30Z"/>';
       case 3: // clock tower
-        return '<rect x="' + (x - 8) + '" y="34" width="16" height="58"/><path d="M' + (x - 10) + ',34 L' + x + ',14 L' + (x + 10) + ',34Z"/><circle cx="' + x + '" cy="44" r="4" fill="' + s.sky[1] + '" opacity=".8"/><path d="M' + x + ',44 L' + x + ',41 M' + x + ',44 L' + (x + 2) + ',45" stroke="' + ink + '" stroke-width=".8"/>';
+        return '<rect x="' + (x - 8) + '" y="34" width="16" height="58"/><path d="M' + (x - 10) + ',34 L' + x + ',14 L' + (x + 10) + ',34Z"/><circle cx="' + x + '" cy="44" r="4" fill="' + glow + '" opacity=".8"/><path d="M' + x + ',44 L' + x + ',41 M' + x + ',44 L' + (x + 2) + ',45" stroke="' + ink + '" stroke-width=".8"/>';
       case 4: // modern towers
         return '<rect x="' + (x - 20) + '" y="30" width="13" height="62"/><path d="M' + (x - 4) + ',92 L' + (x - 4) + ',18 L' + (x + 10) + ',26 L' + (x + 10) + ',92Z"/><rect x="' + (x + 13) + '" y="40" width="11" height="52"/><rect x="' + (x + 2) + '" y="10" width="1.2" height="10"/>';
-      default: // castle on a hill
+      case 5: // castle on a hill
         return '<path d="M' + (x - 36) + ',92 Q' + x + ',58 ' + (x + 36) + ',92Z"/><rect x="' + (x - 18) + '" y="56" width="36" height="14"/><rect x="' + (x - 6) + '" y="38" width="12" height="20"/><path d="M' + (x - 18) + ',56 h4 v-4 h4 v4 h4 v-4 h4 v4 h4 v-4 h4 v4 h4 v-4 h4 v4Z M' + (x - 7) + ',38 h3 v-3 h3 v3 h2 v-3 h3 v3 h2 v2 h-13Z"/>';
+      case 6: // lighthouse
+        return '<path d="M' + (x - 7) + ',92 L' + (x - 4) + ',34 L' + (x + 4) + ',34 L' + (x + 7) + ',92Z"/><rect x="' + (x - 6) + '" y="30" width="12" height="4"/><rect x="' + (x - 4) + '" y="22" width="8" height="8" fill="' + glow + '" opacity=".85"/><path d="M' + (x - 5) + ',22 L' + x + ',15 L' + (x + 5) + ',22Z"/><path d="M' + (x + 4) + ',26 L' + (x + 40) + ',18 L' + (x + 40) + ',32Z" fill="' + glow + '" opacity=".18"/>';
+      case 7: // TV tower
+        return '<path d="M' + (x - 5) + ',92 L' + (x - 2) + ',20 L' + (x + 2) + ',20 L' + (x + 5) + ',92Z"/><circle cx="' + x + '" cy="30" r="7"/><rect x="' + (x - 0.6) + '" y="2" width="1.2" height="20"/><rect x="' + (x - 4) + '" y="40" width="8" height="2"/>';
+      case 8: // ferris wheel
+        var cars = "";
+        for (var i = 0; i < 8; i++) cars += '<circle cx="' + n1(x + 30 * Math.cos((i * Math.PI) / 4)) + '" cy="' + n1(50 + 30 * Math.sin((i * Math.PI) / 4)) + '" r="2.4"/>';
+        return '<g fill="none" stroke="' + ink + '" stroke-width="1.6"><circle cx="' + x + '" cy="50" r="30"/><path d="M' + (x - 30) + ',50 L' + (x + 30) + ',50 M' + x + ',20 L' + x + ',80 M' + (x - 21) + ',29 L' + (x + 21) + ',71 M' + (x + 21) + ',29 L' + (x - 21) + ',71"/></g><path d="M' + (x - 14) + ',92 L' + x + ',50 L' + (x + 14) + ',92Z"/>' + cars;
+      case 9: // triumphal arch / city gate
+        return '<path d="M' + (x - 24) + ',92 L' + (x - 24) + ',44 L' + (x + 24) + ',44 L' + (x + 24) + ',92 L' + (x + 10) + ',92 L' + (x + 10) + ',70 Q' + x + ',58 ' + (x - 10) + ',70 L' + (x - 10) + ',92Z"/><rect x="' + (x - 27) + '" y="38" width="54" height="7"/><rect x="' + (x - 10) + '" y="30" width="20" height="8"/>';
+      case 10: // basilica with minarets
+        return '<rect x="' + (x - 20) + '" y="64" width="40" height="28"/><path d="M' + (x - 15) + ',65 Q' + (x - 15) + ',40 ' + x + ',38 Q' + (x + 15) + ',40 ' + (x + 15) + ',65Z"/><rect x="' + (x - 0.8) + '" y="28" width="1.6" height="10"/><rect x="' + (x - 32) + '" y="30" width="5" height="62"/><rect x="' + (x + 27) + '" y="30" width="5" height="62"/><path d="M' + (x - 33) + ',30 L' + (x - 29.5) + ',20 L' + (x - 26) + ',30Z M' + (x + 26) + ',30 L' + (x + 29.5) + ',20 L' + (x + 33) + ',30Z"/>';
+      case 11: // windmill
+        return '<path d="M' + (x - 9) + ',92 L' + (x - 6) + ',50 L' + (x + 6) + ',50 L' + (x + 9) + ',92Z"/><path d="M' + (x - 7) + ',50 L' + x + ',42 L' + (x + 7) + ',50Z"/><g stroke="' + ink + '" stroke-width="3"><path d="M' + (x - 20) + ',26 L' + (x + 20) + ',66 M' + (x + 20) + ',26 L' + (x - 20) + ',66"/></g>';
+      case 12: // suspension bridge over water
+        return '<rect x="' + (x - 50) + '" y="74" width="100" height="3"/><rect x="' + (x - 30) + '" y="40" width="4" height="52"/><rect x="' + (x + 26) + '" y="40" width="4" height="52"/><path d="M' + (x - 50) + ',70 Q' + (x - 40) + ',70 ' + (x - 28) + ',42 Q' + x + ',72 ' + (x + 28) + ',42 Q' + (x + 40) + ',70 ' + (x + 50) + ',70" stroke="' + ink + '" stroke-width="1.2" fill="none"/>';
+      default: // fortress with round towers
+        return '<rect x="' + (x - 26) + '" y="58" width="52" height="34"/><rect x="' + (x - 32) + '" y="46" width="14" height="46" rx="2"/><rect x="' + (x + 18) + '" y="46" width="14" height="46" rx="2"/><path d="M' + (x - 33) + ',46 L' + (x - 25) + ',34 L' + (x - 17) + ',46Z M' + (x + 17) + ',46 L' + (x + 25) + ',34 L' + (x + 33) + ',46Z"/><path d="M' + (x - 26) + ',58 h4 v-4 h4 v4 h4 v-4 h4 v4 h4 v-4 h4 v4 h4 v-4 h4 v4 h4 v-4 h4 v4 h4 v-4 h4v4Z"/>';
     }
   }
-  function generatedSkyline(code) {
+  function tree(x, h, ink) {
+    return '<rect x="' + (x - 0.8) + '" y="' + (92 - h) + '" width="1.6" height="' + h + '" fill="' + ink + '"/><circle cx="' + x + '" cy="' + (92 - h) + '" r="' + n1(h / 2.4) + '" fill="' + ink + '"/>';
+  }
+  function generatedSkyline(code, seed) {
     return function (s) {
-      var r = rng(code + "sky");
-      var bg = Math.floor(r() * 3); // 0 mountains, 1 hills, 2 sea
-      var far = "", x, i;
-      if (bg === 0) {
+      var r = rng(artKey(code, seed) + "/sky");
+      var x, i, h, w;
+      // Background: 0 mountains, 1 snowy alps, 2 hills with distant town, 3 sea horizon, 4 distant skyline
+      var bg = Math.floor(r() * 5);
+      var far = "";
+      if (bg === 0 || bg === 1) {
         var d = "M0,74";
-        for (x = 0; x <= 200; x += 25) d += " L" + (x + 12) + "," + n1(30 + r() * 24) + " L" + (x + 25) + "," + n1(52 + r() * 14);
+        var peaks = [];
+        for (x = 0; x <= 200; x += 22 + Math.floor(r() * 12)) {
+          var py = 26 + r() * 28;
+          peaks.push([x + 11, py]);
+          d += " L" + (x + 11) + "," + n1(py) + " L" + (x + 22) + "," + n1(52 + r() * 14);
+        }
         far = '<path fill="' + s.far + '" d="' + d + ' L200,100 L0,100Z"/>';
-      } else {
+        if (bg === 1)
+          peaks.forEach(function (p) {
+            var px = p[0], qy = p[1];
+            far += '<path fill="#fff" opacity=".5" d="M' + (px - 5) + "," + n1(qy + 6) + " L" + px + "," + n1(qy) + " L" + (px + 5) + "," + n1(qy + 6) + " L" + (px + 2) + "," + n1(qy + 4.5) + " L" + (px - 2) + "," + n1(qy + 6.5) + 'Z"/>';
+          });
+      } else if (bg === 2) {
         far = '<path fill="' + s.far + '" d="M0,' + n1(58 + r() * 10) + " Q50," + n1(40 + r() * 14) + " 100," + n1(54 + r() * 10) + " Q150," + n1(44 + r() * 14) + " 200," + n1(52 + r() * 10) + ' L200,100 L0,100Z"/>';
-        // a few distant buildings on the hills
-        for (i = 0; i < 6; i++) {
-          var bx = Math.floor(r() * 190);
-          var bh = 8 + Math.floor(r() * 14);
-          far += '<rect x="' + bx + '" y="' + (78 - bh) + '" width="' + (6 + Math.floor(r() * 6)) + '" height="' + (bh + 14) + '" fill="' + s.far + '"/>';
+        for (i = 0; i < 7; i++) {
+          x = Math.floor(r() * 190);
+          h = 8 + Math.floor(r() * 14);
+          far += '<rect x="' + x + '" y="' + (78 - h) + '" width="' + (6 + Math.floor(r() * 6)) + '" height="' + (h + 14) + '" fill="' + s.far + '"/>';
+        }
+      } else if (bg === 3) {
+        far = '<rect x="0" y="' + n1(66 + r() * 8) + '" width="200" height="40" fill="' + s.far + '" opacity=".7"/>';
+        if (r() < 0.6)
+          far += '<path fill="' + s.far + '" d="M' + n1(120 + r() * 40) + ",74 Q170," + n1(54 + r() * 10) + " 200," + n1(60 + r() * 8) + ' L200,80 L120,80Z"/>';
+      } else {
+        for (x = 0; x < 200; x += 6 + Math.floor(r() * 6)) {
+          h = 10 + Math.floor(r() * 34);
+          far += '<rect x="' + x + '" y="' + (84 - h) + '" width="' + (5 + Math.floor(r() * 5)) + '" height="' + (h + 16) + '" fill="' + s.far + '"/>';
         }
       }
-      var kind = Math.floor(r() * 6);
-      var lx = 70 + Math.floor(r() * 60);
+
+      // Landmarks: one main, sometimes a second smaller one
+      var main = Math.floor(r() * LANDMARKS);
+      var lx = 60 + Math.floor(r() * 80);
+      var second = r() < 0.45 ? Math.floor(r() * LANDMARKS) : -1;
+      var sx = lx < 100 ? 150 + Math.floor(r() * 30) : 25 + Math.floor(r() * 25);
+      var gaps = [[lx - 36, lx + 36]];
+      if (second >= 0) gaps.push([sx - 26, sx + 26]);
+
+      // Old town: gabled, flat, stepped or domed roofs
+      var roofStyle = Math.floor(r() * 4);
+      var minH = 10 + Math.floor(r() * 8);
+      var varH = 14 + Math.floor(r() * 22);
       var houses = "";
       for (x = 0; x < 200; ) {
-        var w = 10 + Math.floor(r() * 12);
-        var h = 14 + Math.floor(r() * 26);
-        if (x + w > lx - 34 && x < lx + 34) { x = lx + 34; continue; }
-        houses += '<rect x="' + x + '" y="' + (92 - h) + '" width="' + w + '" height="' + h + '"/>';
-        if (r() < 0.55) houses += '<path d="M' + (x - 1) + "," + (92 - h) + " L" + n1(x + w / 2) + "," + n1(92 - h - 6 - r() * 4) + " L" + (x + w + 1) + "," + (92 - h) + 'Z"/>';
+        w = 8 + Math.floor(r() * 14);
+        h = minH + Math.floor(r() * varH);
+        var gap = gaps.filter(function (g) { return x + w > g[0] && x < g[1]; })[0];
+        if (gap) { x = gap[1]; continue; }
+        var top = 92 - h;
+        houses += '<rect x="' + x + '" y="' + top + '" width="' + w + '" height="' + h + '"/>';
+        var roll = r();
+        if (roofStyle === 0 && roll < 0.7)
+          houses += '<path d="M' + (x - 1) + "," + top + " L" + n1(x + w / 2) + "," + n1(top - 5 - r() * 5) + " L" + (x + w + 1) + "," + top + 'Z"/>';
+        if (roofStyle === 2 && roll < 0.6)
+          houses += '<path d="M' + x + "," + top + " h" + n1(w / 4) + " v-3 h" + n1(w / 4) + " v-3 h" + n1(w / 4) + " v3 h" + n1(w / 4) + ' v3Z"/>';
+        if (roofStyle === 3 && roll < 0.35)
+          houses += '<path d="M' + x + "," + top + " Q" + n1(x + w / 2) + "," + n1(top - w * 0.7) + " " + (x + w) + "," + top + 'Z"/>';
+        // a few lit windows
+        if (r() < 0.5)
+          houses += '<rect x="' + n1(x + w / 2 - 1) + '" y="' + n1(top + 4 + r() * (h - 10)) + '" width="2" height="2.4" fill="' + s.sky[1] + '" opacity=".55"/>';
         x += w + Math.floor(r() * 3);
       }
-      var ground = bg === 2
-        ? '<rect x="0" y="92" width="200" height="8" fill="' + s.far + '"/><path d="M8,95 L70,95 M110,97 L190,97" stroke="' + s.sky[1] + '" stroke-width="1" opacity=".55"/>'
-        : '<rect x="0" y="92" width="200" height="8" fill="' + s.ink + '"/>';
-      var k = 1.25;
-      return far + '<g fill="' + s.ink + '">' + houses + '<g transform="translate(' + lx + ',92) scale(' + k + ') translate(' + (-lx) + ',-92)">' + landmark(kind, lx, s.ink, s) + "</g></g>" + ground;
+
+      var scale = 1.1 + r() * 0.3;
+      var lm = function (kind, at, k) {
+        return '<g transform="translate(' + at + ",92) scale(" + n1(k) + ") translate(" + (-at) + ',-92)">' + landmark(kind, at, s) + "</g>";
+      };
+
+      // Trees or palms in front
+      var greens = "";
+      var greenKind = Math.floor(r() * 3); // 0 none, 1 trees, 2 palms
+      if (greenKind) {
+        for (i = 0; i < 2 + Math.floor(r() * 3); i++) {
+          var gx = Math.floor(r() * 196) + 2;
+          greens += greenKind === 1 ? tree(gx, 8 + Math.floor(r() * 8), s.ink) : palm(s.ink, gx, 18 + Math.floor(r() * 14));
+        }
+      }
+
+      // Ground: water with reflections and boats, or a solid quay
+      var water = bg === 3 || main === 12 || r() < 0.4;
+      var ground = '<rect x="0" y="92" width="200" height="8" fill="' + (water ? s.far : s.ink) + '"/>';
+      if (water) {
+        ground += '<path d="M' + (6 + Math.floor(r() * 20)) + ",95 L" + (60 + Math.floor(r() * 30)) + ",95 M" + (100 + Math.floor(r() * 20)) + ",97 L" + (170 + Math.floor(r() * 25)) + ',97" stroke="' + s.sky[1] + '" stroke-width="1" opacity=".55"/>';
+        if (r() < 0.6) {
+          var bx = 20 + Math.floor(r() * 160);
+          ground += '<path fill="' + s.ink + '" d="M' + (bx - 8) + ",94 L" + (bx + 8) + ",94 L" + (bx + 5) + ",97 L" + (bx - 5) + ",97Z M" + bx + ",94 L" + bx + ",84 L" + (bx + 6) + ',92Z"/>';
+        }
+      }
+
+      return far + '<g fill="' + s.ink + '">' + houses + lm(main, lx, scale) + (second >= 0 ? lm(second, sx, 0.8) : "") + "</g>" + greens + ground;
     };
   }
 
-  function cityArt(code) {
-    var s = styleOf(code);
-    var id = "g" + code;
+  // Static SVG artwork (sky + landmark silhouette) for a destination card; seed only matters for generated art
+  function cityArt(code, seed) {
+    seed = seed || 0;
+    var s = styleFor(code, seed);
+    var custom = hasOwn(SKYLINE, code) ? SKYLINE[code] : null;
+    var draw = custom || generatedSkyline(code, seed);
+    var id = code + (custom ? "" : seed);
+    var r = rng(artKey(code, custom ? 0 : seed) + "/stars");
     var stars = "";
-    var seed = code.charCodeAt(0) * 7 + code.charCodeAt(1) * 3 + code.charCodeAt(2);
-    for (var i = 0; i < 14; i++) { seed = (seed * 9301 + 49297) % 233280; var x = seed / 233280 * 200; seed = (seed * 9301 + 49297) % 233280; var y = seed / 233280 * 45; stars += '<circle cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="' + (i % 3 === 0 ? 0.9 : 0.5) + '" fill="#fff" opacity="' + (0.4 + (i % 4) * 0.15) + '"/>'; }
+    for (var i = 0; i < 10 + Math.floor(r() * 10); i++) {
+      stars += '<circle cx="' + n1(r() * 200) + '" cy="' + n1(r() * 45) + '" r="' + (i % 3 === 0 ? 0.9 : 0.5) + '" fill="#fff" opacity="' + n1(0.4 + (i % 4) * 0.15) + '"/>';
+    }
+    // Moon: crescent top right for the built-in cities, varying for generated ones
+    var mx = custom ? 160 : 145 + Math.floor(r() * 35);
+    var my = custom ? 42 : 112 + Math.floor(r() * 22);
+    var full = !custom && r() < 0.25;
+    var moon = full
+      ? '<circle cx="' + mx + '" cy="' + my + '" r="9" fill="#fff6dc" opacity=".9"/>'
+      : '<mask id="m' + id + '"><rect width="200" height="250" fill="#fff"/><circle cx="' + (mx + 6) + '" cy="' + (my - 5) + '" r="10" fill="#000"/></mask><circle cx="' + mx + '" cy="' + my + '" r="11" fill="#fff6dc" opacity=".92" mask="url(#m' + id + ')"/>';
     return '<svg class="art" viewBox="0 0 200 250" preserveAspectRatio="xMidYMax slice" aria-hidden="true">' +
-      '<defs><linearGradient id="' + id + '" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="' + s.sky[0] + '"/><stop offset="1" stop-color="' + s.sky[1] + '"/></linearGradient></defs>' +
-      '<rect width="200" height="250" fill="url(#' + id + ')"/>' +
-      '<g>' + stars + '</g><mask id="m' + code + '"><rect width="200" height="250" fill="#fff"/><circle cx="166" cy="37" r="10" fill="#000"/></mask><circle cx="160" cy="42" r="11" fill="#fff6dc" opacity=".92" mask="url(#m' + code + ')"/>' +
-      '<g class="sil" transform="translate(0,150)">' + (SKYLINE[code] || generatedSkyline(code))(s) + '</g></svg>';
+      '<defs><linearGradient id="g' + id + '" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="' + s.sky[0] + '"/><stop offset="1" stop-color="' + s.sky[1] + '"/></linearGradient></defs>' +
+      '<rect width="200" height="250" fill="url(#g' + id + ')"/>' +
+      "<g>" + stars + "</g>" + moon +
+      '<g class="sil" transform="translate(0,150)">' + draw(s) + "</g></svg>";
   }
 
   // Example comments: [author, stars given, date, text]
@@ -1098,6 +1219,9 @@ code { font-size: 12px; background: var(--hover); border-radius: 4px; padding: 1
     });
     S.destSeed = 2;
   }
+  // Art seed per destination (older saved state has none → 0); new destinations get a random one
+  S.dests.forEach(function (d) { if (typeof d.artSeed !== "number" || !isFinite(d.artSeed)) d.artSeed = 0; });
+  S.newSeed = newArtSeed(); S.editSeed = 0;
 
   var storageWarned = false;
   function persist() {
@@ -1232,8 +1356,8 @@ code { font-size: 12px; background: var(--hover); border-radius: 4px; padding: 1
   function renderHome() {
     var total = S.entries.length, list = activeDests();
     var tiles = list.map(function (d) {
-      var n = count(d.code), st = styleFor(d.code), live = recentChatCount(d.code);
-      return '<button class="dest" data-dest="' + esc(d.code) + '" aria-label="' + esc(d.city) + ", " + n + ' Tipps">' + cityArt(d.code) +
+      var n = count(d.code), st = styleFor(d.code, d.artSeed), live = recentChatCount(d.code);
+      return '<button class="dest" data-dest="' + esc(d.code) + '" aria-label="' + esc(d.city) + ", " + n + ' Tipps">' + cityArt(d.code, d.artSeed) +
         (live ? '<span class="chat-live">💬 ' + live + "</span>" : "") +
         '<span class="top-txt"><span class="code">' + esc(d.code) + '</span><span class="city">' + esc(d.city) + '</span><span class="country">' + esc(d.country) + "</span></span>" +
         '<span class="bottom-txt"><span class="pill">' + n + (n === 1 ? " Tipp" : " Tipps") + '</span><span class="landmark">' + esc(d.landmark || st.tag) + '</span><span class="go">→</span></span></button>';
@@ -1779,21 +1903,27 @@ code { font-size: 12px; background: var(--hover); border-radius: 4px; padding: 1
       '<label class="field"><span>Zeitzone</span>' + tzSelect("tz", v.tz) + "</label>" +
       '<label class="field"><span>Wahrzeichen (Text auf der Kachel, optional)</span><input name="landmark" maxlength="60" value="' + esc(v.landmark || "") + '" placeholder="z. B. Torre de Belém"></label>';
   }
-  // The city tile as it will appear on the home page; the artwork comes from the 3-letter code only
-  function tilePreviewInner(code, city, country, lm) {
-    var c = /^[A-Za-z]{3}$/.test(code || "") ? code.toUpperCase() : "";
-    var tag = lm || (c && CITY_STYLE[c] ? CITY_STYLE[c].tag : "");
-    return "<span>Kachel</span>" + '<div class="dest">' + (c ? cityArt(c) : '<span class="art-blank"></span>') +
+  // The city tile as it will appear on the home page; the artwork comes from the 3-letter code and the art seed only
+  function previewCode(code) { return /^[A-Za-z]{3}$/.test(code || "") ? code.toUpperCase() : ""; }
+  function tilePreviewInner(code, city, country, lm, seed) {
+    var c = previewCode(code);
+    var tag = lm || (c && isHandDrawn(c) ? CITY_STYLE[c].tag : "");
+    return "<span>Kachel</span>" + '<div class="dest">' + (c ? cityArt(c, seed) : '<span class="art-blank"></span>') +
       '<span class="top-txt"><span class="code">' + esc(c || "???") + '</span><span class="city">' + esc(city || "Stadt") + '</span><span class="country">' + esc(country || "Land") + "</span></span>" +
       '<span class="bottom-txt"><span class="pill">' + (c ? count(c) : 0) + (c && count(c) === 1 ? " Tipp" : " Tipps") + '</span><span class="landmark">' + esc(tag) + '</span><span class="go">→</span></span></div>';
   }
-  function tilePreview(code, city, country, lm) {
-    return '<div class="tile-prev" aria-hidden="true">' + tilePreviewInner(code, city, country, lm) + "</div>";
+  // "Neue Grafik" only for codes without hand-drawn art; hidden (not removed) so focus stays on it while rolling
+  function diceHidden(code) { var c = previewCode(code); return !c || isHandDrawn(c); }
+  function tilePreview(code, city, country, lm, seed, key) {
+    return '<div class="tile-col"><div class="tile-prev" aria-hidden="true">' + tilePreviewInner(code, city, country, lm, seed) + "</div>" +
+      '<button type="button" class="pill-btn dice" data-reroll="' + esc(key) + '"' + (diceHidden(code) ? " hidden" : "") + ">🎲 Neue Grafik</button></div>";
   }
   function refreshTilePreview(fm) {
     var box = fm.querySelector(".tile-prev"); if (!box) return;
     var g = function (n) { return fm.elements[n] ? String(fm.elements[n].value).trim() : ""; };
-    box.innerHTML = tilePreviewInner(fm.dataset.destForm || g("code"), g("city"), g("country"), g("landmark"));
+    var code = fm.dataset.destForm || g("code"), seed = fm.dataset.destForm ? S.editSeed : S.newSeed;
+    box.innerHTML = tilePreviewInner(code, g("city"), g("country"), g("landmark"), seed);
+    var dice = fm.querySelector(".dice"); if (dice) dice.hidden = diceHidden(code);
   }
   function destDeleteHtml(d) {
     var err = S.delErr[d.code];
@@ -1815,7 +1945,7 @@ code { font-size: 12px; background: var(--hover); border-radius: 4px; padding: 1
       if (editing) {
         var v = S.destDraft[d.code] || { city: d.city, country: d.country, tz: d.tz, landmark: d.landmark || "", hname: h.name || "", haddr: h.address || "", hlat: hasCoords(h) ? String(h.lat) : "", hlng: hasCoords(h) ? String(h.lng) : "" };
         var er = S.destErr[d.code] || {};
-        row += '<form class="mini-form dest-edit" data-dest-form="' + esc(d.code) + '" novalidate><div class="dest-form-wrap">' + tilePreview(d.code, v.city, v.country, v.landmark) + "<div>" + destFormFields(v, er) +
+        row += '<form class="mini-form dest-edit" data-dest-form="' + esc(d.code) + '" novalidate><div class="dest-form-wrap">' + tilePreview(d.code, v.city, v.country, v.landmark, S.editSeed, d.code) + "<div>" + destFormFields(v, er) +
           '<label class="field"><span>Crew-Hotel</span><input name="hname" maxlength="100" value="' + esc(v.hname) + '" placeholder="z. B. Hotel am Fluss"></label>' +
           '<label class="field"><span>Hotel-Adresse</span><input name="haddr" maxlength="160" value="' + esc(v.haddr) + '"></label>' +
           '<label class="field"><span>Hotel Breitengrad</span><input name="hlat" inputmode="decimal" value="' + esc(v.hlat) + '" placeholder="z. B. 46.0511"></label>' +
@@ -1828,9 +1958,9 @@ code { font-size: 12px; background: var(--hover); border-radius: 4px; padding: 1
     }).join("");
     var nv = S.destDraft._new || { code: "", city: "", country: "", tz: "Europe/Zurich", landmark: "" }, ne = S.destErr._new || {};
     var add = '<section class="panel"><h2>Neue Destination</h2><form class="mini-form" data-dest-add="1" novalidate><div class="dest-form-wrap">' +
-      tilePreview(nv.code, nv.city, nv.country, nv.landmark) + "<div>" + destFormFields(nv, ne, '<label class="field"><span>IATA-Code</span><input name="code" maxlength="3" autocapitalize="characters" value="' + esc(nv.code) + '" placeholder="z. B. LIS">' + (ne.code ? '<span class="err">' + esc(ne.code) + "</span>" : "") + "</label>") + "</div></div></div>" +
+      tilePreview(nv.code, nv.city, nv.country, nv.landmark, S.newSeed, "_new") + "<div>" + destFormFields(nv, ne, '<label class="field"><span>IATA-Code</span><input name="code" maxlength="3" autocapitalize="characters" value="' + esc(nv.code) + '" placeholder="z. B. LIS">' + (ne.code ? '<span class="err">' + esc(ne.code) + "</span>" : "") + "</label>") + "</div></div></div>" +
       '<div class="actions"><button type="submit" class="primary">Destination hinzufügen</button></div></form>' +
-      '<p class="note">Neue Destinationen erscheinen sofort auf der Startseite, mit einer aus dem IATA-Code erzeugten Skyline. Ausgeblendete sind nur hier sichtbar.</p></section>';
+      '<p class="note">Neue Destinationen erscheinen sofort auf der Startseite, mit einer zufällig erzeugten Skyline. Mit «Neue Grafik» würfelst du eine andere. Ausgeblendete sind nur hier sichtbar.</p></section>';
     return '<section class="panel">' + rows + "</section>" + add;
   }
   function renderAdmin() {
@@ -2021,7 +2151,7 @@ code { font-size: 12px; background: var(--hover); border-radius: 4px; padding: 1
       S.lightbox = null; S.confirmPhoto = false; render();
     }
     // Admin
-    else if (d.atab) { S.adminTab = d.atab; S.editDest = null; render(); }
+    else if (d.atab) { if (d.atab === "dests" && S.adminTab !== "dests" && !S.destDraft._new) S.newSeed = newArtSeed(); S.adminTab = d.atab; S.editDest = null; render(); }
     else if (d.repDone) { S.reports.forEach(function (r) { if (r.id === d.repDone) r.status = "done"; }); persist(); render(); }
     else if (d.repDel) {
       var rp = S.reports.filter(function (r) { return r.id === d.repDel; })[0];
@@ -2033,7 +2163,11 @@ code { font-size: 12px; background: var(--hover); border-radius: 4px; padding: 1
       persist(); render();
     }
     else if (d.dactive) { S.dests.forEach(function (x) { if (x.code === d.dactive) x.active = x.active === false; }); persist(); render(); }
-    else if (d.dedit) { S.editDest = d.dedit; delete S.destDraft[d.dedit]; delete S.destErr[d.dedit]; render(); }
+    else if (d.reroll) {
+      if (d.reroll === "_new") S.newSeed = newArtSeed(); else S.editSeed = newArtSeed();
+      var rf = t.closest("form"); if (rf) refreshTilePreview(rf);
+    }
+    else if (d.dedit) { var ed = dest(d.dedit); S.editSeed = ed ? ed.artSeed || 0 : 0; S.editDest = d.dedit; delete S.destDraft[d.dedit]; delete S.destErr[d.dedit]; render(); }
     else if (d.deditCancel) { delete S.destDraft[S.editDest]; delete S.destErr[S.editDest]; S.editDest = null; render(); }
     // Nightstops / digest
     else if (d.nsDel) { S.nightstops = S.nightstops.filter(function (n) { return n.id !== d.nsDel; }); persist(); render(); }
@@ -2124,7 +2258,7 @@ code { font-size: 12px; background: var(--hover); border-radius: 4px; padding: 1
       var hl = parseCoord(dv.hlat), hg = parseCoord(dv.hlng), ce = coordsErr(hl, hg);
       if (ce) de.coords = ce;
       if (Object.keys(de).length) { S.destErr[code] = de; S.destDraft[code] = dv; render(); return; }
-      dd.city = dv.city; dd.country = dv.country; dd.tz = dv.tz; dd.landmark = dv.landmark;
+      dd.city = dv.city; dd.country = dv.country; dd.tz = dv.tz; dd.landmark = dv.landmark; dd.artSeed = S.editSeed;
       dd.hotel = (hl === null && !dv.hname && !dv.haddr) ? null : { name: dv.hname || "Crew-Hotel", address: dv.haddr, lat: hl, lng: hg };
       delete S.destErr[code]; delete S.destDraft[code]; S.editDest = null; persist(); render(); toast(code + " gespeichert."); return;
     }
@@ -2135,8 +2269,8 @@ code { font-size: 12px; background: var(--hover); border-radius: 4px; padding: 1
       if (nv.city.length < 2) ne.city = "Bitte eine Stadt angeben.";
       if (nv.country.length < 2) ne.country = "Bitte ein Land angeben.";
       if (Object.keys(ne).length) { S.destErr._new = ne; S.destDraft._new = nv; render(); return; }
-      S.dests.push({ code: nv.code, city: nv.city, country: nv.country, tz: nv.tz || "Europe/Zurich", landmark: nv.landmark, active: true, hotel: null, info: emptyInfo() });
-      delete S.destErr._new; delete S.destDraft._new; persist(); render(); toast(nv.code + " · " + nv.city + " wurde hinzugefügt."); return;
+      S.dests.push({ code: nv.code, city: nv.city, country: nv.country, tz: nv.tz || "Europe/Zurich", landmark: nv.landmark, artSeed: S.newSeed, active: true, hotel: null, info: emptyInfo() });
+      S.newSeed = newArtSeed(); delete S.destErr._new; delete S.destDraft._new; persist(); render(); toast(nv.code + " · " + nv.city + " wurde hinzugefügt."); return;
     }
     if (ds.destDel) {
       var xc = ds.destDel;
