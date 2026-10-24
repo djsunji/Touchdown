@@ -5,7 +5,6 @@ import { CATEGORIES } from "@/lib/categories";
 import { CITY_STYLE, cityArt } from "@/lib/cityArt";
 import { UserMenu } from "@/components/UserMenu";
 import { Brand } from "@/components/Brand";
-import { digestFor, SEVEN_DAYS } from "@/lib/digest";
 
 export default async function Home() {
   const user = await requireUser();
@@ -19,9 +18,6 @@ export default async function Home() {
   const since = new Date(Date.now() - 24 * 60 * 60 * 1000);
   const chatActivity = await db.chatMessage.groupBy({ by: ["destinationCode"], where: { createdAt: { gte: since } }, _count: true });
   const chatCount = Object.fromEntries(chatActivity.map((c) => [c.destinationCode, c._count]));
-  // "Für dich": the user's nightstops in the next 14 days with tips added in the last week
-  const forYou = await digestFor(user.id, new Date(Date.now() - SEVEN_DAYS));
-  const day = (d: Date) => d.toLocaleDateString("de-CH", { weekday: "short", day: "numeric", month: "numeric", timeZone: "UTC" });
 
   return (
     <div className="min-h-dvh">
@@ -46,41 +42,6 @@ export default async function Home() {
       </section>
 
       <main className="dest-wrap">
-        {forYou.length > 0 && (
-          <section className="mb-5 rounded-2xl bg-white p-4 shadow-lg ring-1 ring-black/5" aria-labelledby="foryou-h">
-            <div className="mb-2 flex items-center justify-between gap-2">
-              <h2 id="foryou-h" className="font-semibold">
-                ✨ Für deine nächsten Nightstops
-              </h2>
-              <Link href="/meine-nightstops" className="text-sm text-brand underline">
-                Bearbeiten
-              </Link>
-            </div>
-            <ul className="grid gap-3 sm:grid-cols-2">
-              {forYou.map((s) => (
-                <li key={s.id} className="rounded-lg bg-gray-50 p-3">
-                  <Link href={`/${s.code}`} className="font-medium hover:underline">
-                    <b className="font-mono">{s.code}</b> {s.city} <span className="text-sm font-normal text-gray-500">· {day(s.date)}</span>
-                  </Link>
-                  {s.tips.length ? (
-                    <ul className="mt-1 space-y-0.5 text-sm">
-                      {s.tips.slice(0, 4).map((t) => (
-                        <li key={t.id} className="truncate">
-                          <Link href={`/${s.code}/${t.category}#${t.id}`} className="text-brand hover:underline">
-                            {t.title}
-                          </Link>{" "}
-                          <span className="text-gray-500">· {t.categoryLabel}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <p className="mt-1 text-sm text-gray-500">Diese Woche keine neuen Tipps.</p>
-                  )}
-                </li>
-              ))}
-            </ul>
-          </section>
-        )}
         <div className="dest-grid">
           {destinations.map((d) => {
             const n = d._count.entries;

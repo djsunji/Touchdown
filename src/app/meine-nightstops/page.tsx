@@ -26,7 +26,7 @@ export default async function MyNightstops() {
     db.user.findUniqueOrThrow({ where: { id: user.id }, select: { digestEnabled: true } }),
   ]);
   // Fresh tips for each upcoming stop, same logic as the weekly email
-  const fresh = new Map((await digestFor(user.id, new Date(Date.now() - SEVEN_DAYS), 366)).map((s) => [s.id, s.tips.length]));
+  const fresh = new Map((await digestFor(user.id, new Date(Date.now() - SEVEN_DAYS), 366)).map((s) => [s.id, s.tips]));
   const mail = mailEnabled();
 
   return (
@@ -45,7 +45,7 @@ export default async function MyNightstops() {
         </Link>
         <div>
           <h1 className="text-2xl font-bold">📅 Meine Nightstops</h1>
-          <p className="mt-1 text-sm text-gray-600">Trag deine nächsten Nightstops ein. Neue Tipps dafür siehst du auf der Startseite und auf Wunsch einmal pro Woche per Mail.</p>
+          <p className="mt-1 text-sm text-gray-600">Trag deine nächsten Nightstops ein. Neue Tipps der letzten 7 Tage siehst du hier bei jedem Nightstop und auf Wunsch einmal pro Woche per Mail.</p>
         </div>
 
         <section className={card}>
@@ -59,16 +59,30 @@ export default async function MyNightstops() {
           ) : (
             <ul className="divide-y">
               {stops.map((s) => {
-                const n = fresh.get(s.id) ?? 0;
+                const tips = fresh.get(s.id) ?? [];
                 return (
-                  <li key={s.id} className="flex items-center justify-between gap-3 py-2.5">
-                    <Link href={`/${s.destinationCode}`} className="min-w-0 hover:underline">
-                      <b className="font-mono">{s.destinationCode}</b> {s.destination.city}
-                      <span className="block text-sm text-gray-500">
-                        {day(s.date)}
-                        {n > 0 && <span className="ml-2 font-medium text-green-700">✨ {n} neue Tipps</span>}
-                      </span>
-                    </Link>
+                  <li key={s.id} className="flex items-start justify-between gap-3 py-2.5">
+                    <div className="min-w-0">
+                      <Link href={`/${s.destinationCode}`} className="hover:underline">
+                        <b className="font-mono">{s.destinationCode}</b> {s.destination.city}
+                        <span className="block text-sm text-gray-500">
+                          {day(s.date)}
+                          {tips.length > 0 && <span className="ml-2 font-medium text-green-700">✨ {tips.length === 1 ? "1 neuer Tipp" : `${tips.length} neue Tipps`}</span>}
+                        </span>
+                      </Link>
+                      {tips.length > 0 && (
+                        <ul className="mt-1 space-y-0.5 text-sm">
+                          {tips.slice(0, 4).map((t) => (
+                            <li key={t.id} className="truncate">
+                              <Link href={`/${s.destinationCode}/${t.category}#${t.id}`} className="text-brand hover:underline">
+                                {t.title}
+                              </Link>{" "}
+                              <span className="text-gray-500">· {t.categoryLabel}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
                     <form action={removeNightstop.bind(null, s.id)}>
                       <button className="rounded-md px-2 py-1 text-sm text-gray-500 hover:bg-gray-50 hover:text-red-600" aria-label={`${s.destinationCode} am ${day(s.date)} entfernen`}>
                         Entfernen
@@ -90,7 +104,7 @@ export default async function MyNightstops() {
               <button className="rounded-md border px-3 py-1.5 text-sm hover:bg-gray-50">{me.digestEnabled ? "Ausschalten" : "Einschalten"}</button>
             </form>
           ) : (
-            <p className="text-sm text-gray-500">Der Mailversand ist auf diesem Server noch nicht eingerichtet. Neue Tipps siehst du trotzdem auf der Startseite.</p>
+            <p className="text-sm text-gray-500">Der Mailversand ist auf diesem Server noch nicht eingerichtet. Neue Tipps siehst du trotzdem hier bei deinen Nightstops.</p>
           )}
         </section>
       </main>

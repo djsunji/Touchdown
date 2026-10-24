@@ -28,7 +28,7 @@ Die echte App ist eine Server-Anwendung (Next.js + PostgreSQL + Azure-Login) und
 - **Crew-Chat** pro Stadt
 - **Melden**: Tipps, Kommentare, Chat-Nachrichten und Fotos lassen sich melden (veraltet, falsch, unpassend …)
 - **Admin-Bereich** (`/admin`): Meldungen prüfen und Inhalte löschen, Admins ernennen, Destinationen anlegen, Crew-Hotel setzen, Destinationen ausblenden
-- **Meine Nightstops**: eigene nächste Nightstops eintragen; neue Tipps dafür erscheinen auf der Startseite und auf Wunsch im Wochen-Digest per Mail
+- **Meine Nightstops**: eigene nächste Nightstops eintragen; neue Tipps dafür erscheinen dort bei jedem Nightstop und auf Wunsch im Wochen-Digest per Mail
 - **Offline & installierbar** (PWA): „Zum Startbildschirm hinzufügen“, besuchte Seiten und „Für offline speichern“ funktionieren ohne Netz. Beim Abmelden wird alles Gespeicherte gelöscht
 - Funktioniert auf Handy, Tablet und Desktop
 
