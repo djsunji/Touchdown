@@ -5,8 +5,6 @@ import { getCategory } from "@/lib/categories";
 import { updateEntry } from "@/app/actions";
 import { EntryForm } from "@/components/EntryForm";
 import { PhotoStrip } from "@/components/Photos";
-import { mapConfig } from "@/lib/mapConfig";
-import { mapCenter } from "@/lib/cities";
 import { MAX_PHOTOS_PER_ENTRY } from "@/lib/photos";
 
 export default async function EditEntryPage({
@@ -22,7 +20,7 @@ export default async function EditEntryPage({
   const cat = getCategory(category);
   const entry = await db.entry.findUnique({
     where: { id },
-    include: { destination: true, photos: { select: { id: true, userId: true }, orderBy: { createdAt: "asc" } } },
+    include: { photos: { select: { id: true, userId: true }, orderBy: { createdAt: "asc" } } },
   });
   if (!cat || !entry || entry.destinationCode !== dest || entry.category !== category) notFound();
   if (entry.createdById !== user.id && !user.isAdmin) notFound();
@@ -41,9 +39,6 @@ export default async function EditEntryPage({
         defaults={entry}
         cancelHref={`/${dest}/${category}`}
         submitLabel="Änderungen speichern"
-        dest={dest}
-        mapConfig={mapConfig()}
-        center={mapCenter(entry.destination)}
         photoSlots={MAX_PHOTOS_PER_ENTRY - entry.photos.length}
         initialError={photoError?.slice(0, 200)}
       />

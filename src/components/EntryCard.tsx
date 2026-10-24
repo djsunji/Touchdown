@@ -22,13 +22,11 @@ export type EntryView = {
   isFavorite: boolean;
   canEdit: boolean;
   editHref: string;
-  mapHref: string | null;
   comments: CommentView[];
   priceLevel: number | null;
   open: OpenState;
   hours: string | null;
   veggie: boolean;
-  walk: string | null;
   photos: PhotoView[];
   photoSlots: number;
 };
@@ -55,7 +53,7 @@ export function EntryCard({ e }: { e: EntryView }) {
         </div>
       </div>
 
-      {(e.priceLevel || e.open || e.veggie || e.walk) && (
+      {(e.priceLevel || e.open || e.veggie) && (
         <div className="mt-2 flex flex-wrap gap-1.5 text-xs">
           {e.priceLevel ? <span className="badge" title="Preisklasse">{"€".repeat(e.priceLevel)}</span> : null}
           {e.open && (
@@ -64,11 +62,6 @@ export function EntryCard({ e }: { e: EntryView }) {
             </span>
           )}
           {e.veggie && <span className="badge badge-veg">🌱 Vegi-freundlich</span>}
-          {e.walk && (
-            <span className="badge" title="Geschätzt, Luftlinie mit Umwegfaktor">
-              🚶 {e.walk}
-            </span>
-          )}
         </div>
       )}
 
@@ -82,15 +75,10 @@ export function EntryCard({ e }: { e: EntryView }) {
         </div>
       )}
 
-      {(e.address || e.phone || mapsHref || e.website || e.hours || e.mapHref) && (
+      {(e.address || e.phone || mapsHref || e.website || e.hours) && (
         <dl className="mt-3 space-y-1 text-sm">
           {e.address && <dd>📍 {e.address}</dd>}
           {e.hours && <dd>🕒 {e.hours}</dd>}
-          {e.mapHref && (
-            <dd>
-              🧭 <Link href={e.mapHref} className="text-brand hover:underline">Auf der Touchdown-Karte zeigen</Link>
-            </dd>
-          )}
           {e.phone && (
             <dd>
               📞 <a href={`tel:${e.phone.replace(/[^+\d]/g, "")}`} className="text-brand hover:underline">{e.phone}</a>

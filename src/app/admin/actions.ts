@@ -5,7 +5,6 @@ import { z } from "zod";
 import { db } from "@/lib/db";
 import { isBootstrapAdmin, requireAdmin } from "@/lib/session";
 import { validTimeZone } from "@/lib/time";
-import { validLatLng } from "@/lib/geo";
 import type { FormState } from "@/app/actions";
 
 export async function resolveReport(reportId: string) {
@@ -82,20 +81,11 @@ export async function saveDestination(mode: "create" | "update", _prev: FormStat
   });
   if (!parsed.success) return { error: parsed.error.issues[0].message };
 
-  const latRaw = String(formData.get("hotelLat") ?? "").trim();
-  const lngRaw = String(formData.get("hotelLng") ?? "").trim();
-  let hotelLat: number | null = null;
-  let hotelLng: number | null = null;
-  if (latRaw && lngRaw) {
-    hotelLat = Number(latRaw);
-    hotelLng = Number(lngRaw);
-    if (!validLatLng(hotelLat, hotelLng)) return { error: "Ungültige Hotel-Position" };
-  }
   const active = formData.get("active") === "on";
   const seedRaw = Number(formData.get("artSeed"));
   const artSeed = Number.isInteger(seedRaw) && seedRaw >= 0 && seedRaw < 1_000_000 ? seedRaw : 0;
   const { code, ...rest } = parsed.data;
-  const data = { ...rest, hotelLat, hotelLng, active, artSeed };
+  const data = { ...rest, active, artSeed };
 
   if (mode === "create") {
     if (await db.destination.findUnique({ where: { code } })) return { error: `${code} gibt es schon` };

@@ -44,9 +44,10 @@ model Destination {
   // Free text shown on the destination start page (special notes)
   info         String        @default("")
   sortOrder    Int           @default(0)
-  // Crew hotel, used for the map and walking distances
+  // Crew hotel, shown on the destination page
   hotelName    String?
   hotelAddress String?
+  // Unused since the map was removed; kept so existing data is not dropped
   hotelLat     Float?
   hotelLng     Float?
   // Practical information, maintained by admins
@@ -73,6 +74,7 @@ model Entry {
   phone           String?
   mapsUrl         String?
   website         String?
+  // Unused since the map was removed; kept so existing data is not dropped
   lat             Float?
   lng             Float?
   priceLevel      Int? // 1 = €, 2 = €€, 3 = €€€

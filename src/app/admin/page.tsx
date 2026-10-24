@@ -3,8 +3,6 @@ import { db } from "@/lib/db";
 import { requireAdmin, isBootstrapAdmin } from "@/lib/session";
 import { getCategory } from "@/lib/categories";
 import { REPORT_TYPE_LABEL, type ReportType } from "@/lib/reports";
-import { mapConfig } from "@/lib/mapConfig";
-import { mapCenter } from "@/lib/cities";
 import { Brand } from "@/components/Brand";
 import { UserMenu } from "@/components/UserMenu";
 import { DestinationForm } from "@/components/DestinationForm";
@@ -223,13 +221,12 @@ async function Roles({ selfId }: { selfId: string }) {
 
 async function Destinations() {
   const destinations = await db.destination.findMany({ orderBy: { sortOrder: "asc" }, include: { _count: { select: { entries: true } } } });
-  const config = mapConfig();
   return (
     <section className="space-y-3">
       <details className={card}>
         <summary className="cursor-pointer font-semibold">➕ Neue Destination anlegen</summary>
         <div className="mt-4">
-          <DestinationForm mapConfig={config} center={null} />
+          <DestinationForm />
         </div>
       </details>
       {destinations.map((d) => (
@@ -240,12 +237,9 @@ async function Destinations() {
               · {d.country} · {d._count.entries} Tipps
             </span>
             {!d.active && <span className="badge badge-closed">inaktiv</span>}
-            {d.hotelLat == null && <span className="badge">kein Hotel auf Karte</span>}
           </summary>
           <div className="mt-4">
             <DestinationForm
-              mapConfig={config}
-              center={mapCenter(d)}
               d={{
                 code: d.code,
                 city: d.city,
@@ -254,8 +248,6 @@ async function Destinations() {
                 active: d.active,
                 hotelName: d.hotelName,
                 hotelAddress: d.hotelAddress,
-                hotelLat: d.hotelLat,
-                hotelLng: d.hotelLng,
                 landmark: d.landmark,
                 artSeed: d.artSeed,
               }}

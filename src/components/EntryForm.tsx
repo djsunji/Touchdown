@@ -3,10 +3,7 @@
 import Link from "next/link";
 import { useActionState } from "react";
 import type { FormState } from "@/app/actions";
-import type { MapConfig } from "@/lib/mapConfig";
-import type { LatLng } from "@/lib/geo";
 import { WEEKDAYS } from "@/lib/time";
-import { LocationPicker } from "@/components/LocationPicker";
 import { PhotoInput } from "@/components/PhotoInput";
 
 type Values = {
@@ -16,8 +13,6 @@ type Values = {
   phone?: string | null;
   mapsUrl?: string | null;
   website?: string | null;
-  lat?: number | null;
-  lng?: number | null;
   priceLevel?: number | null;
   openFrom?: string | null;
   openUntil?: string | null;
@@ -30,9 +25,6 @@ export function EntryForm({
   defaults = {},
   cancelHref,
   submitLabel,
-  dest,
-  mapConfig,
-  center,
   photoSlots,
   initialError,
 }: {
@@ -40,9 +32,6 @@ export function EntryForm({
   defaults?: Values;
   cancelHref: string;
   submitLabel: string;
-  dest: string;
-  mapConfig: MapConfig;
-  center: LatLng | null;
   photoSlots: number;
   initialError?: string;
 }) {
@@ -50,7 +39,6 @@ export function EntryForm({
   const err = (name: string) =>
     state.fieldErrors?.[name]?.[0] ? <p className="mt-1 text-sm text-red-600">{state.fieldErrors[name]![0]}</p> : null;
   const input = "w-full rounded-md border border-gray-300 px-3 py-2 focus:border-brand focus:outline-none";
-  const initialPos = defaults.lat != null && defaults.lng != null ? { lat: defaults.lat, lng: defaults.lng } : null;
 
   return (
     <form action={formAction} className="space-y-5 rounded-lg bg-white p-6 shadow-sm ring-1 ring-black/5">
@@ -132,12 +120,6 @@ export function EntryForm({
           <input name="website" type="url" defaultValue={defaults.website ?? ""} className={input} placeholder="https://…" />
           {err("website")}
         </label>
-      </div>
-
-      <div>
-        <span className="mb-1 block text-sm font-medium">📍 Position auf der Karte</span>
-        <LocationPicker config={mapConfig} dest={dest} initial={initialPos} center={center} />
-        {err("lat")}
       </div>
 
       {photoSlots > 0 && (

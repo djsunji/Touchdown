@@ -5,7 +5,6 @@ import { requireUser } from "@/lib/session";
 import { CategoryNav } from "@/components/CategoryNav";
 import { UserMenu } from "@/components/UserMenu";
 import { Brand } from "@/components/Brand";
-import { mapConfig } from "@/lib/mapConfig";
 
 export default async function DestinationLayout({
   children,
@@ -45,7 +44,7 @@ export default async function DestinationLayout({
         </div>
       </header>
       <div className="flex flex-1 flex-col lg:flex-row">
-        <CategoryNav dest={destination.code} counts={counts} showMap={!!mapConfig()} />
+        <CategoryNav dest={destination.code} counts={counts} />
         <main className="min-w-0 flex-1 px-4 py-6 sm:px-6 lg:px-8">{children}</main>
       </div>
     </div>

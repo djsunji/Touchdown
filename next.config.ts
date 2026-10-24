@@ -2,14 +2,13 @@ import type { NextConfig } from "next";
 
 const isDev = process.env.NODE_ENV !== "production";
 
-// Content Security Policy: only own scripts/styles, images from us or any https host (map tiles
-// come from a server set via MAP_TILE_URL at runtime, headers are fixed at build time),
-// no embedding in foreign sites, forms may only go to us and to the Microsoft login.
+// Content Security Policy: only own scripts, styles and images, no embedding in foreign sites,
+// forms may only go to us and to the Microsoft login.
 const csp = [
   "default-src 'self'",
   `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
   "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob: https:",
+  "img-src 'self' data: blob:",
   "worker-src 'self'",
   "manifest-src 'self'",
   "font-src 'self'",

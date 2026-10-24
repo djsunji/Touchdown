@@ -4,21 +4,17 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { CATEGORIES } from "@/lib/categories";
 
-const EXTRA = [
-  { slug: "chat", label: "Crew-Chat", icon: "💬" },
-  { slug: "karte", label: "Karte", icon: "🗺️" },
-];
+const EXTRA = [{ slug: "chat", label: "Crew-Chat", icon: "💬" }];
 
-export function CategoryNav({ dest, counts, showMap }: { dest: string; counts: Record<string, number>; showMap: boolean }) {
+export function CategoryNav({ dest, counts }: { dest: string; counts: Record<string, number> }) {
   const pathname = usePathname();
   const active = pathname.split("/")[2];
-  const extra = EXTRA.filter((x) => x.slug !== "karte" || showMap);
 
   return (
     <>
       {/* Phone and iPad portrait: horizontal chips */}
       <nav className="cat-chips flex gap-2 overflow-x-auto px-4 py-3 lg:hidden" aria-label="Kategorien">
-        {extra.map((x) => (
+        {EXTRA.map((x) => (
           <Link
             key={x.slug}
             href={`/${dest}/${x.slug}`}
@@ -46,7 +42,7 @@ export function CategoryNav({ dest, counts, showMap }: { dest: string; counts: R
       {/* Desktop and iPad landscape: sidebar, stays in place while the content scrolls */}
       <nav className="dest-sidebar sticky hidden w-64 shrink-0 overflow-y-auto overscroll-contain border-r border-black/5 bg-white lg:block xl:w-72" aria-label="Kategorien">
         <div className="mx-3 mt-4 space-y-2">
-          {extra.map((x) => (
+          {EXTRA.map((x) => (
             <Link
               key={x.slug}
               href={`/${dest}/${x.slug}`}

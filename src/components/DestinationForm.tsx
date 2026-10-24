@@ -4,9 +4,6 @@ import { useActionState, useEffect, useState } from "react";
 import { deleteDestination, saveDestination } from "@/app/admin/actions";
 import { CITY_STYLE, cityArt, knownCity, newArtSeed } from "@/lib/cityArt";
 import type { FormState } from "@/app/actions";
-import type { MapConfig } from "@/lib/mapConfig";
-import type { LatLng } from "@/lib/geo";
-import { LocationPicker } from "@/components/LocationPicker";
 
 type Dest = {
   code: string;
@@ -16,8 +13,6 @@ type Dest = {
   active: boolean;
   hotelName: string | null;
   hotelAddress: string | null;
-  hotelLat: number | null;
-  hotelLng: number | null;
   landmark: string;
   artSeed: number;
 };
@@ -26,15 +21,7 @@ const input = "w-full rounded-md border px-3 py-2";
 const INITIAL: FormState = {};
 
 /** Create a destination (no `d`) or edit one. Saving needs no deploy. */
-export function DestinationForm({
-  d,
-  mapConfig,
-  center,
-}: {
-  d?: Dest;
-  mapConfig: MapConfig;
-  center: LatLng | null;
-}) {
+export function DestinationForm({ d }: { d?: Dest }) {
   const mode = d ? "update" : "create";
   const [state, action, pending] = useActionState<FormState, FormData>(
     saveDestination.bind(null, mode),
@@ -200,24 +187,6 @@ export function DestinationForm({
             className={input}
           />
         </label>
-        <div className="sm:col-span-3">
-          <span className="mb-1 block text-sm font-medium">
-            Hotel auf der Karte
-          </span>
-          <LocationPicker
-            config={mapConfig}
-            dest={d?.code ?? ""}
-            initial={
-              d?.hotelLat != null && d?.hotelLng != null
-                ? { lat: d.hotelLat, lng: d.hotelLng }
-                : null
-            }
-            center={center}
-            addressField="hotelAddress"
-            latName="hotelLat"
-            lngName="hotelLng"
-          />
-        </div>
         <label className="flex items-center gap-2 text-sm sm:col-span-3">
           <input
             type="checkbox"

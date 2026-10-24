@@ -4,17 +4,13 @@ import { db } from "@/lib/db";
 import { requireUser } from "@/lib/session";
 import { getCategory } from "@/lib/categories";
 import { EntryCard, type EntryView } from "@/components/EntryCard";
-import { hotelOf } from "@/lib/cities";
-import { walking, walkingLabel } from "@/lib/geo";
 import { openState, WEEKDAYS } from "@/lib/time";
 import { MAX_PHOTOS_PER_ENTRY } from "@/lib/photos";
-import { mapConfig } from "@/lib/mapConfig";
 
 const SORTS = [
   { key: "az", label: "A–Z", short: "A–Z" },
   { key: "rating", label: "★ Bewertung", short: "★" },
   { key: "new", label: "Neueste", short: "Neu" },
-  { key: "near", label: "🚶 Nähe", short: "🚶" },
   { key: "fav", label: "♥ Favoriten", short: "♥" },
 ] as const;
 type SortKey = (typeof SORTS)[number]["key"];
@@ -47,8 +43,6 @@ export default async function CategoryPage({
     veg: veg === "1",
   };
   const destination = await db.destination.findUniqueOrThrow({ where: { code: dest } });
-  const hotel = hotelOf(destination);
-  const maps = mapConfig();
 
   const rows = await db.entry.findMany({
     where: {
@@ -78,8 +72,7 @@ export default async function CategoryPage({
   });
   const now = new Date();
 
-  let entries: (EntryView & { meters: number | null })[] = rows.map((r) => {
-    const pos = r.lat != null && r.lng != null ? { lat: r.lat, lng: r.lng } : null;
+  let entries: EntryView[] = rows.map((r) => {
     const count = r.ratings.length;
     const avg = count ? r.ratings.reduce((s, x) => s + x.stars, 0) / count : 0;
     return {
@@ -98,13 +91,10 @@ export default async function CategoryPage({
       isFavorite: r.favorites.length > 0,
       canEdit: r.createdById === user.id || user.isAdmin,
       editHref: `/${dest}/${category}/${r.id}/edit`,
-      mapHref: pos && maps ? `/${dest}/karte?tipp=${r.id}` : null,
       priceLevel: r.priceLevel,
       open: openState(r.openFrom, r.openUntil, r.closedDays, destination.timezone, now),
       hours: hoursLabel(r.openFrom, r.openUntil, r.closedDays),
       veggie: r.veggie,
-      walk: pos && hotel ? walkingLabel(hotel, pos) : null,
-      meters: pos && hotel ? walking(hotel, pos).meters : null,
       photos: r.photos.map((p) => ({ id: p.id, canDelete: p.userId === user.id || r.createdById === user.id || user.isAdmin })),
       photoSlots: MAX_PHOTOS_PER_ENTRY - r.photos.length,
       comments: r.comments.map((c) => ({
@@ -124,7 +114,6 @@ export default async function CategoryPage({
   entries.sort((a, b) => {
     if (sort === "rating") return b.avg - a.avg || b.count - a.count || byTitle(a, b);
     if (sort === "new") return b.createdAt.getTime() - a.createdAt.getTime();
-    if (sort === "near") return (a.meters ?? Infinity) - (b.meters ?? Infinity) || byTitle(a, b);
     return byTitle(a, b);
   });
 
@@ -139,7 +128,6 @@ export default async function CategoryPage({
     return `/${dest}/${category}${str ? `?${str}` : ""}`;
   };
   const anyFilter = !!(filters.price || filters.open || filters.veg);
-  const sorts = SORTS.filter((s) => s.key !== "near" || hotel);
   const chip = (active: boolean) =>
     `touch-target rounded-full px-3 py-1.5 text-sm ring-1 ${active ? "bg-brand text-brand-contrast ring-brand" : "bg-white ring-black/10 hover:bg-gray-50"}`;
 
@@ -160,9 +148,9 @@ export default async function CategoryPage({
       <div className="mb-4 flex flex-col gap-3 xl:flex-row xl:items-center">
         <div
           className="grid flex-1 overflow-hidden rounded-md bg-white text-sm shadow-sm ring-1 ring-black/5"
-          style={{ gridTemplateColumns: `repeat(${sorts.length}, minmax(0, 1fr))` }}
+          style={{ gridTemplateColumns: `repeat(${SORTS.length}, minmax(0, 1fr))` }}
         >
-          {sorts.map((s) => (
+          {SORTS.map((s) => (
             <Link
               key={s.key}
               href={href(s.key)}

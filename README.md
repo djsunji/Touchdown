@@ -12,15 +12,14 @@ Die echte App ist eine Server-Anwendung (Next.js + PostgreSQL + Azure-Login) und
 
 ## Funktionen
 
-- Startseite mit einer Karte pro Stadt (eigene Farbe und Wahrzeichen-Silhouette, `src/lib/cityArt.ts`)
+- Startseite mit einer Kachel pro Stadt (eigene Farbe und Wahrzeichen-Silhouette, `src/lib/cityArt.ts`)
 - Pro Stadt vier grosse Hauptkategorien (Bars & Restaurants, Shopping, Wellness, Touren & ÖPNV) mit den bestbewerteten Tipps, darunter die weiteren Kategorien
 - 12 Kategorien: Touren & ÖPNV, Sport, Sehenswürdigkeiten, Bars & Restaurants, Airport F&B, Wellness, Shopping, Lebensmittel, Hilfsorganisationen, Sprachtipps, Geld & ATM, Informationen (anpassbar in `src/lib/categories.ts`)
 - Einträge mit Titel, Beschreibung, Adresse, Telefon, Google-Maps-Link und Website
 - 5-Sterne-Bewertung pro Person, Anzeige von Durchschnitt und Anzahl; nochmal auf die eigene Bewertung tippen entfernt sie
 - Kommentare zu jedem Tipp (mit der Sternebewertung der kommentierenden Person), eigene Kommentare löschen; die Suche findet auch Text in Kommentaren
-- Sortierung A–Z, nach Bewertung, Neueste, Nähe zum Crew-Hotel, Filter auf eigene Favoriten, Preis (€/€€/€€€), „jetzt offen“ und vegetarisch, Suche
+- Sortierung A–Z, nach Bewertung, Neueste, Filter auf eigene Favoriten, Preis (€/€€/€€€), „jetzt offen“ und vegetarisch, Suche
 - Eigene Einträge bearbeiten und löschen
-- **Karte** pro Stadt mit Crew-Hotel und allen Tipps, Gehzeit vom Hotel bei jedem Tipp. Position per Tipp auf die Karte, Adresssuche oder Google-Maps-Link
 - **Fotos** zu Tipps (max. 4): werden im Browser verkleinert, auf dem Server neu kodiert, gedreht und von EXIF/GPS-Daten befreit, in der Datenbank gespeichert und nur angemeldeten Personen ausgeliefert
 - **Öffnungszeiten** (auch über Mitternacht) mit „jetzt offen“ in der Zeitzone der Destination, Ruhetage, Preisniveau, vegetarisch
 - **Praktische Infos** pro Stadt: Transfer, Währung, Trinkgeld, Apotheke, Arzt, Notfallnummern (von Admins gepflegt)
@@ -80,17 +79,15 @@ Zusätzlich lässt sich mit `ALLOWED_EMAIL_DOMAINS="firma.ch"` die erlaubte E-Ma
 - **Offline-Kopien** liegen nur im Browser der Person und werden beim Abmelden gelöscht.
 - **Betrieb:** Nur über HTTPS betreiben, `AUTH_SECRET` mit `npx auth secret` erzeugen und geheim halten, die Datenbank nicht öffentlich erreichbar machen (z. B. Azure „Private Access“ oder Firewall nur für die App).
 
-## Externe Dienste (alle optional und konfigurierbar)
+## Externe Dienste
 
-Touchdown braucht keinen kostenpflichtigen Dienst. Alles Externe lässt sich umstellen oder abschalten:
+Ausser dem Microsoft-Login (Azure / Entra ID) und der eigenen Datenbank nutzt Touchdown keine externen Dienste. Einzig optional ist ein Mailserver für den Wochen-Digest:
 
 | Funktion | Standard | Variable | Abschalten |
 |---|---|---|---|
-| Kartenkacheln | OpenStreetMap (`tile.openstreetmap.org`, gratis bei moderater Nutzung, [Nutzungsregeln](https://operations.osmfoundation.org/policies/tiles/)) | `MAP_TILE_URL`, `MAP_ATTRIBUTION` | `MAP_TILE_URL="off"` |
-| Adresssuche | OpenStreetMap Nominatim (max. 1 Anfrage/s, [Nutzungsregeln](https://operations.osmfoundation.org/policies/nominatim/)) | `GEOCODER_URL` (Basis-URL eines Nominatim-kompatiblen Dienstes) | `GEOCODER_URL="off"` |
 | Wochen-Digest per Mail | aus | `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASSWORD`, `MAIL_FROM`, `CRON_SECRET` | SMTP leer lassen |
 
-Für viele Nutzer:innen empfiehlt sich ein eigener Kachel-Server oder ein Anbieter nach Wahl (z. B. eigener Tileserver, MapTiler, Stadia); dann nur `MAP_TILE_URL` und `MAP_ATTRIBUTION` setzen. Ohne Karte funktioniert alles andere weiter, die Gehzeit zum Hotel wird trotzdem berechnet.
+Der Link „In Google Maps öffnen“ bei einem Tipp ist ein normaler Link; die App selbst lädt nichts von Google.
 
 ### Wochen-Digest einrichten
 

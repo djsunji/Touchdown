@@ -8,7 +8,6 @@ import { requireUser } from "@/lib/session";
 import { getCategory } from "@/lib/categories";
 import { toChatMsg, type ChatMsg } from "@/lib/chat";
 import { rateLimit, TOO_FAST } from "@/lib/rateLimit";
-import { coordsFromMapsUrl, validLatLng } from "@/lib/geo";
 import { formatInTz, isHHMM, zonedToUtc } from "@/lib/time";
 import { savePhotos } from "@/lib/photos";
 import { REPORT_REASONS, REPORT_TYPES, type ReportType } from "@/lib/reports";
@@ -54,18 +53,6 @@ function parseEntry(formData: FormData) {
 
   const fieldErrors: Record<string, string[]> = {};
 
-  // Position: from the map picker, else from a pasted maps link
-  let lat: number | null = null;
-  let lng: number | null = null;
-  if (str(formData, "lat") && str(formData, "lng")) {
-    lat = Number(str(formData, "lat"));
-    lng = Number(str(formData, "lng"));
-    if (!validLatLng(lat, lng)) fieldErrors.lat = ["Ungültige Position"];
-  } else if (parsed.data.mapsUrl) {
-    const c = coordsFromMapsUrl(parsed.data.mapsUrl);
-    if (c) ({ lat, lng } = c);
-  }
-
   const price = str(formData, "priceLevel");
   const priceLevel = price ? Number(price) : null;
   if (priceLevel !== null && ![1, 2, 3].includes(priceLevel)) fieldErrors.priceLevel = ["Ungültige Preisklasse"];
@@ -79,7 +66,7 @@ function parseEntry(formData: FormData) {
 
   if (Object.keys(fieldErrors).length) return { fieldErrors };
   return {
-    data: { ...parsed.data, lat, lng, priceLevel, openFrom, openUntil, closedDays, veggie: formData.get("veggie") === "on" },
+    data: { ...parsed.data, priceLevel, openFrom, openUntil, closedDays, veggie: formData.get("veggie") === "on" },
   };
 }
 

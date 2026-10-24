@@ -10,7 +10,6 @@ import { Meetups } from "@/components/Meetups";
 import { PracticalInfo } from "@/components/PracticalInfo";
 import { OfflineSave } from "@/components/OfflineSave";
 import { defaultMeetupTime, loadMeetups } from "@/lib/meetups";
-import { mapConfig } from "@/lib/mapConfig";
 
 const FEATURED = CATEGORIES.filter((c) => c.featured);
 const OTHERS = CATEGORIES.filter((c) => !c.featured);
@@ -21,21 +20,17 @@ export default async function DestinationPage({ params }: { params: Promise<{ de
   const destination = await db.destination.findUniqueOrThrow({ where: { code: dest } });
   const entries = await db.entry.findMany({
     where: { destinationCode: dest },
-    select: { id: true, title: true, category: true, lat: true, ratings: { select: { stars: true } }, photos: { select: { id: true } } },
+    select: { id: true, title: true, category: true, ratings: { select: { stars: true } }, photos: { select: { id: true } } },
   });
 
   const lastMessages = await loadChat(dest, user, undefined, 1);
   const meetups = await loadMeetups(dest, destination.timezone, user);
-  const maps = mapConfig();
-  const onMap = entries.filter((e) => e.lat != null).length;
   // Pages (and photo thumbnails) stored by "Für offline speichern"
   const offlineUrls = [
     `/${dest}`,
-    `/${dest}/karte`,
     ...CATEGORIES.filter((c) => countBy(c.slug) > 0).map((c) => `/${dest}/${c.slug}`),
     ...entries.flatMap((e) => e.photos.map((p) => `/api/photos/${p.id}?size=thumb`)),
   ];
-
 
   // Best rated tips per category, for the preview on the big tiles
   const topTips = (slug: string) =>
@@ -106,22 +101,6 @@ export default async function DestinationPage({ params }: { params: Promise<{ de
           );
         })}
       </section>
-
-      {maps && (
-        <Link href={`/${dest}/karte`} className="map-teaser">
-          <span className="text-3xl" aria-hidden>
-            🗺️
-          </span>
-          <span className="min-w-0 flex-1">
-            <span className="block font-semibold">Karte {destination.city}</span>
-            <span className="block text-sm text-white/80">
-              {onMap ? `${onMap} ${onMap === 1 ? "Tipp" : "Tipps"} auf der Karte` : "Noch keine Tipps mit Position"}
-              {destination.hotelLat != null ? ", mit Fussweg ab dem Crew-Hotel" : ""}
-            </span>
-          </span>
-          <span aria-hidden>→</span>
-        </Link>
-      )}
 
       <PracticalInfo d={destination} isAdmin={user.isAdmin} />
 
