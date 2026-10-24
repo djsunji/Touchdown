@@ -28,7 +28,7 @@
   --warn-fg: #7a5a00;
   --ok: #1b6e36; --ok-bg: #e2f3e7; --bad: #a8261d; --bad-bg: #fbe8e6;
   --on-bg: #0a2148; --on-fg: #ffffff;
-  --map-bg: #e9eff6; --map-grid: #d5dee9; --map-pin: #2a6fbf;
+  --pin: #2a6fbf;
   --overlay: rgba(6, 14, 28, .74); --toast-bg: #1d2733; --toast-fg: #ffffff;
   --display: "Barlow Condensed", "Arial Narrow", ui-sans-serif, system-ui, sans-serif;
   --font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -40,7 +40,7 @@
     --line: #2a3542; --hover: #1f2a36; --active: #253242; --danger: #ef6b60;
     --heart: #f0687b; --off: #46525f; --warn-bg: #3a2f0f; --warn-fg: #f2d27a;
     --ok: #74d394; --ok-bg: #173523; --bad: #f39189; --bad-bg: #3d1d1b; --on-bg: #2d69b0; --on-fg: #ffffff;
-    --map-bg: #142130; --map-grid: #223245; --map-pin: #3b82d6; --overlay: rgba(0, 0, 0, .78); --toast-bg: #e4e9ef; --toast-fg: #0f151c;
+    --pin: #3b82d6; --overlay: rgba(0, 0, 0, .78); --toast-bg: #e4e9ef; --toast-fg: #0f151c;
     color-scheme: dark;
   }
 }
@@ -50,7 +50,7 @@
   --line: #2a3542; --hover: #1f2a36; --active: #253242; --danger: #ef6b60;
   --heart: #f0687b; --off: #46525f; --warn-bg: #3a2f0f; --warn-fg: #f2d27a;
     --ok: #74d394; --ok-bg: #173523; --bad: #f39189; --bad-bg: #3d1d1b; --on-bg: #2d69b0; --on-fg: #ffffff;
-    --map-bg: #142130; --map-grid: #223245; --map-pin: #3b82d6; --overlay: rgba(0, 0, 0, .78); --toast-bg: #e4e9ef; --toast-fg: #0f151c;
+    --pin: #3b82d6; --overlay: rgba(0, 0, 0, .78); --toast-bg: #e4e9ef; --toast-fg: #0f151c;
   color-scheme: dark;
 }
 * { box-sizing: border-box; }
@@ -357,33 +357,6 @@ form.entry { background: var(--surface); border: 1px solid var(--line); border-r
 .linkish.danger { color: var(--danger); }
 code { font-size: 12px; background: var(--hover); border-radius: 4px; padding: 1px 4px; }
 
-/* Map */
-.map-svg { width: 100%; height: auto; display: block; border-radius: 10px; }
-.map-svg .bg { fill: var(--map-bg); }
-.map-svg .grid line { stroke: var(--map-grid); stroke-width: 1; }
-.map-svg .pin { cursor: pointer; outline: none; }
-.map-svg .pin circle { fill: var(--map-pin); stroke: var(--surface); stroke-width: 2.5; }
-.map-svg .pin text { fill: #fff; font: 700 12px var(--font); pointer-events: none; }
-.map-svg .pin.sel circle, .map-svg .pin:focus-visible circle { stroke: var(--accent); stroke-width: 4; }
-.map-svg .hotel rect { fill: var(--accent); stroke: var(--surface); stroke-width: 2.5; }
-.map-svg .hotel.sel rect, .map-svg .hotel:focus-visible rect { stroke: var(--fg); stroke-width: 3; }
-.map-svg .hotel text { fill: #0a2148; font: 800 14px var(--font); pointer-events: none; }
-.map-svg .map-txt { fill: var(--muted); font: 600 11px var(--font); }
-.map-svg .map-line { stroke: var(--accent); stroke-width: 2.5; stroke-dasharray: 6 5; }
-.map-svg .scale line { stroke: var(--muted); stroke-width: 2; }
-.map-svg .north { fill: var(--muted); }
-.hkey { display: inline-grid; place-items: center; width: 18px; height: 18px; border-radius: 4px; background: var(--accent); color: #0a2148; font-size: 11px; font-weight: 800; }
-.pin-info { background: var(--hover); border-radius: 10px; padding: 10px 12px; font-size: 14px; display: grid; gap: 2px; min-width: 0; overflow-wrap: anywhere; }
-.pin-info .walk { font-weight: 600; }
-.muted-info { color: var(--muted); }
-.legend { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
-.legend button { width: 100%; display: flex; gap: 10px; align-items: center; text-align: left; border: 0; background: none; padding: 6px 8px; border-radius: 8px; font-size: 14px; min-width: 0; }
-.legend button:hover, .legend button.on { background: var(--hover); }
-.legend .num { flex-shrink: 0; width: 22px; height: 22px; border-radius: 50%; background: var(--map-pin); color: #fff; font-size: 12px; font-weight: 700; display: grid; place-items: center; }
-.legend .num.h { border-radius: 5px; background: var(--accent); color: #0a2148; }
-.legend .t { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.legend .w { flex-shrink: 0; color: var(--muted); font-size: 12px; white-space: nowrap; }
-
 /* Practical info */
 .hotel-line { margin: 0; font-size: 14px; overflow-wrap: anywhere; }
 .facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px 20px; margin: 0; }
@@ -396,7 +369,7 @@ code { font-size: 12px; background: var(--hover); border-radius: 4px; padding: 1
 .meet h3 { margin: 0; font-size: 16px; overflow-wrap: anywhere; }
 .meet-meta { font-size: 14px; color: var(--muted); display: grid; gap: 2px; overflow-wrap: anywhere; }
 .meet-foot { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; margin-top: 4px; }
-.join { border: 1px solid var(--map-pin); color: var(--fg); background: none; border-radius: 999px; padding: 5px 14px; font-weight: 600; font-size: 14px; }
+.join { border: 1px solid var(--pin); color: var(--fg); background: none; border-radius: 999px; padding: 5px 14px; font-weight: 600; font-size: 14px; }
 .join:hover { background: var(--hover); }
 .join.on { border-color: var(--line); color: var(--muted); font-weight: 400; }
 .joined { color: var(--ok); font-weight: 600; font-size: 14px; }
@@ -5422,8 +5395,8 @@ code { font-size: 12px; background: var(--hover); border-radius: 4px; padding: 1
     BRN: ["Schweizer Franken (CHF)", "112 Notruf · 117 Polizei · 144 Sanität · 118 Feuerwehr"]
   };
   var HOTEL0 = {
-    LJU: { name: "Crew-Hotel (Beispiel)", address: "Zentrum, Ljubljana", lat: 46.0511, lng: 14.5051 },
-    VCE: { name: "Crew-Hotel (Beispiel)", address: "Mestre, Venedig", lat: 45.4836, lng: 12.2328 }
+    LJU: { name: "Crew-Hotel (Beispiel)", address: "Zentrum, Ljubljana",  },
+    VCE: { name: "Crew-Hotel (Beispiel)", address: "Mestre, Venedig",  }
   };
   var INFO_FIELDS = [["transfer", "Transfer vom Flughafen"], ["currency", "Währung"], ["tip", "Trinkgeld"],
     ["pharmacy", "Apotheke in Hotelnähe"], ["doctor", "Arzt / Spital"], ["emergency", "Notfallnummern"]];
@@ -5481,14 +5454,14 @@ code { font-size: 12px; background: var(--hover); border-radius: 4px; padding: 1
 
   // ---------- Extra sample data ----------
   var EXTRA = {
-    e1: { lat: 46.0489, lng: 14.5068, priceLevel: 2, openFrom: "11:00", openUntil: "23:00", closedDays: [1], veggie: false },
-    e2: { lat: 46.0526, lng: 14.5032, priceLevel: 3, openFrom: "17:00", openUntil: "01:00", closedDays: [], veggie: true },
-    e3: { lat: 46.0560, lng: 14.5085, priceLevel: 1, openFrom: "00:00", openUntil: "00:00", closedDays: [], veggie: true },
-    e4: { lat: 46.0510, lng: 14.5062, priceLevel: 2 },
-    e5: { lat: 46.0585, lng: 14.5110, priceLevel: 3, openFrom: "08:00", openUntil: "18:00", closedDays: [0] },
-    e6: { lat: 46.0490, lng: 14.5087 },
-    e7: { lat: 45.4381, lng: 12.3186, priceLevel: 2 },
-    e8: { lat: 45.4445, lng: 12.3290, priceLevel: 2, openFrom: "11:30", openUntil: "22:00", closedDays: [0], veggie: true },
+    e1: { priceLevel: 2, openFrom: "11:00", openUntil: "23:00", closedDays: [1], veggie: false },
+    e2: { priceLevel: 3, openFrom: "17:00", openUntil: "01:00", closedDays: [], veggie: true },
+    e3: { priceLevel: 1, openFrom: "00:00", openUntil: "00:00", closedDays: [], veggie: true },
+    e4: { priceLevel: 2 },
+    e5: { priceLevel: 3, openFrom: "08:00", openUntil: "18:00", closedDays: [0] },
+    e6: {},
+    e7: { priceLevel: 2 },
+    e8: { priceLevel: 2, openFrom: "11:30", openUntil: "22:00", closedDays: [0], veggie: true },
     e11: { priceLevel: 2, openFrom: "06:00", openUntil: "22:00", closedDays: [] },
     e12: { priceLevel: 1, openFrom: "04:30", openUntil: "22:00", closedDays: [], veggie: true },
     e15: { priceLevel: 1, openFrom: "08:00", openUntil: "16:00", closedDays: [6], veggie: true },
@@ -5499,10 +5472,10 @@ code { font-size: 12px; background: var(--hover); border-radius: 4px; padding: 1
   var NEW_SAMPLES = [
     Object.assign(ex("e21", "LJU", "bars-restaurants", "Neues Café an der Dreierbrücke",
       "Hat vor ein paar Tagen eröffnet. Guter Flat White, hausgemachte Kuchen und ein paar Tische direkt am Wasser.",
-      "Lea M.", [5], {}), { created: addDays(localDay(), -2), photos: [], lat: 46.0508, lng: 14.5059, priceLevel: 1, openFrom: "07:30", openUntil: "19:00", closedDays: [], veggie: true }),
+      "Lea M.", [5], {}), { created: addDays(localDay(), -2), photos: [], priceLevel: 1, openFrom: "07:30", openUntil: "19:00", closedDays: [], veggie: true }),
     Object.assign(ex("e22", "VCE", "bars-restaurants", "Trattoria bei der Piazza Ferretto",
       "Fünf Minuten vom Hotel in Mestre. Hausgemachte Pasta, fairer Hauswein. Abends lieber reservieren.",
-      "Marco B.", [4, 5], {}), { created: addDays(localDay(), -4), photos: [], lat: 45.4905, lng: 12.2425, priceLevel: 2, openFrom: "18:30", openUntil: "23:00", closedDays: [2], veggie: false })
+      "Marco B.", [4, 5], {}), { created: addDays(localDay(), -4), photos: [], priceLevel: 2, openFrom: "18:30", openUntil: "23:00", closedDays: [2], veggie: false })
   ];
   SAMPLE = SAMPLE.concat(NEW_SAMPLES);
 
@@ -5563,7 +5536,7 @@ code { font-size: 12px; background: var(--hover); border-radius: 4px; padding: 1
       if (!Array.isArray(e.photos)) e.photos = [];
       if (!Array.isArray(e.comments)) e.comments = [];
       var s = byId[e.id];
-      if (s && e.example) ["lat", "lng", "priceLevel", "openFrom", "openUntil", "closedDays", "veggie"].forEach(function (k) {
+      if (s && e.example) ["priceLevel", "openFrom", "openUntil", "closedDays", "veggie"].forEach(function (k) {
         if (e[k] === undefined && s[k] !== undefined) e[k] = clone(s[k]);
       });
     });
@@ -5584,7 +5557,7 @@ code { font-size: 12px; background: var(--hover); border-radius: 4px; padding: 1
     view: "home", dest: null, cat: null, sort: "az", q: "", fPrice: 0, fOpen: false, fVeg: false,
     editing: null, draft: null, photoErr: null, photoBusy: false,
     confirmDel: null, confirmChat: null, expanded: {}, errors: {}, openComments: {}, confirmCom: null, comErr: {},
-    showMap: false, mapSel: null, editInfo: null,
+    editInfo: null,
     meetForm: false, meetErr: null, meetDraft: null, confirmMeet: null,
     reporting: null, lightbox: null, confirmPhoto: false,
     adminTab: "reports", editDest: null, destErr: {}, destDraft: {}, nsErr: null, delErr: {},
@@ -5643,25 +5616,6 @@ code { font-size: 12px; background: var(--hover); border-radius: 4px; padding: 1
   function openReports() { return S.reports.filter(function (r) { return r.status === "open"; }).length; }
   var DAY_SHORT = ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"];
 
-  function hasCoords(o) { return !!o && typeof o.lat === "number" && typeof o.lng === "number" && isFinite(o.lat) && isFinite(o.lng); }
-  function haversine(lat1, lng1, lat2, lng2) {
-    var R = 6371000, r = Math.PI / 180, dLat = (lat2 - lat1) * r, dLng = (lng2 - lng1) * r;
-    var x = Math.pow(Math.sin(dLat / 2), 2) + Math.cos(lat1 * r) * Math.cos(lat2 * r) * Math.pow(Math.sin(dLng / 2), 2);
-    return 2 * R * Math.asin(Math.min(1, Math.sqrt(x)));
-  }
-  // Walking distance from the crew hotel in metres (straight line x 1.3 detour)
-  function walkM(e) {
-    var d = dest(e.dest), h = d && d.hotel;
-    if (!hasCoords(h) || !hasCoords(e)) return null;
-    return haversine(h.lat, h.lng, e.lat, e.lng) * 1.3;
-  }
-  function walkText(m, short) {
-    var min = Math.max(1, Math.round(m / (5000 / 60)));
-    var t = min < 60 ? min + " Min." : Math.floor(min / 60) + " Std." + (min % 60 ? " " + (min % 60) + " Min." : "");
-    if (short) return t;
-    var dist = m < 1000 ? Math.max(10, Math.round(m / 10) * 10) + " m" : (m / 1000).toLocaleString("de-CH", { maximumFractionDigits: 1 }) + " km";
-    return "ca. " + t + " zu Fuss (" + dist + ")";
-  }
   function toMin(s) { var m = /^(\d{1,2}):(\d{2})$/.exec(s || ""); return m ? (+m[1]) * 60 + (+m[2]) : null; }
   // Open right now, evaluated in the destination's time zone. null = no opening hours known.
   function openState(e) {
@@ -5753,74 +5707,6 @@ code { font-size: 12px; background: var(--hover); border-radius: 4px; padding: 1
       .sort(function (a, b) { return avg(b) - avg(a) || allRatings(b).length - allRatings(a).length; }).slice(0, 2);
   }
 
-  // ---------- Map (schematic SVG, no tiles) ----------
-  function mapHtml(d) {
-    var h = hasCoords(d.hotel) ? d.hotel : null;
-    var items = S.entries.filter(function (e) { return e.dest === d.code && hasCoords(e); });
-    items.sort(function (a, b) { var wa = walkM(a), wb = walkM(b); return wa != null && wb != null ? wa - wb : byTitle(a, b); });
-    var note = '<p class="note">Vorschau: schematische Karte. In der App mit echter Karte (OpenStreetMap).</p>';
-    var head = '<div class="panel-head"><h2>🗺️ Karte</h2>' + (h ? '<span class="by"><span class="hkey">H</span> ' + esc(h.name || "Crew-Hotel") + "</span>" : "") + "</div>";
-    if (!items.length && !h) return '<section class="panel" id="map">' + head + '<p class="lead">Für ' + esc(d.city) + " gibt es noch keine Orte mit Koordinaten. Ergänze Breiten- und Längengrad bei einem Tipp, dann erscheint er hier.</p>" + note + "</section>";
-    var pts = items.concat(h ? [h] : []);
-    var W = 400, H = 300, P = 34;
-    var lat0 = pts.reduce(function (s, p) { return s + p.lat; }, 0) / pts.length, kx = Math.cos(lat0 * Math.PI / 180);
-    var xs = pts.map(function (p) { return p.lng * kx; }), ys = pts.map(function (p) { return -p.lat; });
-    var minX = Math.min.apply(null, xs), maxX = Math.max.apply(null, xs), minY = Math.min.apply(null, ys), maxY = Math.max.apply(null, ys);
-    var sc = Math.min((W - 2 * P) / Math.max(maxX - minX, 0.004), (H - 2 * P) / Math.max(maxY - minY, 0.003));
-    var ox = P + ((W - 2 * P) - (maxX - minX) * sc) / 2, oy = P + ((H - 2 * P) - (maxY - minY) * sc) / 2;
-    function pr(p) { return [ox + (p.lng * kx - minX) * sc, oy + (-p.lat - minY) * sc]; }
-    // Nudge markers apart so none hides another (schematic map, exact spot matters less than visibility)
-    var placed = [], pos = {};
-    if (h) { pos.h = pr(h); placed.push(pos.h); }
-    items.forEach(function (e) {
-      var q = pr(e), k = 0, c = q.slice();
-      while (k < 24 && placed.some(function (o) { return Math.abs(o[0] - c[0]) < 25 && Math.abs(o[1] - c[1]) < 25; })) {
-        k++; var ang = k * 2.4, rad = 14 + k * 3;
-        c = [Math.min(W - 16, Math.max(16, q[0] + Math.cos(ang) * rad)), Math.min(H - 16, Math.max(16, q[1] + Math.sin(ang) * rad))];
-      }
-      pos[e.id] = c; placed.push(c);
-    });
-    function where(p) { return p === h ? pos.h : pos[p.id]; }
-    function tr(p) { var q = where(p); return 'transform="translate(' + q[0].toFixed(1) + "," + q[1].toFixed(1) + ')"'; }
-    var grid = "";
-    for (var gx = 40; gx < W; gx += 40) grid += '<line x1="' + gx + '" y1="0" x2="' + gx + '" y2="' + H + '"/>';
-    for (var gy = 40; gy < H; gy += 40) grid += '<line x1="0" y1="' + gy + '" x2="' + W + '" y2="' + gy + '"/>';
-    var mPerUnit = 111320 / sc, len = 20;
-    [20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000, 50000].forEach(function (n) { if (n / mPerUnit <= 110) len = n; });
-    var bw = (len / mPerUnit).toFixed(1);
-    var scale = '<g class="scale" transform="translate(14,' + (H - 14) + ')"><line x1="0" y1="0" x2="' + bw + '" y2="0"/><line x1="0" y1="-4" x2="0" y2="4"/><line x1="' + bw + '" y1="-4" x2="' + bw + '" y2="4"/>' +
-      '<text class="map-txt" x="' + (bw / 2).toFixed(1) + '" y="-8" text-anchor="middle">' + (len >= 1000 ? len / 1000 + " km" : len + " m") + "</text></g>";
-    var north = '<g transform="translate(' + (W - 20) + ',22)"><path class="north" d="M0,-12 L6,6 L0,2 L-6,6Z"/><text class="map-txt" y="19" text-anchor="middle">N</text></g>';
-    var sel = S.mapSel, selE = null;
-    var pins = items.map(function (e, i) {
-      var on = sel === e.id;
-      if (on) selE = e;
-      return { on: on, html: '<g class="pin' + (on ? " sel" : "") + '" data-pin="' + esc(e.id) + '" ' + tr(e) + ' tabindex="0" role="button" aria-label="' + (i + 1) + ": " + esc(e.title) + '"><circle r="12"/><text text-anchor="middle" dy="4">' + (i + 1) + "</text></g>" };
-    });
-    var line = "";
-    if (h && selE) { var a = where(h), b = where(selE); line = '<line class="map-line" x1="' + a[0].toFixed(1) + '" y1="' + a[1].toFixed(1) + '" x2="' + b[0].toFixed(1) + '" y2="' + b[1].toFixed(1) + '"/>'; }
-    var hotelPin = h ? '<g class="pin hotel' + (sel === "h" ? " sel" : "") + '" data-pin="h" ' + tr(h) + ' tabindex="0" role="button" aria-label="Crew-Hotel: ' + esc(h.name || "") + '"><rect x="-13" y="-13" width="26" height="26" rx="6"/><text text-anchor="middle" dy="5">H</text></g>' : "";
-    var svg = '<svg class="map-svg" viewBox="0 0 ' + W + " " + H + '" role="group" aria-label="Schematische Karte von ' + esc(d.city) + '">' +
-      '<rect class="bg" width="' + W + '" height="' + H + '" rx="10"/><g class="grid">' + grid + "</g>" + line +
-      pins.filter(function (p) { return !p.on; }).map(function (p) { return p.html; }).join("") + hotelPin +
-      pins.filter(function (p) { return p.on; }).map(function (p) { return p.html; }).join("") + scale + north + "</svg>";
-    var info;
-    if (sel === "h" && h) info = '<div class="pin-info" aria-live="polite"><b>🏨 ' + esc(h.name || "Crew-Hotel") + "</b>" + (h.address ? "<span>" + esc(h.address) + "</span>" : "") + "</div>";
-    else if (selE) {
-      var w = walkM(selE), c = cat(selE.cat);
-      info = '<div class="pin-info" aria-live="polite"><b>' + esc(selE.title) + '</b><span class="by">' + (c ? c.icon + " " + esc(c.label) : "") + "</span>" +
-        (w != null ? '<span class="walk">🚶 ' + walkText(w) + " vom Crew-Hotel</span>" : "") +
-        '<button class="linkish" data-open-entry="' + esc(selE.id) + '">Zum Tipp →</button></div>';
-    } else info = '<div class="pin-info muted-info" aria-live="polite">Tippe auf einen Pin, um Titel und Fussweg zu sehen.</div>';
-    var legend = '<ul class="legend">' + (h ? '<li><button data-pin="h" class="' + (sel === "h" ? "on" : "") + '"><span class="num h">H</span><span class="t">' + esc(h.name || "Crew-Hotel") + "</span></button></li>" : "") +
-      items.map(function (e, i) {
-        var w = walkM(e);
-        return '<li><button data-pin="' + esc(e.id) + '" class="' + (sel === e.id ? "on" : "") + '"><span class="num">' + (i + 1) + '</span><span class="t">' + esc(e.title) + "</span>" +
-          (w != null ? '<span class="w">🚶 ' + walkText(w, true) + "</span>" : "") + "</button></li>";
-      }).join("") + "</ul>";
-    return '<section class="panel" id="map">' + head + svg + info + legend + note + "</section>";
-  }
-
   // ---------- Practical info ----------
   function infoPanel(d) {
     var inf = d.info || emptyInfo(), editing = S.editInfo === d.code && isAdmin();
@@ -5898,9 +5784,9 @@ code { font-size: 12px; background: var(--hover); border-radius: 4px; padding: 1
     var info = d.code === "LJU" ? '<div class="info-box">Beispiel für einen Admin-Infotext: Crew-Hotel im Zentrum, Transfer ca. 25 Minuten. Shuttle-Treffpunkt in der Lobby.</div>' : "";
     return shell('<button class="back-dest" data-go="home">← Alle Destinationen</button>' +
       '<div class="dest-head"><span class="dest-code">' + esc(d.code) + '</span><div><h1 class="page">' + esc(d.city) + '</h1><p class="lead">' + esc(d.country) + " · " + count(d.code) + " Tipps von Kolleg:innen</p></div></div>" +
-      '<div class="dest-actions"><button class="pill-btn' + (S.showMap ? " on" : "") + '" data-act="map" aria-expanded="' + S.showMap + '">🗺️ Karte</button>' +
+      '<div class="dest-actions">' +
       '<button class="pill-btn" data-act="offline">⬇️ Für offline speichern</button></div>' +
-      (S.showMap ? mapHtml(d) : "") + info + chatTeaser(d) + meetupsHtml(d) +
+      info + chatTeaser(d) + meetupsHtml(d) +
       '<div class="feat-grid">' + big + '</div><h2 class="more-h">Weitere Kategorien</h2><div class="cat-grid">' + small + "</div>" + infoPanel(d));
   }
 
@@ -5911,8 +5797,6 @@ code { font-size: 12px; background: var(--hover); border-radius: 4px; padding: 1
     var o = openState(e);
     if (o) b.push(o.open ? '<span class="badge ok">🟢 ' + (o.allDay ? "Rund um die Uhr offen" : "Jetzt offen bis " + esc(o.until)) + "</span>" : '<span class="badge bad">🔴 Geschlossen</span>');
     if (e.veggie) b.push('<span class="badge">🌱 Vegi</span>');
-    var w = walkM(e);
-    if (w != null) b.push('<span class="badge walk">🚶 ' + walkText(w) + "</span>");
     return b.length ? '<div class="badges">' + b.join("") + "</div>" : "";
   }
   function photosHtml(e) {
@@ -5984,8 +5868,8 @@ code { font-size: 12px; background: var(--hover); border-radius: 4px; padding: 1
 
   // ---------- Category list ----------
   function renderList() {
-    var c = cat(S.cat), q = S.q.trim().toLowerCase(), d = dest(S.dest), hasHotel = d && hasCoords(d.hotel);
-    if (S.sort === "near" && !hasHotel) S.sort = "az";
+    var c = cat(S.cat), q = S.q.trim().toLowerCase();
+    if (S.sort === "near") S.sort = "az";
     var filtered = S.fPrice || S.fOpen || S.fVeg;
     var list = S.entries.filter(function (e) {
       if (e.dest !== S.dest || e.cat !== S.cat) return false;
@@ -5999,17 +5883,9 @@ code { font-size: 12px; background: var(--hover); border-radius: 4px; padding: 1
     list.sort(function (a, b) {
       if (S.sort === "rating") return avg(b) - avg(a) || allRatings(b).length - allRatings(a).length || byTitle(a, b);
       if (S.sort === "new") return b.created < a.created ? -1 : b.created > a.created ? 1 : 0;
-      if (S.sort === "near") {
-        var wa = walkM(a), wb = walkM(b);
-        if (wa == null && wb == null) return byTitle(a, b);
-        if (wa == null) return 1;
-        if (wb == null) return -1;
-        return wa - wb;
-      }
       return byTitle(a, b);
     });
     var tdef = [["az", "A–Z", "A–Z"], ["rating", "★ Bewertung", "★"], ["new", "Neueste", "Neu"]];
-    if (hasHotel) tdef.push(["near", "📍 Nähe", "📍"]);
     tdef.push(["fav", "♥ Favoriten", "♥"]);
     var tabs = tdef.map(function (t) {
       return '<button data-sort="' + t[0] + '" class="' + (S.sort === t[0] ? "on" : "") + '" aria-pressed="' + (S.sort === t[0]) + '"><span class="long">' + t[1] + '</span><span class="short">' + t[2] + "</span></button>";
@@ -6034,11 +5910,11 @@ code { font-size: 12px; background: var(--hover); border-radius: 4px; padding: 1
     e = e || {};
     return { title: e.title || "", desc: e.desc || "", address: e.address || "", phone: e.phone || "", mapsUrl: e.mapsUrl || "", website: e.website || "",
       priceLevel: e.priceLevel ? String(e.priceLevel) : "", openFrom: e.openFrom || "", openUntil: e.openUntil || "", closedDays: (e.closedDays || []).slice(),
-      veggie: !!e.veggie, lat: hasCoords(e) ? String(e.lat) : "", lng: hasCoords(e) ? String(e.lng) : "", photos: (e.photos || []).map(clone) };
+      veggie: !!e.veggie, photos: (e.photos || []).map(clone) };
   }
   function syncDraft(form) {
     var el = form.elements;
-    ["title", "desc", "address", "phone", "mapsUrl", "website", "priceLevel", "openFrom", "openUntil", "lat", "lng"].forEach(function (k) { if (el[k]) S.draft[k] = el[k].value; });
+    ["title", "desc", "address", "phone", "mapsUrl", "website", "priceLevel", "openFrom", "openUntil"].forEach(function (k) { if (el[k]) S.draft[k] = el[k].value; });
     if (el.veggie) S.draft.veggie = el.veggie.checked;
     S.draft.closedDays = Array.prototype.map.call(form.querySelectorAll('input[name="closedDays"]:checked'), function (i) { return +i.value; });
   }
@@ -6080,10 +5956,6 @@ code { font-size: 12px; background: var(--hover); border-radius: 4px; padding: 1
       "</div>" + err("hours") +
       '<span class="hint">Schliesst nach Mitternacht? Einfach z. B. 17:00 bis 01:00 eintragen. Gleiche Zeiten = rund um die Uhr.</span>' +
       '<div class="field"><span>Ruhetage</span><div class="days">' + days + "</div></div></fieldset>" +
-      '<fieldset class="fset"><legend>Lage (für Karte und Fussweg)</legend><div class="grid2">' +
-      '<label class="field"><span>Breitengrad</span><input id="f-lat" name="lat" inputmode="decimal" value="' + esc(e.lat) + '" placeholder="z. B. 46.0511"></label>' +
-      '<label class="field"><span>Längengrad</span><input id="f-lng" name="lng" inputmode="decimal" value="' + esc(e.lng) + '" placeholder="z. B. 14.5051"></label>' +
-      "</div>" + err("coords") + "</fieldset>" +
       photos +
       '<div class="actions"><button type="button" class="ghost" data-act="cancel">Abbrechen</button><button type="submit" class="primary">' +
       (S.editing === "new" ? "Tipp speichern" : "Änderungen speichern") + "</button></div></form>");
@@ -6315,18 +6187,16 @@ code { font-size: 12px; background: var(--hover); border-radius: 4px; padding: 1
     var rows = S.dests.map(function (d) {
       var editing = S.editDest === d.code, h = d.hotel || {};
       var row = '<div class="drow"><div class="u-who"><b>' + esc(d.code) + " · " + esc(d.city) + '</b><span class="by">' + esc(d.country) + " · " + esc(d.tz) +
-        " · " + (hasCoords(d.hotel) ? "🏨 " + esc(d.hotel.name || "Hotel") : "kein Hotel") + "</span></div>" +
+        (d.hotel && (d.hotel.name || d.hotel.address) ? " · 🏨 " + esc(d.hotel.name || "Crew-Hotel") : "") + "</span></div>" +
         '<div class="drow-act"><span class="switch-wrap"><button class="switch" role="switch" aria-checked="' + (d.active !== false) + '" data-dactive="' + esc(d.code) + '" aria-label="' + esc(d.code) + ' aktiv"></button><span class="by">' + (d.active !== false ? "Aktiv" : "Ausgeblendet") + "</span></span>" +
         (editing ? "" : '<button class="pill-btn" data-dedit="' + esc(d.code) + '">Bearbeiten</button>') + "</div></div>";
       if (editing) {
-        var v = S.destDraft[d.code] || { city: d.city, country: d.country, tz: d.tz, landmark: d.landmark || "", hname: h.name || "", haddr: h.address || "", hlat: hasCoords(h) ? String(h.lat) : "", hlng: hasCoords(h) ? String(h.lng) : "" };
+        var v = S.destDraft[d.code] || { city: d.city, country: d.country, tz: d.tz, landmark: d.landmark || "", hname: h.name || "", haddr: h.address || "" };
         var er = S.destErr[d.code] || {};
         row += '<form class="mini-form dest-edit" data-dest-form="' + esc(d.code) + '" novalidate><div class="dest-form-wrap">' + tilePreview(d.code, v.city, v.country, v.landmark, S.editSeed, d.code) + "<div>" + destFormFields(v, er, "", d.code) +
           '<label class="field"><span>Crew-Hotel</span><input name="hname" maxlength="100" value="' + esc(v.hname) + '" placeholder="z. B. Hotel am Fluss"></label>' +
           '<label class="field"><span>Hotel-Adresse</span><input name="haddr" maxlength="160" value="' + esc(v.haddr) + '"></label>' +
-          '<label class="field"><span>Hotel Breitengrad</span><input name="hlat" inputmode="decimal" value="' + esc(v.hlat) + '" placeholder="z. B. 46.0511"></label>' +
-          '<label class="field"><span>Hotel Längengrad</span><input name="hlng" inputmode="decimal" value="' + esc(v.hlng) + '" placeholder="z. B. 14.5051"></label></div>' +
-          (er.coords ? '<span class="err">' + esc(er.coords) + "</span>" : "") + "</div></div>" +
+          "</div></div></div>" +
           '<div class="actions"><button type="button" class="ghost" data-dedit-cancel="1">Abbrechen</button><button type="submit" class="primary">Speichern</button></div></form>' +
           destDeleteHtml(d);
       }
@@ -6457,17 +6327,8 @@ code { font-size: 12px; background: var(--hover); border-radius: 4px; padding: 1
     delete S.destDraft[code]; delete S.destErr[code];
     if (S.dest === code) { S.dest = null; S.cat = null; }
   }
-  function parseCoord(s) { s = String(s || "").trim().replace(",", "."); return s === "" ? null : /^-?\d+(\.\d+)?$/.test(s) ? parseFloat(s) : NaN; }
-  function coordsErr(lat, lng) {
-    if (lat === null && lng === null) return null;
-    if (lat === null || lng === null || isNaN(lat) || isNaN(lng) || lat < -90 || lat > 90 || lng < -180 || lng > 180) return "Bitte beide Koordinaten gültig angeben, z. B. 46.0511 und 14.5051 (oder beide leer lassen).";
-    return null;
-  }
-
   root.addEventListener("click", function (ev) {
     if (ev.target.dataset && ev.target.dataset.closeOverlay) { S.reporting = null; S.lightbox = null; S.confirmPhoto = false; render(); return; }
-    var pin = ev.target.closest("[data-pin]");
-    if (pin) { var pid = pin.getAttribute("data-pin"); S.mapSel = S.mapSel === pid ? null : pid; render(); return; }
     var t = ev.target.closest("button");
     if (!t || t.disabled) return;
     var d = t.dataset;
@@ -6476,7 +6337,7 @@ code { font-size: 12px; background: var(--hover); border-radius: 4px; padding: 1
     else if (d.go === "home") go("home");
     else if (d.go === "admin") { S.adminTab = S.adminTab || "reports"; go("admin"); }
     else if (d.act === "ns-open") { S.nsErr = null; go("nightstops"); }
-    else if (d.dest) { S.dest = d.dest; S.cat = null; S.mapSel = null; S.editInfo = null; S.meetForm = false; go("dest"); }
+    else if (d.dest) { S.dest = d.dest; S.cat = null; S.editInfo = null; S.meetForm = false; go("dest"); }
     else if (d.chat) { S.cat = null; go("chat"); }
     else if (d.chatDel) { S.confirmChat = d.chatDel; render(); }
     else if (d.chatDelNo) { S.confirmChat = null; render(); }
@@ -6505,7 +6366,6 @@ code { font-size: 12px; background: var(--hover); border-radius: 4px; padding: 1
     else if (d.comDelNo) { S.confirmCom = null; render(); }
     else if (d.comDelYes) { var en = find(d.entry); en.comments = en.comments.filter(function (c) { return c.id !== d.comDelYes; }); S.confirmCom = null; persist(); render(); }
     // City page extras
-    else if (d.act === "map") { S.showMap = !S.showMap; render(); }
     else if (d.act === "offline") toast("In der App werden die Tipps dieser Stadt fürs Fliegen ohne Netz gespeichert.");
     else if (d.openEntry) openEntry(d.openEntry);
     else if (d.infoEdit) { S.editInfo = d.infoEdit; render(); }
@@ -6566,13 +6426,6 @@ code { font-size: 12px; background: var(--hover); border-radius: 4px; padding: 1
 
   root.addEventListener("keydown", function (ev) {
     if (ev.target.id === "chat-text" && ev.key === "Enter" && !ev.shiftKey) { ev.preventDefault(); ev.target.form.requestSubmit(); return; }
-    var pin = ev.target.closest && ev.target.closest("g[data-pin]");
-    if (pin && (ev.key === "Enter" || ev.key === " ")) {
-      ev.preventDefault();
-      var pid = pin.getAttribute("data-pin");
-      S.mapSel = S.mapSel === pid ? null : pid; render();
-      var again = root.querySelector('g[data-pin="' + pid + '"]'); if (again) again.focus();
-    }
   });
   document.addEventListener("keydown", function (ev) {
     if (ev.key === "Escape" && (S.reporting || S.lightbox)) { S.reporting = null; S.lightbox = null; S.confirmPhoto = false; render(); }
@@ -6587,10 +6440,10 @@ code { font-size: 12px; background: var(--hover); border-radius: 4px; padding: 1
     if (ev.target.form && ev.target.form.id === "entry-form" && S.draft && ev.target.type !== "file") {
       syncDraft(ev.target.form);
       // Clear the error of the field being fixed
-      var ek = { openFrom: "hours", openUntil: "hours", lat: "coords", lng: "coords" }[ev.target.name] || ev.target.name;
+      var ek = { openFrom: "hours", openUntil: "hours" }[ev.target.name] || ev.target.name;
       if (S.errors[ek]) {
         delete S.errors[ek];
-        var box = ev.target.closest(ek === "hours" || ek === "coords" ? ".fset" : ".field");
+        var box = ev.target.closest(ek === "hours" ? ".fset" : ".field");
         var es = box && box.querySelector(".err"); if (es) es.remove();
       }
     }
@@ -6642,14 +6495,12 @@ code { font-size: 12px; background: var(--hover); border-radius: 4px; padding: 1
     }
     if (ds.destForm) {
       var code = ds.destForm, dd = dest(code);
-      var dv = { city: val("city"), country: val("country"), tz: val("tz"), landmark: val("landmark"), hname: val("hname"), haddr: val("haddr"), hlat: val("hlat"), hlng: val("hlng") }, de = {};
+      var dv = { city: val("city"), country: val("country"), tz: val("tz"), landmark: val("landmark"), hname: val("hname"), haddr: val("haddr") }, de = {};
       if (dv.city.length < 2) de.city = "Bitte eine Stadt angeben.";
       if (dv.country.length < 2) de.country = "Bitte ein Land angeben.";
-      var hl = parseCoord(dv.hlat), hg = parseCoord(dv.hlng), ce = coordsErr(hl, hg);
-      if (ce) de.coords = ce;
       if (Object.keys(de).length) { S.destErr[code] = de; S.destDraft[code] = dv; render(); return; }
       dd.city = dv.city; dd.country = dv.country; dd.tz = dv.tz; dd.landmark = dv.landmark; dd.artSeed = S.editSeed;
-      dd.hotel = (hl === null && !dv.hname && !dv.haddr) ? null : { name: dv.hname || "Crew-Hotel", address: dv.haddr, lat: hl, lng: hg };
+      dd.hotel = (!dv.hname && !dv.haddr) ? null : { name: dv.hname || "Crew-Hotel", address: dv.haddr };
       delete S.destErr[code]; delete S.destDraft[code]; S.editDest = null; persist(); render(); toast(code + " gespeichert."); return;
     }
     if (ds.destAdd) {
@@ -6685,13 +6536,11 @@ code { font-size: 12px; background: var(--hover); border-radius: 4px; padding: 1
     if (tv("desc").length < 5) errs.desc = "Bitte eine kurze Beschreibung eingeben";
     ["mapsUrl", "website"].forEach(function (k) { if (tv(k) && !/^https?:\/\/\S+$/i.test(tv(k))) errs[k] = "Bitte einen Link mit https:// eingeben"; });
     if (!!x.openFrom !== !!x.openUntil) errs.hours = "Bitte Öffnungs- und Schliesszeit angeben (oder beide leer lassen).";
-    var la = parseCoord(x.lat), lo = parseCoord(x.lng), cerr = coordsErr(la, lo);
-    if (cerr) errs.coords = cerr;
     if (Object.keys(errs).filter(function (k) { return errs[k]; }).length) { S.errors = errs; render(); var fe = root.querySelector(".err"); if (fe) fe.scrollIntoView({ block: "center" }); return; }
     if (S.photoBusy) { S.photoErr = "Einen Moment, das Foto wird noch verarbeitet."; render(); return; }
     var data = { title: tv("title"), desc: tv("desc"), address: tv("address") || null, phone: tv("phone") || null, mapsUrl: tv("mapsUrl") || null, website: tv("website") || null,
       priceLevel: +x.priceLevel || null, openFrom: x.openFrom || null, openUntil: x.openUntil || null, closedDays: x.closedDays.slice().sort(), veggie: !!x.veggie,
-      lat: la, lng: lo, photos: x.photos };
+      photos: x.photos };
     if (S.editing === "new") {
       var today = localDay();
       S.entries.push(Object.assign({ id: "u" + Date.now(), dest: S.dest, cat: S.cat, author: ME.name, authorId: ME.id, created: today, ratings: [], myRating: 0, fav: false, example: false, comments: [] }, data));
