@@ -241,6 +241,7 @@ p.lead { margin: 0; color: var(--muted); }
 .search { flex: 1 1 200px; border: 1px solid var(--line); background: var(--surface); border-radius: 8px; padding: 10px 12px; font-size: 14px; }
 .short { display: none; }
 @media (max-width: 520px) { .short { display: inline; } .long { display: none; } }
+@media (max-width: 520px) { .top-inner { gap: 8px; } .user { gap: 6px; } .user .outline-btn { padding-left: 10px; padding-right: 10px; } .user .admin-link { padding-left: 8px; padding-right: 8px; } }
 /* Below 1280px the sort bar takes the full width and the search goes below it, so sort labels never wrap or overlap */
 @media (max-width: 1279px) { .tools { flex-direction: column; } .tools .tabs, .tools .search { flex: none; width: 100%; } }
 
@@ -480,7 +481,12 @@ code { font-size: 12px; background: var(--hover); border-radius: 4px; padding: 1
 /* Home: for you */
 .hero-btn { justify-self: start; margin-top: 10px; border: 1px solid var(--accent); color: #ffe08a; background: rgba(0,0,0,.25); border-radius: 999px; padding: 8px 16px; font-weight: 600; font-size: 14px; }
 .hero-btn:hover { background: rgba(0,0,0,.45); }
-.foryou { margin-top: 28px; }
+.ns-row { align-items: flex-start; }
+.ns-row .u-who { flex: 1 1 220px; gap: 4px; }
+.ns-new { font-weight: 600; color: var(--ok); }
+.panel > .digest:first-child { border-top: 0; padding-top: 0; }
+.ns-tips { margin-top: 4px; }
+.ns-row .linkish { justify-self: start; }
 .fy { border-top: 1px solid var(--line); padding-top: 12px; display: grid; gap: 6px; min-width: 0; }
 .fy-head { display: flex; flex-wrap: wrap; gap: 2px 10px; align-items: baseline; }
 .fy-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
@@ -5687,7 +5693,7 @@ code { font-size: 12px; background: var(--hover); border-radius: 4px; padding: 1
     return '<header class="top"><div class="top-inner"><div class="crumbs">' +
       (showBack ? '<button class="link back" data-go="home"><img class="brand-ico" src="' + ICON + '" alt="" width="28" height="28"><span class="back-txt">← Alle</span></button>' : "") +
       '<div class="brand-title">' + titleHtml + '</div></div>' +
-      '<div class="user"><span class="name">' + esc(ME.name) + "</span>" + admin + '<button class="outline-btn" data-act="logout">Abmelden</button></div>' +
+      '<div class="user"><span class="name">' + esc(ME.name) + "</span>" + '<button class="outline-btn admin-link' + (S.view === "nightstops" ? " on" : "") + '" data-act="ns-open" aria-label="Meine Nightstops">📅<span class="long"> Meine Nightstops</span></button>' + admin + '<button class="outline-btn" data-act="logout">Abmelden</button></div>' +
       "</div></header>";
   }
 
@@ -5699,32 +5705,6 @@ code { font-size: 12px; background: var(--hover); border-radius: 4px; padding: 1
   }
 
   // ---------- Home ----------
-  function forYouHtml() {
-    var today = localDay(), lim = addDays(today, 14), since = addDays(today, -7);
-    var ns = S.nightstops.filter(function (n) { return n.date >= today && n.date <= lim && dest(n.dest); })
-      .sort(function (a, b) { return a.date < b.date ? -1 : a.date > b.date ? 1 : 0; });
-    var body;
-    if (!S.nightstops.length) body = '<p class="lead">Trag deine nächsten Nightstops ein, dann siehst du hier die neusten Tipps für diese Städte.</p>';
-    else if (!ns.length) body = '<p class="lead">In den nächsten 14 Tagen hast du keine Nightstops eingetragen.</p>';
-    else body = ns.map(function (n) {
-      var d = dest(n.dest);
-      var tips = S.entries.filter(function (e) { return e.dest === n.dest && String(e.created).slice(0, 10) >= since; })
-        .sort(function (a, b) { return a.created < b.created ? 1 : a.created > b.created ? -1 : 0; });
-      return '<div class="fy"><div class="fy-head"><b>' + esc(d.code) + " · " + esc(d.city) + '</b><span class="by">' + esc(dayFmt(n.date)) + " · " + relDay(n.date) + "</span></div>" +
-        (tips.length
-          ? '<ul class="fy-list">' + tips.map(function (e) {
-              var c = cat(e.cat);
-              return '<li><button class="fy-tip" data-open-entry="' + esc(e.id) + '"><span>' + (c ? c.icon + " " : "") + esc(e.title) + '</span><span class="by">neu seit ' + fmtDate(e.created) + "</span></button></li>";
-            }).join("") + "</ul>"
-          : '<p class="fy-none">Keine neuen Tipps in den letzten 7 Tagen. Teil doch nach deinem Nightstop den ersten!</p>') +
-        '<button class="linkish" data-dest="' + esc(d.code) + '">Alle Tipps für ' + esc(d.city) + " →</button></div>";
-    }).join("");
-    return '<section class="panel foryou" aria-labelledby="fy-h"><div class="panel-head"><h2 id="fy-h">✨ Für dich</h2><button class="pill-btn" data-act="ns-open">📅 Meine Nightstops</button></div>' +
-      '<p class="note">Neue Tipps (letzte 7 Tage) für deine Nightstops der nächsten 14 Tage.</p>' + body +
-      '<div class="digest"><button class="switch" role="switch" aria-checked="' + (S.digest ? "true" : "false") + '" data-digest="1" aria-labelledby="dg-l"></button>' +
-      '<div><b id="dg-l">Wöchentlicher Digest per E-Mail</b><p class="note">In der App per E-Mail, sobald eure IT den Mailversand eingerichtet hat.</p></div></div></section>';
-  }
-
   function renderHome() {
     var total = S.entries.length, list = activeDests();
     var tiles = list.map(function (d) {
@@ -5739,8 +5719,8 @@ code { font-size: 12px; background: var(--hover); border-radius: 4px; padding: 1
       '<section class="hero"><div class="hero-inner"><span class="eyebrow">Crew Nightstops</span><h1>Wohin geht\'s heute Nacht?</h1>' +
       "<p>Restaurants, Ausflüge und Insidertipps von Kolleg:innen, für jede Destination auf einen Blick.</p>" +
       '<div class="stats"><span><b>' + list.length + "</b>Destinationen</span><span><b>" + total + "</b>Tipps</span><span><b>" + CATS.length + "</b>Kategorien</span></div>" +
-      '<button class="hero-btn" data-act="ns-open">📅 Meine Nightstops</button></div></section>' +
-      '<div class="home"><div class="dest-grid">' + tiles + "</div>" + forYouHtml() + "</div></div>";
+      "</div></section>" +
+      '<div class="home"><div class="dest-grid">' + tiles + "</div></div></div>";
   }
 
   function nav() {
@@ -6374,20 +6354,31 @@ code { font-size: 12px; background: var(--hover); border-radius: 4px; padding: 1
   function renderNightstops() {
     var today = localDay();
     var list = S.nightstops.slice().sort(function (a, b) { return a.date < b.date ? -1 : a.date > b.date ? 1 : 0; });
+    var since = addDays(today, -7);
     var rows = list.length ? list.map(function (n) {
       var d = dest(n.dest);
-      return '<div class="urow"><div class="u-who"><b>' + esc(n.dest) + " · " + esc(d ? d.city : "") + '</b><span class="by">' + esc(dayFmt(n.date, true)) + " · " + relDay(n.date) + "</span></div>" +
+      var tips = S.entries.filter(function (e) { return e.dest === n.dest && String(e.created).slice(0, 10) >= since; })
+        .sort(function (a, b) { return a.created < b.created ? 1 : a.created > b.created ? -1 : 0; });
+      return '<div class="urow ns-row"><div class="u-who"><b>' + esc(n.dest) + " · " + esc(d ? d.city : "") + '</b><span class="by">' + esc(dayFmt(n.date, true)) + " · " + relDay(n.date) +
+        (tips.length ? ' <span class="ns-new">✨ ' + tips.length + (tips.length === 1 ? " neuer Tipp" : " neue Tipps") + "</span>" : "") + "</span>" +
+        (tips.length ? '<ul class="fy-list ns-tips">' + tips.slice(0, 4).map(function (e) {
+          var c = cat(e.cat);
+          return '<li><button class="fy-tip" data-open-entry="' + esc(e.id) + '"><span>' + esc(e.title) + '</span><span class="by">' + (c ? c.icon + " " + esc(c.label) : "") + "</span></button></li>";
+        }).join("") + "</ul>" : "") +
+        (d ? '<button class="linkish" data-dest="' + esc(d.code) + '">Alle Tipps für ' + esc(d.city) + " →</button>" : "") + "</div>" +
         '<button class="linkish danger" data-ns-del="' + esc(n.id) + '">Entfernen</button></div>';
     }).join("") : '<p class="lead">Noch keine Nightstops eingetragen.</p>';
     var opts = activeDests().map(function (d) { return '<option value="' + esc(d.code) + '">' + esc(d.code) + " · " + esc(d.city) + "</option>"; }).join("");
     return plainShell("📅 Meine Nightstops", '<button class="back-dest" data-go="home">← Alle Destinationen</button>' +
-      '<div><h1 class="page">📅 Meine Nightstops</h1><p class="lead">Trag deine nächsten Nightstops ein. Auf der Startseite zeigen wir dir unter „Für dich“ die neusten Tipps für diese Städte.</p></div>' +
+      '<div><h1 class="page">📅 Meine Nightstops</h1><p class="lead">Trag deine nächsten Nightstops ein. Neue Tipps der letzten 7 Tage siehst du hier bei jedem Nightstop und auf Wunsch einmal pro Woche per Mail.</p></div>' +
       '<section class="panel"><h2>Nightstop hinzufügen</h2><form class="mini-form" data-ns-form="1" novalidate><div class="grid2">' +
       '<label class="field"><span>Destination</span><select name="dest">' + opts + "</select></label>" +
       '<label class="field"><span>Datum</span><input type="date" name="date" min="' + today + '" value="' + addDays(today, 1) + '"></label></div>' +
       (S.nsErr ? '<span class="err">' + esc(S.nsErr) + "</span>" : "") +
       '<div class="actions"><button type="submit" class="primary">Hinzufügen</button></div></form></section>' +
-      '<section class="panel"><h2>Geplant</h2>' + rows + "</section>");
+      '<section class="panel"><h2>Geplant</h2>' + rows + "</section>" +
+      '<section class="panel"><div class="digest"><button class="switch" role="switch" aria-checked="' + (S.digest ? "true" : "false") + '" data-digest="1" aria-labelledby="dg-l"></button>' +
+      '<div><b id="dg-l">Wöchentlicher Digest per E-Mail</b><p class="note">In der App per E-Mail, sobald eure IT den Mailversand eingerichtet hat. Neue Tipps siehst du trotzdem hier bei deinen Nightstops.</p></div></div></section>');
   }
 
   // ---------- Render ----------
